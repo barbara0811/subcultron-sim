@@ -1,12 +1,16 @@
 Packages required:
 
+
 labust-ros-pkg/labust_control (for velocity_control, depth_controller2)
+
 labust-ros-pkg/labust_sim
+
 labust-common-msgs
 
 
 
-TO RUN:
+
+*TO RUN:*
 
 -navigate to amussel/launch/simulation/
 
