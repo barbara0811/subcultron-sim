@@ -10,6 +10,5 @@ TO RUN:
 
 -navigate to amussel/launch/simulation/
 
->> source ../../data/simulation/simulation_config.bash
->> roslaunch amussel_standard_simulation.launch 
-
+> source ../../data/simulation/simulation_config.bash
+> roslaunch amussel_standard_simulation.launch
