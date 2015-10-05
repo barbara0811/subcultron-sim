@@ -1,0 +1,47 @@
+<!--/*****************************************************************
+ * mission_standard.xml
+ *
+ *  Created on: Apr 15, 2014
+ *      Author: Filip Mandic
+ *
+ *****************************************************************/-->
+
+<launch>
+
+    <!-- ========================================================= -->
+    <!-- == Arguments ============================================ -->
+    <!-- ========================================================= -->
+	<arg name="xml_save_path" value="$(env XML_SAVE_PATH)" />
+	
+    <!-- ========================================================= -->
+    <!-- == Mission execution node =============================== -->
+    <!-- ========================================================= -->
+    
+    <node 
+        name="mission_parser_node" 
+        pkg="labust_mission" 
+        type="mission_parser">
+
+        <remap from="stateHat" to="position"/>
+        <param name="xml_save_path" type="string" value="$(arg xml_save_path)" />
+    </node>
+    
+    <node
+        name="data_event_node" 
+        pkg="labust_mission" 
+        type="data_event_manager">
+        
+        <remap from="stateHat" to="position"/>   
+        <remap from="stateHatAbs" to="position" />              
+    </node>
+
+    <node
+        name="mission_execution_node" 
+        pkg="labust_mission" 
+        type="mission_exec">
+        
+        <remap from="stateHat" to="position" />
+        <remap from="stateHatAbs" to="position" />   
+    </node>
+
+</launch>
