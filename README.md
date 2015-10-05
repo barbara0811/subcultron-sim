@@ -5,6 +5,8 @@ labust-ros-pkg/labust_control (for velocity_control, depth_controller2)
 
 labust-ros-pkg/labust_sim
 
+labust-ros-pkg/snippets
+
 labust-common-msgs
 
 
