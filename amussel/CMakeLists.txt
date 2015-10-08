@@ -8,8 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
     auv_msgs 
     roscpp
     sensor_msgs
-    dynamic_reconfigure 
     snippets
+    dynamic_reconfigure 
     cmake_modules)
 
 ## System dependencies are found with CMake's conventions

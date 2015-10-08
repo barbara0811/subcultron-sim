@@ -28,13 +28,13 @@
 			<param name="underactuated" value="false" />
 		</node>-->
 		
-		<node 
+		<!--node 
 			pkg="labust_primitives" 
 			type="course_keeping"
 			name="course_keeping" >
 
 			<param name="underactuated" value="false" />
-		</node>
+		</node>-->
 
 		<!-- ===================================================== -->
 		<!-- == CourseKeeping UA node ============================ -->
@@ -52,13 +52,13 @@
 		<!-- == Dynamic Positioning node ========================= -->
 		<!-- ===================================================== -->
 
-		<node 
+		<!--node 
 			pkg="labust_primitives"
 			type="dynamic_positioning"
 			name="dynamic_positioning">
 		 	
 			<param name="underactuated" value="false" />
-		 </node>
+		 </node>-->
 
 		<!-- ===================================================== -->
 		<!-- == Go2Point FA node ================================= -->
@@ -72,13 +72,13 @@
 			<param name="underactuated" value="false" />
 		</node>-->
 		
-		<node 
+		<!--node 
 			pkg="labust_primitives"
 			type="go2point"
 			name="go2point">
 
-			<!-- <param name="underactuated" value="false" />-->
-		</node>
+			<! <param name="underactuated" value="false" />
+		</node>-->
 
 		<!-- ===================================================== -->
 		<!-- == Go2Point UA node ================================= -->
