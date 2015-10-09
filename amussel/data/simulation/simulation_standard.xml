@@ -86,6 +86,19 @@
 		<remap from="fix" to="gps" />
 		<param name="gps_height" value="0.25" />
 		<param name="gps_pub" value="10" />
+    </node>
+
+    <!-- ========================================================= -->
+    <!-- == Current sensor simulation node =========================== -->
+    <!-- ========================================================= -->
+
+    <node 
+		pkg="labust_sim" 
+		type="current_sim" 
+		name="current_sim">
+
+		<param name="current_depth" value="0.5" />
+
     </node>	
 
 </launch>
