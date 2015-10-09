@@ -1,0 +1,19 @@
+# current area  specification:
+# top left (x, y)
+# bottom right (x, y)
+# current (N, E, D)
+-20 20
+0 0
+1 0.5 0
+
+0 20
+20 0
+0 0.5 0
+
+-20 0
+0 -20
+1 0 0
+
+0 0
+20 -20
+1 0.5 0
