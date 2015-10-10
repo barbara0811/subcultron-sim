@@ -1,5 +1,0 @@
-uint8 relayNum # Relay number
-bool relayState # Relay state
-uint8 timeout # Relay timeout
----
-bool result # Result of evaluation

@@ -1,3 +1,0 @@
-string expression # String to evaluate
----
-float64 result # Result of evaluation
