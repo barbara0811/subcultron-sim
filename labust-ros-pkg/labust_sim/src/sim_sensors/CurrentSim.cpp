@@ -1,3 +1,9 @@
+/*********************************************************************
+ * Current simulator. Node reads static current data from currentInfo.txt file 
+ * located in labust_sim/data/current/. Depending on agent's position, current
+ * value is being published to "current_sensor" topic (and "currents" topic if
+ * agent position's depth component is smaller than param current_depth).
+ *********************************************************************/
 
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/Point.h>
@@ -50,6 +56,8 @@ struct CurrentSim
 		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &CurrentSim::onPosition, this);
 		currentSensorPub = nh.advertise<geometry_msgs::TwistStamped>("current_sensor", 1);
 		currentPub = nh.advertise<geometry_msgs::TwistStamped>("currents", 1);
+		
+		currPubTimeout = ros::Time::now() + ros::Duration(0.2);
 	}
 
 	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
@@ -58,8 +66,8 @@ struct CurrentSim
 		{
 		    ros::Duration(0.2).sleep();
 		}
-		position.x = msg->position.north;
-		position.y = msg->position.east;
+		position.y = msg->position.north;
+		position.x = msg->position.east;
 		position.z = msg->position.depth;
 		
 		int newRegion = -1; 
@@ -100,9 +108,9 @@ struct CurrentSim
 		    newCurrent = currentRegions[myRegion].getCurrent();
 		}
 
-		// publish only when current changes
+		// publish only when current changes or current was not published in some time
 		if ((newCurrent.twist.linear.x != current.twist.linear.x) || (newCurrent.twist.linear.y != current.twist.linear.y) 
-			|| (newCurrent.twist.linear.z != current.twist.linear.z) || not currentPublished)
+			|| (newCurrent.twist.linear.z != current.twist.linear.z) || (not currentPublished) || (currPubTimeout > ros::Time::now()))
 		{
 		    ROS_INFO("CURRENT CHANGE ... %f %f %f -- %f %f", newCurrent.twist.linear.x, newCurrent.twist.linear.y, newCurrent.twist.linear.z, position.x, position.y);
 		    current = newCurrent;
@@ -113,9 +121,9 @@ struct CurrentSim
 		    if (position.z < currentDepth) 
 		    {
 		    	currentPub.publish(newCurrent);
-			ROS_ERROR("Publishing current %s -- %f %f", ros::this_node::getNamespace().c_str(), newCurrent.twist.linear.x, newCurrent.twist.linear.y);
 		    }
 
+		    currPubTimeout = ros::Time::now() + ros::Duration(0.2);
 		    currentPublished = true;
 		}
 	}
@@ -206,6 +214,7 @@ private:
 	bool currentPublished = false;
 
 	double currentDepth;
+	ros::Time currPubTimeout;
 
 	geometry_msgs::Point position;
 	geometry_msgs::TwistStamped current;
