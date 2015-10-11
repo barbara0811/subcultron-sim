@@ -26,8 +26,8 @@ class CurrentRegion {
 
     bool pointInRegion (geometry_msgs::Point point)
     {
-
-	if ((point.x > topLeft.x) && (point.x <= bottomRight.x) && (point.y <= topLeft.y) && (point.y > bottomRight.y))
+	// x --> north, y --> east
+	if ((point.y > topLeft.y) && (point.y <= bottomRight.y) && (point.x <= topLeft.x) && (point.x > bottomRight.x))
 		return true;
 	else
 		return false;
@@ -66,8 +66,8 @@ struct CurrentSim
 		{
 		    ros::Duration(0.2).sleep();
 		}
-		position.y = msg->position.north;
-		position.x = msg->position.east;
+		position.x = msg->position.north;
+		position.y = msg->position.east;
 		position.z = msg->position.depth;
 		
 		int newRegion = -1; 
@@ -118,9 +118,16 @@ struct CurrentSim
     		    currentSensorPub.publish(newCurrent);
 
   		    // check depth and set current accordingly
-		    if (position.z < currentDepth) 
+		    if (position.z <= currentDepth) 
 		    {
 		    	currentPub.publish(newCurrent);
+		    }
+		    else
+		    {
+			newCurrent.twist.linear.x = 0;
+		    	newCurrent.twist.linear.y = 0;
+		    	newCurrent.twist.linear.z = 0;
+			currentPub.publish(newCurrent);
 		    }
 
 		    currPubTimeout = ros::Time::now() + ros::Duration(0.2);
@@ -144,21 +151,21 @@ struct CurrentSim
 			// upper left point
 			if ((err = readLine(&file, &line)) != 0) {break;}
     			if (sscanf(line.c_str(), "%f %f\n", &a, &b) != 2) {err = -2; break;}
-			p1.x = a;
-			p1.y = b;
+			p1.x = a;  // north
+			p1.y = b;  // east
 
 			// lower right point
 			if ((err = readLine(&file, &line)) != 0) {err = -2; break;}
     			if (sscanf(line.c_str(), "%f %f\n", &a, &b) != 2) {err = -2; break;}
-			p2.x = a;
-			p2.y = b;
+			p2.x = a;  // north
+			p2.y = b;  // east
 
 			// current value
 			if ((err = readLine(&file, &line)) != 0) {err = -2; break;}
     			if (sscanf(line.c_str(), "%f %f %f\n", &a, &b, &c) != 3) {err = -2; break;}
-			curr.twist.linear.x = a;
-			curr.twist.linear.y = b;
-			curr.twist.linear.z = c;
+			curr.twist.linear.x = a;  // north
+			curr.twist.linear.y = b;  // east
+			curr.twist.linear.z = c;  // depth
 
 			currentRegions.push_back(CurrentRegion(p1, p2, curr));
 		    }

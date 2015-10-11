@@ -107,7 +107,7 @@ namespace labust
 				{
 					if (state.position.depth > depth_threshold) 
 					{
-						ROS_ERROR("Underwater");					
+						//ROS_ERROR("Underwater");					
 						underwater_time = ros::Time::now();
 					}
 					//If more than depth_timeout on surface stop the controller
@@ -121,7 +121,7 @@ namespace labust
 					else
 					{
 						//PIFF_wffStep(&con,Ts, werror, wperror, 0*ref.orientation_rate.yaw);
-						ROS_ERROR("working");
+						//ROS_ERROR("working");
 						PIFF_ffStep(&con, Ts, 0*ref.body_velocity.z);
 						tmp_output = con.output;
 					}

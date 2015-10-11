@@ -1,0 +1,13 @@
+#goal definition
+int16 id        # 0 - change_depth
+auv_msgs/NED position
+---
+#result definition
+int16 id
+int16 status
+auv_msgs/NED position
+---
+#feedback
+int16 id
+float32 status
+auv_msgs/NED position

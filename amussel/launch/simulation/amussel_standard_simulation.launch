@@ -47,7 +47,10 @@
   <include file="$(find amussel)/data/simulation/visualization_standard.xml">
   <arg name="hook_sel" value="amussel1/uwsim_hook" />
   </include>
-  
+
+  <node pkg="amussel" type="scenario_controller.py" name="scenario_controller"> </node>
+  <node pkg="amussel" type="action_server.py" name="action_server"> </node>
+
   </group>	
 
 
@@ -82,6 +85,9 @@
   <include file="$(find amussel)/data/simulation/visualization_standard.xml">
   <arg name="hook_sel" value="amussel2/uwsim_hook" />
   </include>
+
+  <node pkg="amussel" type="scenario_controller.py" name="scenario_controller"> </node>
+  <node pkg="amussel" type="action_server.py" name="action_server"> </node>
   
   </group>	
 
@@ -118,6 +124,9 @@
   <include file="$(find amussel)/data/simulation/visualization_standard.xml">
   <arg name="hook_sel" value="amussel3/uwsim_hook" />
   </include>
+
+  <node pkg="amussel" type="scenario_controller.py" name="scenario_controller"> </node>
+  <node pkg="amussel" type="action_server.py" name="action_server"> </node>
   
   </group>	
 
@@ -153,6 +162,9 @@
   <include file="$(find amussel)/data/simulation/visualization_standard.xml">
   <arg name="hook_sel" value="amussel4/uwsim_hook" />
   </include>
+
+  <node pkg="amussel" type="scenario_controller.py" name="scenario_controller"> </node>
+  <node pkg="amussel" type="action_server.py" name="action_server"> </node>
   
   </group>	
 
@@ -188,6 +200,9 @@
   <include file="$(find amussel)/data/simulation/visualization_standard.xml">
   <arg name="hook_sel" value="amussel5/uwsim_hook" />
   </include>
+
+  <node pkg="amussel" type="scenario_controller.py" name="scenario_controller"> </node>
+  <node pkg="amussel" type="action_server.py" name="action_server"> </node>
   
   </group>	
 
