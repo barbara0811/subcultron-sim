@@ -1,31 +1,7 @@
 #!/usr/bin/env python
 
 """
-Initializes ROS node for handling UAV mission schedule and task execution.
-
-Summary:
-
-    Publications: 
-         * /namespace/execution_control [std_msgs/String]
-         * /mission_control [gpgp_agent/MissionCtrlMsg]
-        
-    Subscriptions: 
-         * /namespace/execution_control [std_msgs/String]
-         * /namespace/mission_enabled_tasks [gpgp_agent/MissionEnabledTasks]
-         * /namespace/mission_control [gpgp_agent/MissionCtrlMsg]
-         * /namespace/task_structure_update [gpgp_agent/TaskStructureUpdate]
-    
-    Services: 
-         * /namespace/schedule_ok_execute
-         * /namespace/adjust_schedule_times
-         * /namespace/delay_schedule
-         * /namespace/mission_earliest_start
-
-    Parameters:
-         param name="label" -- list of agent labels in taems structure
-    
-    Arguments:
-         arg name="name" default="firefly"
+Initializes ROS node for high level mission control.
 """
 
 __author__ = "barbanas"
