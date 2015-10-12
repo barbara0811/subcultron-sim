@@ -44,6 +44,8 @@ struct CurrentSim
 	CurrentSim():
 		currentDepth(0.5)
 	{
+		currentInfoLoaded = false;
+		currentPublished = false;
 		ros::NodeHandle nh; 
 		nh.getParam("current_depth", currentDepth);
 
@@ -217,8 +219,8 @@ private:
 	ros::Publisher currentSensorPub;
 	// current value affecting agent
 	ros::Publisher currentPub;
-	bool currentInfoLoaded = false;
-	bool currentPublished = false;
+	bool currentInfoLoaded;
+	bool currentPublished;
 
 	double currentDepth;
 	ros::Time currPubTimeout;
