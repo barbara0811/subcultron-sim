@@ -110,7 +110,7 @@
 		type="ping_sim" 
 		name="ping_sim">
 
-		<param name="ping_range" value="3" />
+		<param name="ping_range" value="30" />
 
     </node>
 

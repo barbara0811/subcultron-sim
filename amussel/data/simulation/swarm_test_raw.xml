@@ -72,9 +72,9 @@
 <near> 1 </near>
 <far> 10000 </far>
 <position>
-<x>-5</x>
-<y>-5</y>
-<z>8 </z>
+<x>0</x>
+<y>30</y>
+<z>20 </z>
 </position>
 <lookAt>
 <x>0</x>
