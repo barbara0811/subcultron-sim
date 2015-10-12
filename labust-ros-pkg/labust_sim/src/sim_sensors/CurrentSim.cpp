@@ -69,7 +69,7 @@ struct CurrentSim
 		position.x = msg->position.north;
 		position.y = msg->position.east;
 		position.z = msg->position.depth;
-		
+
 		int newRegion = -1; 
 		// get current info for new position
 		// check if region remains the same
