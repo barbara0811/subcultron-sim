@@ -81,8 +81,7 @@ def fill_up_launch_file(root, n, positions):
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
         # Load the simulation
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/simulation_standard.xml"}))
-        # Load the navigation
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/navigation/navigation_standard.xml"}))
+        
         # Load the controllers
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/control/control_standard.xml"}))
         # Load the primitives
