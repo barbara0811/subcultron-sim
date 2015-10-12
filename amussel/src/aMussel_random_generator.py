@@ -62,7 +62,7 @@ def fill_up_simulation_spec_file(root, n):
         
         root.find("rosInterfaces").append(tmp)
         
-def fill_up_launch_file(root, n):
+def fill_up_launch_file(root, n, positions):
     
     for i in range(n):
         name = 'amussel' + str(i + 1)
@@ -71,8 +71,9 @@ def fill_up_launch_file(root, n):
         # Load parameters
         group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/navigation/params/nav_standard.yaml"}))
         group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/control/params/controllers_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/dynamics/amussel" + str(i+1) + ".yaml"}))
-        
+        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/dynamics/amussel.yaml"}))
+        group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
+        group[-1].text = "[" + str(positions[i].north) + "," + str(positions[i].east) + "," + str(positions[i].depth) + ",0,0,0]"
         # Location parameters
         group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find amussel)/data/locations/swarm_loc.yaml"}))
         
@@ -191,7 +192,7 @@ if __name__ == "__main__":
     tree = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/launch/simulation/' + launchFileTemplate)
     root = tree.getroot()
     
-    fill_up_launch_file(root, n)
+    fill_up_launch_file(root, n, positions)
     
     indent(root)
     tree.write(fileOut)
@@ -199,6 +200,6 @@ if __name__ == "__main__":
     fileOut.close()
     
     # generate yaml files
-    generate_yaml_files(n, positions)
+    #generate_yaml_files(n, positions)
     
         
