@@ -14,6 +14,10 @@ labust-common-msgs
 
 *TO RUN:*
 
+-navigate to amussel/src/
+
+> python aMussel_random_generator.py aMussel_number [north_min] [north_max] [east_min] [east_max]
+
 -navigate to amussel/launch/simulation/
 
 > source ../../data/simulation/simulation_config.bash
@@ -47,4 +51,4 @@ orientation: {roll: 0.0, pitch: 0.0, yaw: 0.0}
 orientation_rate: {roll: 0.0, pitch: 0.0, yaw: 0.0}
 position_variance: {north: 0.0, east: 0.0, depth: 0.0}
 orientation_variance: {roll: 0.0, pitch: 0.0, yaw: 0.0}
-status: 0" 
+status: 0"
