@@ -12,16 +12,26 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <fstream>
+#include <math.h>
+
+#define PI 3.14159265
 
 class CurrentRegion {
     geometry_msgs::Point topLeft, bottomRight;
     geometry_msgs::TwistStamped current; 
+    std::string mode;
+    int time_sec;
+    int curr_change;
   public:
-    CurrentRegion (geometry_msgs::Point p1, geometry_msgs::Point p2, geometry_msgs::TwistStamped c)
+    CurrentRegion (geometry_msgs::Point p1, geometry_msgs::Point p2, geometry_msgs::TwistStamped c, std::string m)
     {
+	mode = m;
+	ROS_ERROR("%s", mode.c_str());
 	topLeft = p1;
 	bottomRight = p2;
 	current = c;
+	time_sec = 0;
+        curr_change = ros::Time::now().sec + 5;
     }
 
     bool pointInRegion (geometry_msgs::Point point)
@@ -35,19 +45,36 @@ class CurrentRegion {
 
     geometry_msgs::TwistStamped getCurrent()
     {
-	return current;
+	geometry_msgs::TwistStamped curr;
+	if (mode == "const")
+		return current;	
+	else if (mode == "periodic")
+	{
+		int t = ros::Time::now().sec;
+		if (ros::Time::now().sec >= curr_change)
+		{
+		    time_sec += 10;
+		    curr_change += 5;
+		}
+		double angle = (double)(time_sec % 360) * PI / 180;
+		curr.twist.linear.x = cos(angle);
+		curr.twist.linear.y = sin(angle);
+	        return curr;
+	}
     }
 };
 
 struct CurrentSim
 {
 	CurrentSim():
-		currentDepth(0.5)
+		currentDepth(0.5),
+		currentMode("const")
 	{
 		currentInfoLoaded = false;
 		currentPublished = false;
-		ros::NodeHandle nh; 
-		nh.getParam("current_depth", currentDepth);
+		ros::NodeHandle nh, ph("~");
+		ph.getParam("current_depth", currentDepth);
+		ph.getParam("current_mode", currentMode);
 
 		position = geometry_msgs::Point();
 		current = geometry_msgs::TwistStamped();
@@ -169,7 +196,7 @@ struct CurrentSim
 			curr.twist.linear.y = b;  // east
 			curr.twist.linear.z = c;  // depth
 
-			currentRegions.push_back(CurrentRegion(p1, p2, curr));
+			currentRegions.push_back(CurrentRegion(p1, p2, curr, currentMode));
 		    }
 		    // err (-2: file format error, -1: end of file (no error))
 		    if (err == -2) 
@@ -223,6 +250,7 @@ private:
 	bool currentPublished;
 
 	double currentDepth;
+	std::string currentMode;
 	ros::Time currPubTimeout;
 
 	geometry_msgs::Point position;

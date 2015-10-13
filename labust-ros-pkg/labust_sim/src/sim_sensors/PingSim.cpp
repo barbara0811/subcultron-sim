@@ -18,8 +18,8 @@ struct PingSim
 		pingRange(20),
 		pingRate(0.2)
 	{ 
-		ros::NodeHandle nh;
-		nh.getParam("ping_range", pingRange);
+		ros::NodeHandle nh, ph("~");
+		ph.getParam("ping_range", pingRange);
 		position = auv_msgs::NED();
 
 		positionOK = false;

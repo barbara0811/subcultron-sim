@@ -9,9 +9,9 @@ __author__ = "barbanas"
 import rospy
 import actionlib
 import amussel.msg
-from auv_msgs.msg import NED
+from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped
-from math import atan2, radians
+from math import atan2, radians, degrees, sqrt, pow
 
 class ScenarioController(object):
     
@@ -23,7 +23,9 @@ class ScenarioController(object):
         self.reset_ping_structures()
         
         self.current = NED(0, 0, 0)
+        self.position = None
         
+        rospy.Subscriber('position', NavSts, self.position_cb)
         rospy.Subscriber("ping_sensor", NED, self.ping_sensor_cb)
         rospy.Subscriber("current_sensor", TwistStamped, self.current_sensor_cb)
         
@@ -38,7 +40,13 @@ class ScenarioController(object):
         currentAngle = atan2(self.current.north, self.current.east) 
         swarmCenterAngle = atan2(self.pingAvgHeading.north, self.pingAvgHeading.east)
         
-        if abs(currentAngle - swarmCenterAngle) < radians(45):
+        if sqrt(pow(self.pingAvgHeading.north, 2) + pow(self.pingAvgHeading.east, 2)) < 3:
+            return
+        
+        if abs(currentAngle - swarmCenterAngle) < radians(30):
+            #rospy.logerr([currentAngle, swarmCenterAngle])
+            #rospy.logerr([self.pingAvgHeading.north, self.pingAvgHeading.east])
+            #rospy.logerr([self.current.north, self.current.east])
             self.reset_ping_structures()
             self.start_drifting(1)
             
@@ -54,11 +62,21 @@ class ScenarioController(object):
         self.pingAvgHeading = NED(0, 0, 0) 
         self.pingSum = NED(0, 0, 0)
          
+    def position_cb(self, msg):
+        
+        self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
+        
     def ping_sensor_cb(self, msg):
         
+        if self.position is None:
+            return
+        
+        if self.pingCount == 300:
+            self.reset_ping_structures()
+            
         self.pingCount += 1
-        self.pingSum.north += msg.north
-        self.pingSum.east += msg.east
+        self.pingSum.north += (msg.north - self.position.north)
+        self.pingSum.east += (msg.east - self.position.east)
         self.pingAvgHeading.north = self.pingSum.north / self.pingCount
         self.pingAvgHeading.east = self.pingSum.east / self.pingCount
         

@@ -98,6 +98,7 @@
 		name="current_sim">
 
 		<param name="current_depth" value="0.5" />
+		<param name="current_mode" value="periodic" />
 
     </node>	
 
