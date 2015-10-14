@@ -31,7 +31,7 @@ class aMusselActionServer:
             
             if self.action_server.is_active():
                 while self.position is None:
-                    rospy.sleep(0.1)
+                    rospy.sleep(rospy.Duration(0.1))
                 
                 if self.action_rec_flag == 1:  # received action
                     

@@ -4,8 +4,15 @@
   <!-- Namespace: none -->
 
   <!-- Arguments -->
-  
+  <param name="use_sim_time" value="true"/>
+  <node 
+		pkg="snippets" 
+		type="simulation_clock2" 
+		name="simulation_clock2">
+
+    </node>
   <arg name="logging" default="$(optenv LOGGING false)" />
+  
 
 <node
         pkg="uwsim" 

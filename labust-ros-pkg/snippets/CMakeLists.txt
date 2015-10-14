@@ -67,6 +67,12 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${Eigen_INCLUDE_DIRS})
+add_executable(simulation_clock2 src/snippets/clock_server/simulation_clock2.cpp)
+target_link_libraries(simulation_clock2 ${catkin_LIBRARIES})
+
+if (DEFINED catkin_EXPORTED_TARGETS)
+ add_dependencies(simulation_clock2 ${catkin_EXPORTED_TARGETS})
+endif()
 
 ## Declare a cpp library
 # add_library(snippets

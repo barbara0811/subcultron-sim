@@ -11,11 +11,14 @@ import actionlib
 import amussel.msg
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped
+from std_msgs.msg import Bool
 from math import atan2, radians, degrees, sqrt, pow
 
 class ScenarioController(object):
     
     def __init__(self):
+        
+        self.start = False
         
         self.client = actionlib.SimpleActionClient('action_server', amussel.msg.aMusselAction)
         self.send_depth_goal(5)
@@ -24,6 +27,9 @@ class ScenarioController(object):
         
         self.current = NED(0, 0, 0)
         self.position = None
+        
+        rospy.Subscriber('/scenario_start', Bool, self.start_cb)
+        self.startPub = rospy.Publisher('start_curr_sim', Bool, queue_size=1)
         
         rospy.Subscriber('position', NavSts, self.position_cb)
         rospy.Subscriber("ping_sensor", NED, self.ping_sensor_cb)
@@ -43,17 +49,20 @@ class ScenarioController(object):
         if sqrt(pow(self.pingAvgHeading.north, 2) + pow(self.pingAvgHeading.east, 2)) < 3:
             return
         
+        if sqrt(pow(self.current.north, 2) + pow(self.current.east, 2)) < 0.5:
+            return
+        
         if abs(currentAngle - swarmCenterAngle) < radians(30):
-            #rospy.logerr([currentAngle, swarmCenterAngle])
-            #rospy.logerr([self.pingAvgHeading.north, self.pingAvgHeading.east])
-            #rospy.logerr([self.current.north, self.current.east])
+            rospy.logerr([currentAngle, swarmCenterAngle])
+            rospy.logerr([self.pingAvgHeading.north, self.pingAvgHeading.east])
+            rospy.logerr([self.current.north, self.current.east])
             self.reset_ping_structures()
-            self.start_drifting(1)
+            self.start_drifting(1.0)
             
     def start_drifting(self, duration):
         
         self.send_depth_goal(0.3)
-        rospy.sleep(duration)
+        rospy.sleep(rospy.Duration(duration, 0))
         self.send_depth_goal(5)
         
     def reset_ping_structures(self):
@@ -62,13 +71,17 @@ class ScenarioController(object):
         self.pingAvgHeading = NED(0, 0, 0) 
         self.pingSum = NED(0, 0, 0)
          
+    def start_cb(self, msg):
+        
+        self.startPub.publish(msg)
+        
     def position_cb(self, msg):
         
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
         
     def ping_sensor_cb(self, msg):
         
-        if self.position is None:
+        if self.position is None or self.start is None:
             return
         
         if self.pingCount == 300:
@@ -83,6 +96,9 @@ class ScenarioController(object):
         self.check_current_suitability()
     
     def current_sensor_cb(self, msg):
+        
+        if self.start is None:
+            return
         
         self.current.north = msg.twist.linear.x
         self.current.east = msg.twist.linear.y

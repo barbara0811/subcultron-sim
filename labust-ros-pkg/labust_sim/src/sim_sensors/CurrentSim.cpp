@@ -9,6 +9,7 @@
 #include <geometry_msgs/Point.h>
 #include <auv_msgs/NavSts.h>
 #include <auv_msgs/NED.h>
+#include <std_msgs/Bool.h>
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <fstream>
@@ -31,7 +32,7 @@ class CurrentRegion {
 	bottomRight = p2;
 	current = c;
 	time_sec = 0;
-        curr_change = ros::Time::now().sec + 5;
+        curr_change = ros::Time::now().sec + ros::Duration(10).sec;
     }
 
     bool pointInRegion (geometry_msgs::Point point)
@@ -54,7 +55,7 @@ class CurrentRegion {
 		if (ros::Time::now().sec >= curr_change)
 		{
 		    time_sec += 10;
-		    curr_change += 5;
+		    curr_change += ros::Duration(5, 0).sec;
 		}
 		double angle = (double)(time_sec % 360) * PI / 180;
 		curr.twist.linear.x = cos(angle);
@@ -70,6 +71,7 @@ struct CurrentSim
 		currentDepth(0.5),
 		currentMode("const")
 	{
+		start = false;
 		currentInfoLoaded = false;
 		currentPublished = false;
 		ros::NodeHandle nh, ph("~");
@@ -79,7 +81,6 @@ struct CurrentSim
 		position = geometry_msgs::Point();
 		current = geometry_msgs::TwistStamped();
 	
-		loadCurrentInfo(ros::package::getPath("labust_sim") + "/data/current/currentInfo.txt");
 		myRegion = -1;
 
 		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &CurrentSim::onPosition, this);
@@ -87,13 +88,20 @@ struct CurrentSim
 		currentPub = nh.advertise<geometry_msgs::TwistStamped>("currents", 1);
 		
 		currPubTimeout = ros::Time::now() + ros::Duration(0.2);
+		startSub = nh.subscribe<std_msgs::Bool>("start_curr_sim", 1, &CurrentSim::onStart, this);
+	}
+
+	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
+	{
+		loadCurrentInfo(ros::package::getPath("labust_sim") + "/data/current/currentInfo.txt");
+		start = true;
 	}
 
 	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
 	{
-		while (not currentInfoLoaded)
+		if ((not currentInfoLoaded) or (not start))
 		{
-		    ros::Duration(0.2).sleep();
+		    return;
 		}
 		position.x = msg->position.north;
 		position.y = msg->position.east;
@@ -241,6 +249,8 @@ struct CurrentSim
 	}
 
 private:
+	bool start;
+	ros::Subscriber startSub;
 	ros::Subscriber positionSub;
 	// current sensor info
 	ros::Publisher currentSensorPub;

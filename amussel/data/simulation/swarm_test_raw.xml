@@ -61,7 +61,7 @@
 <enablePhysics> 1 </enablePhysics>
 <showTrajectory>
 	<target>amussel/base_link</target>
-	<!--<color>white</color>-->
+	<!-- <color>white</color> -->
 </showTrajectory>
 </simParams>
 <camera>
@@ -101,5 +101,4 @@
 	<collisionShapeType> trimesh </collisionShapeType>
 </physics>
 </object>
-
 </UWSimScene>

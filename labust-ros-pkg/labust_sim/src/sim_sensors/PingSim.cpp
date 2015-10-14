@@ -28,7 +28,7 @@ struct PingSim
 		pingPub = nh.advertise<auv_msgs::NED>("/ping", 1000);
 		pingSensorPub = nh.advertise<auv_msgs::NED>("ping_sensor", 100);
 
-		timer = nh.createTimer(ros::Duration(0.2), &PingSim::onTimer, this);
+		timer = nh.createTimer(ros::Duration(0.5), &PingSim::onTimer, this);
 	}
 
 	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
