@@ -24,6 +24,9 @@ labust-common-msgs
 
 > roslaunch amussel_standard_simulation.launch
 
+-start scenario simulation:
+
+> rostopic pub /scenario_start std_msgs/Bool "data: true"
 
 *SAMPLE DEPTH CONTROLLER ACTIVATION*
 
