@@ -27,7 +27,6 @@ class CurrentRegion {
     CurrentRegion (geometry_msgs::Point p1, geometry_msgs::Point p2, geometry_msgs::TwistStamped c, std::string m)
     {
 	mode = m;
-	ROS_ERROR("%s", mode.c_str());
 	topLeft = p1;
 	bottomRight = p2;
 	current = c;

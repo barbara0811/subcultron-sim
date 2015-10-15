@@ -36,7 +36,7 @@ class aMusselActionServer:
                 if self.action_rec_flag == 1:  # received action
                     
                     if self.as_goal.id == 0:
-                        rospy.logerr('change depth action %f %f', self.position.depth, self.as_goal.position.depth)
+                        #rospy.logerr('change depth action %f %f', self.position.depth, self.as_goal.position.depth)
                         self.pos_old = NED(self.position.north, self.position.east, self.position.depth)
                         dl = abs(self.as_goal.position.depth - self.position.depth)
             
@@ -44,7 +44,7 @@ class aMusselActionServer:
                             self.action_rec_flag = 0  # waiting for new action
                             self.as_res.status = 0
                             self.pos_err = []
-                            rospy.logerr('finished executing change_depth action')
+                            #rospy.logerr('finished executing change_depth action')
                             self.action_server.set_succeeded(self.as_res)
                         else:
                             try:
@@ -116,7 +116,7 @@ class aMusselActionServer:
                             self.action_rec_flag = 0  # waiting for new action
                             self.as_res.status = 0
                             self.pos_err = []
-                            rospy.logerr('finished executing change depth action')
+                            #rospy.logerr('finished executing change depth action')
                             self.action_server.set_succeeded(self.as_res)
                         else:  #mission is still ongoing
                             self.as_feed.status = (1 - dl / dL) * 100  # mission completeness
@@ -131,7 +131,7 @@ class aMusselActionServer:
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth) 
 
     def action_execute_cb(self):
-        rospy.logerr('Received action = ')
+        #rospy.logerr('Received action = ')
         self.action_rec_flag = 1
         self.as_goal = self.action_server.accept_new_goal()
 
