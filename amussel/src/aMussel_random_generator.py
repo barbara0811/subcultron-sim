@@ -36,7 +36,7 @@ def indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
             
-def fill_up_simulation_spec_file(root, n):
+def fill_up_simulation_spec_file(root, n, first_index):
     
     vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/data/simulation/' + 'vehicle.xml').getroot()
     
@@ -44,15 +44,19 @@ def fill_up_simulation_spec_file(root, n):
     
     for i in range(n):
         tmp = deepcopy(vehicleRoot)
-        name = "amussel" + str(i + 1)
+        name = "amussel" + str(first_index + i + 1)
         tmp.find("name").text = name
-        tmp.find("imu").find("name").text = "imu" + str(i + 1)
-        tmp.find("gpsSensor").find("name").text = "GPSSensor" + str(i + 1)
+        #pos = tmp.find("position")
+        #pos.find("x").text = str(positions[i].north)
+        #pos.find("y").text = str(positions[i].east)
+        #pos.find("z").text = "0"
+        tmp.find("imu").find("name").text = "imu" + str(first_index + i + 1)
+        tmp.find("gpsSensor").find("name").text = "GPSSensor" + str(first_index + i + 1)
         root.insert(size - 1, tmp)    
         
     root.append(xml.etree.ElementTree.Element("rosInterfaces"))    
     for i in range(n):
-        name = "amussel" + str(i + 1)
+        name = "amussel" + str(first_index + i + 1)
         tmp = xml.etree.ElementTree.Element("ROSOdomToPAT")
         tmp.append(xml.etree.ElementTree.Element("topic"))
         tmp[-1].text = name + "/uwsim_hook"
@@ -62,10 +66,10 @@ def fill_up_simulation_spec_file(root, n):
         
         root.find("rosInterfaces").append(tmp)
         
-def fill_up_launch_file(root, n, positions):
+def fill_up_launch_file(root, n, positions, first_index):
     
     for i in range(n):
-        name = 'amussel' + str(i + 1)
+        name = 'amussel' + str(first_index + i + 1)
         group = xml.etree.ElementTree.Element("group", {"ns":name})
         
         # Load parameters
@@ -78,7 +82,7 @@ def fill_up_launch_file(root, n, positions):
         group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find amussel)/data/locations/swarm_loc.yaml"}))
         
         # Static TF
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
+        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
         # Load the simulation
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/simulation_standard.xml"}))
         
@@ -88,16 +92,16 @@ def fill_up_launch_file(root, n, positions):
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/primitives/primitives_standard.xml"}))
         # Load visualization
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/visualization_standard.xml"}))
-        group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(i + 1) + "/uwsim_hook"}))
+        group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index + i + 1) + "/uwsim_hook"}))
         
         group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"scenario_controller.py", "name":"scenario_controller"}))
         group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"action_server.py", "name":"action_server"}))
         root.append(group)
     
-def generate_yaml_files(n, positions):
+def generate_yaml_files(n, positions, first_index):
     
     for i in range(n):
-        name = 'amussel' + str(i + 1)
+        name = 'amussel' + str(first_index + i + 1)
         fileOut = open(rospack.get_path('amussel') + '/data/dynamics/' + name + ".yaml", 'w')
    
         # remove file content
@@ -124,13 +128,17 @@ def generate_yaml_files(n, positions):
 if __name__ == "__main__":
     
     if len(sys.argv) < 2:
-        print "USAGE: python aMussel_random_generator.py aMussel_number [north_min] [north_max] [east_min] [east_max]"
+        print "USAGE: python aMussel_random_generator.py aMussel_number [first_index] [north_min] [north_max] [east_min] [east_max]"
         sys.exit(0)
         
     n = int(sys.argv[1])
     north_range = [-100, 100]
     east_range = [-100, 100]
-    if len(sys.argv) == 6:
+    first_index = 0
+    
+    if len(sys.argv) == 7:
+        first_index = int(sys.argv[6])
+    if len(sys.argv) >= 6:
         east_range[1] = float(sys.argv[5])
     if len(sys.argv) >= 5:
         east_range[0] = float(sys.argv[4])
@@ -138,16 +146,17 @@ if __name__ == "__main__":
         north_range[1] = float(sys.argv[3])
     if len(sys.argv) >= 3:
         north_range[0] = float(sys.argv[2])
-    
+        
     print ""    
     print "aMussel number"
     print n 
     print "north range"
     print north_range
     print "east range"
-    print east_range 
+    print east_range
+    print "first index"
+    print first_index 
     print "" 
-           
     # generate random positions     
     positions = []
     posID = []
@@ -174,7 +183,7 @@ if __name__ == "__main__":
     tree = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/data/simulation/' + sceneSpecTemplate)
     root = tree.getroot()
     
-    fill_up_simulation_spec_file(root, n)
+    fill_up_simulation_spec_file(root, n, first_index)
     
     indent(root)
     tree.write(fileOut)
@@ -191,7 +200,7 @@ if __name__ == "__main__":
     tree = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/launch/simulation/' + launchFileTemplate)
     root = tree.getroot()
     
-    fill_up_launch_file(root, n, positions)
+    fill_up_launch_file(root, n, positions, first_index)
     
     indent(root)
     tree.write(fileOut)

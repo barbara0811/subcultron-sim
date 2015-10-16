@@ -21,7 +21,6 @@ class ScenarioController(object):
         self.start = False
         
         self.client = actionlib.SimpleActionClient('action_server', amussel.msg.aMusselAction)
-        self.send_depth_goal(5)
         
         self.reset_ping_structures()
         
@@ -73,6 +72,7 @@ class ScenarioController(object):
          
     def start_cb(self, msg):
         
+        self.send_depth_goal(5)
         self.startPub.publish(msg)
         
     def position_cb(self, msg):

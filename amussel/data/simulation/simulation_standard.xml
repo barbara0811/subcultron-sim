@@ -77,7 +77,7 @@
     <!-- == GPS sensor simulation node =========================== -->
     <!-- ========================================================= -->
 
-    <node 
+    <!-- node 
 		pkg="labust_sim" 
 		type="gps_sim" 
 		name="gps_sim">
@@ -86,7 +86,7 @@
 		<remap from="fix" to="gps" />
 		<param name="gps_height" value="0.25" />
 		<param name="gps_pub" value="10" />
-    </node>
+    </node -->
 
     <!-- ========================================================= -->
     <!-- == Current sensor simulation node =========================== -->
@@ -111,7 +111,7 @@
 		type="ping_sim" 
 		name="ping_sim">
 
-		<param name="ping_range" value="30" />
+		<param name="ping_range" value="20" />
 
     </node>
 

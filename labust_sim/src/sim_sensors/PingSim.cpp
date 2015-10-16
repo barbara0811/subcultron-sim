@@ -24,8 +24,8 @@ struct PingSim
 
 		positionOK = false;
 		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &PingSim::onPosition, this);
-		pingSub = nh.subscribe<auv_msgs::NED>("/ping", 50, &PingSim::onPing, this);
-		pingPub = nh.advertise<auv_msgs::NED>("/ping", 50);
+		pingSub = nh.subscribe<auv_msgs::NED>("/ping", 1, &PingSim::onPing, this);
+		pingPub = nh.advertise<auv_msgs::NED>("/ping", 1);
 		pingSensorPub = nh.advertise<auv_msgs::NED>("ping_sensor", 100);
 
 		timer = nh.createTimer(ros::Duration(5), &PingSim::onTimer, this);
@@ -44,7 +44,7 @@ struct PingSim
 	void onPing(const typename auv_msgs::NED::ConstPtr& msg)
 	{
 		double d = sqrt(pow(msg->north - position.north, 2) + pow(msg->east - position.east, 2));
-		if ((d <= pingRange) && (d != 0))
+		if ((d <= pingRange) && (d >= 0.15))
 		{
 		    auv_msgs::NED heading;
 		    heading.north = (msg->north - position.north) / d;
