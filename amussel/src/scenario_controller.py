@@ -12,7 +12,8 @@ import amussel.msg
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped
 from std_msgs.msg import Bool
-from math import atan2, radians, degrees, sqrt, pow
+from math import atan2, radians, degrees, sqrt, pow, fabs
+import action_library
 
 class ScenarioController(object):
     
@@ -29,6 +30,8 @@ class ScenarioController(object):
         
         rospy.Subscriber('/scenario_start', Bool, self.start_cb)
         self.startPub = rospy.Publisher('start_curr_sim', Bool, queue_size=1)
+
+        self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
         
         rospy.Subscriber('position', NavSts, self.position_cb)
         rospy.Subscriber("ping_sensor", NED, self.ping_sensor_cb)
@@ -60,9 +63,9 @@ class ScenarioController(object):
             
     def start_drifting(self, duration):
         
-        self.send_depth_goal(0.3)
+        self.send_depth_goal(0.5)
         rospy.sleep(rospy.Duration(duration, 0))
-        self.send_depth_goal(5)
+        self.send_depth_goal(10)
         
     def reset_ping_structures(self):
         
@@ -72,7 +75,7 @@ class ScenarioController(object):
          
     def start_cb(self, msg):
         
-        self.send_depth_goal(5)
+        self.send_depth_goal(10)
         self.startPub.publish(msg)
         
     def position_cb(self, msg):
@@ -104,7 +107,33 @@ class ScenarioController(object):
         self.current.east = msg.twist.linear.y
         
         self.check_current_suitability()
-        
+    
+    def send_depth_goal(self, depth):
+
+        pos_old = NED(self.position.north, self.position.east, self.position.depth)
+        goal = NED(pos_old.north, pos_old.east, depth)
+        if action_library.send_depth_goal(self.stateRefPub, goal) == -1:
+            return
+
+        pos_err = []
+        while not rospy.is_shutdown():
+            dL = abs(goal.depth - pos_old.depth)
+            dl = abs(goal.depth - self.position.depth)
+            if len(pos_err) < 10:
+                pos_err.append(dl)
+            else:
+                pos_err.pop(0)
+                pos_err.append(dl)
+
+            if (len(pos_err) == 10) and (fabs(sum(pos_err) / len(pos_err)) < 0.05):  # mission is successfully finished
+                return
+            else:  #mission is still ongoing
+                rospy.sleep(0.1)
+
+
+
+
+    '''    
     def send_depth_goal(self, depth):
         # Waits until the action server has started up and started
         # listening for goals.
@@ -122,7 +151,7 @@ class ScenarioController(object):
     
         # Prints out the result of executing the action
         self.client.get_result()
-
+    '''
         
 if __name__ == "__main__":
     

@@ -24,7 +24,7 @@
 		name="uvsim">    	    
 	
 		<param name="Rate" value="10" />
-		<param name="ModelWrap" value="10" />
+		<param name="ModelWrap" value="1" />
 		<param name="publish_world" value="false" />
 		<param name="publish_sim_base" value="true" />
 		
@@ -97,7 +97,7 @@
 		type="current_sim" 
 		name="current_sim">
 
-		<param name="current_depth" value="0.5" />
+		<param name="current_depth" value="0.8" />
 		<param name="current_mode" value="periodic" />
 
     </node>	

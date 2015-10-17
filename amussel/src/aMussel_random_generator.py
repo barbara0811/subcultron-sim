@@ -95,7 +95,7 @@ def fill_up_launch_file(root, n, positions, first_index):
         group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index + i + 1) + "/uwsim_hook"}))
         
         group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"scenario_controller.py", "name":"scenario_controller"}))
-        group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"action_server.py", "name":"action_server"}))
+        #group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"action_server.py", "name":"action_server"}))
         root.append(group)
     
 def generate_yaml_files(n, positions, first_index):
