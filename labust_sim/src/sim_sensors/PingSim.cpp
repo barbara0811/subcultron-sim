@@ -24,14 +24,15 @@ struct PingSim
 		position = auv_msgs::NED();
 
 		start = false;
-		startSub = nh.subscribe<std_msgs::Bool>("start_curr_sim", 1, &PingSim::onStart, this);
-
+		
 		positionOK = false;
 		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &PingSim::onPosition, this);
 		pingSub = nh.subscribe<auv_msgs::NED>("/ping", 1, &PingSim::onPing, this);
 		pingPub = nh.advertise<auv_msgs::NED>("/ping", 1);
 		pingSensorPub = nh.advertise<auv_msgs::NED>("ping_sensor", 100);
 
+		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &PingSim::onStart, this);
+		
 		timer = nh.createTimer(ros::Duration(250), &PingSim::onTimer, this);
 	}
 

@@ -87,7 +87,7 @@ struct CurrentSim
 		currentPub = nh.advertise<geometry_msgs::TwistStamped>("currents", 1);
 		
 		currPubTimeout = ros::Time::now() + ros::Duration(0.2);
-		startSub = nh.subscribe<std_msgs::Bool>("start_curr_sim", 1, &CurrentSim::onStart, this);
+		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &CurrentSim::onStart, this);
 	}
 
 	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
