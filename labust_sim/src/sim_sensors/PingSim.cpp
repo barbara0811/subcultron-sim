@@ -9,6 +9,7 @@ jer je to sve dio scenarija tj. ta logika ce se cesto mijenjati.
 
 #include <auv_msgs/NavSts.h>
 #include <auv_msgs/NED.h>
+#include <std_msgs/Bool.h>
 #include <ros/ros.h>
 #include <math.h>
 
@@ -22,13 +23,22 @@ struct PingSim
 		ph.getParam("ping_range", pingRange);
 		position = auv_msgs::NED();
 
+		start = false;
+		startSub = nh.subscribe<std_msgs::Bool>("start_curr_sim", 1, &PingSim::onStart, this);
+
 		positionOK = false;
 		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &PingSim::onPosition, this);
 		pingSub = nh.subscribe<auv_msgs::NED>("/ping", 1, &PingSim::onPing, this);
 		pingPub = nh.advertise<auv_msgs::NED>("/ping", 1);
 		pingSensorPub = nh.advertise<auv_msgs::NED>("ping_sensor", 100);
 
-		timer = nh.createTimer(ros::Duration(5), &PingSim::onTimer, this);
+		timer = nh.createTimer(ros::Duration(250), &PingSim::onTimer, this);
+	}
+
+	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
+	{
+		pingPub.publish(position);
+		start = true;
 	}
 
 	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
@@ -43,6 +53,9 @@ struct PingSim
 
 	void onPing(const typename auv_msgs::NED::ConstPtr& msg)
 	{
+		if (not start)
+			return;
+
 		double d = sqrt(pow(msg->north - position.north, 2) + pow(msg->east - position.east, 2));
 		if ((d <= pingRange) && (d >= 0.15))
 		{
@@ -51,7 +64,7 @@ struct PingSim
 		    heading.east = (msg->east - position.east) / d;
   
 		    pingSensorPub.publish(heading);
-		    ros::Duration(1).sleep();
+		    ros::Duration(5).sleep();
 		    // relaying ping
 		    pingPub.publish(position);
 		}
@@ -60,14 +73,17 @@ struct PingSim
 	void onTimer(const ros::TimerEvent& event)
 	{
 		// intrinsic ping -- periodic
-		if (not positionOK)
+		if ((not positionOK) and (not start))
 		    return;
-        	pingPub.publish(position);  
+        pingPub.publish(position);  
 	}
 
 
 private:
-        ros::Subscriber positionSub;
+	ros::Subscriber startSub;
+    bool start;
+
+    ros::Subscriber positionSub;
 	// global topic ping, communication with other agents
 	ros::Subscriber pingSub;
 	ros::Publisher pingPub;
