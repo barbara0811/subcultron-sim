@@ -7,8 +7,6 @@ Initializes ROS node for high level mission control.
 __author__ = "barbanas"
 
 import rospy
-import actionlib
-import amussel.msg
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped
 from std_msgs.msg import Bool
@@ -21,15 +19,13 @@ class ScenarioController(object):
         
         self.start = False
         
-        self.client = actionlib.SimpleActionClient('action_server', amussel.msg.aMusselAction)
-        
         self.reset_ping_structures()
         
         self.current = NED(0, 0, 0)
         self.position = None
         
         rospy.Subscriber('/scenario_start', Bool, self.start_cb)
-        self.startPub = rospy.Publisher('start_curr_sim', Bool, queue_size=1)
+        self.startPub = rospy.Publisher('start_sim', Bool, queue_size=1)
 
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
         
@@ -129,29 +125,6 @@ class ScenarioController(object):
                 return
             else:  #mission is still ongoing
                 rospy.sleep(0.1)
-
-
-
-
-    '''    
-    def send_depth_goal(self, depth):
-        # Waits until the action server has started up and started
-        # listening for goals.
-        self.client.wait_for_server()
-    
-        rospy.loginfo('Connected to server')
-    
-        # Creates a goal to send to the action server.
-        goalPosition = NED(0, 0, depth)
-        goal = amussel.msg.aMusselGoal(id=0, position=goalPosition)
-        # Sends the goal to the action server.
-        self.client.send_goal(goal)
-        # Waits for the server to finish performing the action.
-        self.client.wait_for_result()
-    
-        # Prints out the result of executing the action
-        self.client.get_result()
-    '''
         
 if __name__ == "__main__":
     
