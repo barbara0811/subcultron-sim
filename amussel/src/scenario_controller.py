@@ -51,9 +51,6 @@ class ScenarioController(object):
             return
         
         if abs(currentAngle - swarmCenterAngle) < radians(30):
-            #rospy.logerr([currentAngle, swarmCenterAngle])
-            #rospy.logerr([self.pingAvgHeading.north, self.pingAvgHeading.east])
-            #rospy.logerr([self.current.north, self.current.east])
             self.reset_ping_structures()
             self.start_drifting(1.0)
             
