@@ -94,9 +94,10 @@ def fill_up_launch_file(root, n, positions, first_index):
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/visualization_standard.xml"}))
         group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index + i + 1) + "/uwsim_hook"}))
         
-        group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"scenario_controller.py", "name":"scenario_controller"}))
-        #group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"action_server.py", "name":"action_server"}))
-        root.append(group)
+	#README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
+        group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"controller_for_scenario_one.py", "name":"scenario_controller"}))
+        
+	root.append(group)
     
 def generate_yaml_files(n, positions, first_index):
     
