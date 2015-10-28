@@ -68,6 +68,9 @@ struct PingSim
 		    ros::Duration(5).sleep();
 		    // relaying ping
 		    pingPub.publish(position);
+		    
+		    timer.stop();
+		    timer.start();
 		}
 	}		
 

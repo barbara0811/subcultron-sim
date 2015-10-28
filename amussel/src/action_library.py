@@ -3,6 +3,9 @@ import rospy
 from navcon_msgs.srv import EnableControl, ConfigureVelocityController
 from auv_msgs.msg import NavSts
 
+def get_temperature(x,y):
+	return (x+10)*(x+10)+(y+10)*y
+
 def send_depth_goal(stateRefPub, position):
 
     try:
