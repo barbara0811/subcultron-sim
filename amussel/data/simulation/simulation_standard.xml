@@ -94,11 +94,10 @@
 
     <node 
 		pkg="labust_sim" 
-		type="current_sim" 
-		name="current_sim">
+		type="current_sensor_sim" 
+		name="current_sensor_sim">
 
 		<param name="current_depth" value="0.8" />
-		<param name="current_mode" value="periodic" />
 
     </node>	
 
@@ -113,6 +112,28 @@
 
 		<param name="ping_range" value="20" />
 
+    </node>
+
+    <!-- ========================================================= -->
+    <!-- == Environment simulation node ========================== -->
+    <!-- ========================================================= -->
+
+    <node 
+		pkg="labust_sim" 
+		type="environment_sim.py" 
+		name="environment_sim"
+		output="screen">
+
+		<!-- Current simulation : available modes {constant, periodic} 			      -->
+		<!--If you do not want use the current simulation, set the current_mode param to none -->
+		<param name="current_mode" value="periodic" />
+		<param name="current_publish_rate" value="0.5" />
+
+		<!-- Temperature simulation : available modes {constant} 	                       -->
+		<!--If you do not want use the temperature simulation, set the temp_mode param to none -->
+		<param name="temp_mode" value="constant" />
+		<param name="temp_publish_rate" value="0.5" />
+		
     </node>
 
 </launch>

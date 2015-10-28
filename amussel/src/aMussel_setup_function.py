@@ -20,6 +20,9 @@ sceneSpecFile = "swarm_test.xml"
 launchFileTemplate = "amussel_standard_simulation_raw.launch"
 launchFile = "amussel_standard_simulation.launch"
 
+controllerFile = "raw_controller.py"
+outputToScreen = True
+
 
 def indent(elem, level=0):
     i = "\n" + level*"  "
@@ -93,9 +96,12 @@ def fill_up_launch_file(root, n, positions, first_index):
         # Load visualization
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/visualization_standard.xml"}))
         group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index + i + 1) + "/uwsim_hook"}))
-        
-	#README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
-        group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":"controller_for_scenario_one.py", "name":"scenario_controller"}))
+
+        #README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
+        if outputToScreen:
+            group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+        else:	
+            group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller"}))
         
 	root.append(group)
     
