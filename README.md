@@ -20,7 +20,7 @@ labust-common-msgs
 
 -navigate to amussel/launch/simulation/
 
-> source ../../data/simulation/simulation_config.bash
+> source ../../amussel/data/simulation/simulation_config.bash
 
 > roslaunch amussel_standard_simulation.launch
 
