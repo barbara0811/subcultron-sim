@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot name="afish">
+ <link name="base_link"> <!-- one robot part -->
+  <visual>
+   <geometry>
+    <sphere radius="0.4"/>
+   </geometry>
+   <material>
+    <color rgba="255 0 0 1"/>
+   </material>
+  </visual>
+ </link>
+</robot>
+
+     
+				
+
