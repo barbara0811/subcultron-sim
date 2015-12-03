@@ -1,0 +1,78 @@
+<launch>
+  <param name="use_sim_time" value="true" />
+  <node name="simulation_clock2" pkg="snippets" type="simulation_clock2">
+
+    </node>
+  <arg default="$(optenv LOGGING false)" name="logging" />
+  <node args="--configfile $(find apad)/data/simulation/swarm_test.xml       --dataPath  $(find apad)/data/simulation/" name="uwsim" pkg="uwsim" type="uwsim" />
+  <group ns="apad1">
+    <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
+    <rosparam param="eta0">[13.8781458539,7.69843295741,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
+    <include file="$(find apad)/data/simulation/simulation_standard.xml" />
+    <include file="$(find apad)/data/control/control_standard.xml" />
+    <include file="$(find apad)/data/primitives/primitives_standard.xml" />
+    <include file="$(find apad)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="apad1/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="apad" type="raw_controller.py" />
+  </group>
+  <group ns="apad2">
+    <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
+    <rosparam param="eta0">[16.6840157094,-1.27815631409,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
+    <include file="$(find apad)/data/simulation/simulation_standard.xml" />
+    <include file="$(find apad)/data/control/control_standard.xml" />
+    <include file="$(find apad)/data/primitives/primitives_standard.xml" />
+    <include file="$(find apad)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="apad2/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="apad" type="raw_controller.py" />
+  </group>
+  <group ns="apad3">
+    <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
+    <rosparam param="eta0">[-8.50956926398,-13.6726849149,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
+    <include file="$(find apad)/data/simulation/simulation_standard.xml" />
+    <include file="$(find apad)/data/control/control_standard.xml" />
+    <include file="$(find apad)/data/primitives/primitives_standard.xml" />
+    <include file="$(find apad)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="apad3/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="apad" type="raw_controller.py" />
+  </group>
+  <group ns="apad4">
+    <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
+    <rosparam param="eta0">[-7.4123670784,-6.58399670405,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
+    <include file="$(find apad)/data/simulation/simulation_standard.xml" />
+    <include file="$(find apad)/data/control/control_standard.xml" />
+    <include file="$(find apad)/data/primitives/primitives_standard.xml" />
+    <include file="$(find apad)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="apad4/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="apad" type="raw_controller.py" />
+  </group>
+  <group ns="apad5">
+    <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
+    <rosparam param="eta0">[0.186795991279,-7.74443821759,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
+    <include file="$(find apad)/data/simulation/simulation_standard.xml" />
+    <include file="$(find apad)/data/control/control_standard.xml" />
+    <include file="$(find apad)/data/primitives/primitives_standard.xml" />
+    <include file="$(find apad)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="apad5/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="apad" type="raw_controller.py" />
+  </group>
+</launch>
