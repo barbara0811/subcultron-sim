@@ -21,7 +21,6 @@
 		<!-- FADP controller node ================================ -->
 		<node pkg="labust_control" type="fadp_controller2" name="station_keeping">
 			<remap from="Enable" to="FADP_enable" />
-			<remap if="$(arg use_trackpoint)" from="ref" to="TrackPoint" />
 		</node>
 
 		

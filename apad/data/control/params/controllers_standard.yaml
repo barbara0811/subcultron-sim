@@ -18,5 +18,5 @@ velocity_controller/Heave_joy_scale : 0.0
 velocity_controller/Sway_joy_scale : 2.82
 velocity_controller/Yaw_joy_scale : 4.0
 velocity_controller/external_ident: true
-velocity_controller/use_ground_vel: true
+velocity_controller/use_ground_vel: false
 

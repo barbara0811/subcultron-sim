@@ -135,18 +135,19 @@ def fill_up_launch_file(root, n, positions, first_index):
         
 	root.append(group)
     
-def generate_yaml_files(n, positions, first_index):
+def generate_yaml_files(n, positions):
     
     for i in range(n):
-        name = 'apad' + str(first_index + i + 1)
+        name = 'apad' + str(i + 1)
         fileOut = open(rospack.get_path('apad') + '/data/dynamics/' + name + ".yaml", 'w')
+        #fileOut = open("apad.yaml", 'w')
    
         # remove file content
         fileOut.seek(0)
         fileOut.truncate()
         
         fileOut.write("sampling_time: 0.1\n")
-        fileOut.write("mass: 1\n")
+        fileOut.write("mass: 3\n")
         fileOut.write("gravity: 9.81\n")
         fileOut.write("fluid_density: 1025.0\n")
         fileOut.write("\n# The bounding ellipsoid parameters (ax, ay, az) used for buoyancy calculation\n")
@@ -154,10 +155,10 @@ def generate_yaml_files(n, positions, first_index):
         fileOut.write("\n# The dynamic parameters\n")
         fileOut.write("rg: [0, 0, 0]\n")
         fileOut.write("rb: [0, 0, 0]\n")
-        fileOut.write("inertia_matrix: [5, 5, 0.45]\n")
-        #fileOut.write("added_mass: [0.74, 0.74, 0.74, 0, 0, 0]\n")
-        #fileOut.write("linear_damping: [0.0, 0.0, 20, 20, 20, 0.25]\n")
-        #fileOut.write("quadratic_damping: [5.0,5.0,0,0,0,0.0]\n")
+        fileOut.write("inertia_matrix: [5, 5, 0.44525]\n")
+        fileOut.write("added_mass: [0.7, 0.7, 0.74, 0, 0, 0]\n")
+        fileOut.write("linear_damping: [1.7, 1.7, 20, 5, 5, 0]\n")
+        fileOut.write("quadratic_damping: [0,0,0,0,0,0.22925]\n")
         fileOut.write("\n# The initial states\n")
         fileOut.write("eta0: [%f,%f,0,0,0,0.0] # Initial pose\n" % (positions[i].north, positions[i].east))
         fileOut.write("current: [0,0,0] # Initial currents (N,E,D)\n")
@@ -165,6 +166,8 @@ def generate_yaml_files(n, positions, first_index):
         #fileOut.write("process_noise: [0.05,0.05,0.05,0.02,0.02,0.02]\n")
         #fileOut.write("measurement_noise: [1,1,0.02,0.01,0.01,0.01] \n")
         fileOut.write("coupled: false # Use a coupled model\n")
+        
+       
                
         fileOut.close()
        

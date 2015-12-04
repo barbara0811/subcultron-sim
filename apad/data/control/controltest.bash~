@@ -2,7 +2,7 @@
 rosservice call /apad1/FADP_enable "enable: true" 
 
 rosservice call /apad1/ConfigureVelocityController "ControllerName: 'FADP' 
-desired_mode: [2, 2, 2, 0, 0, 0]" 
+desired_mode: [2, 2, 0, 0, 0, 0]" 
 
 rosservice call /apad1/VelCon_enable "enable: true" 
 

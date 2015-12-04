@@ -9,7 +9,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[13.8781458539,7.69843295741,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-9.74559524208,-12.3367621416,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -23,7 +23,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[16.6840157094,-1.27815631409,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[16.2020733858,11.4546530664,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -37,7 +37,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-8.50956926398,-13.6726849149,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[9.48355925104,-0.545464717426,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -51,7 +51,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-7.4123670784,-6.58399670405,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-0.835247691314,10.3650856499,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -65,7 +65,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[0.186795991279,-7.74443821759,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[19.4706118895,9.49627362875,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />

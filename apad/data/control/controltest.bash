@@ -1,10 +1,9 @@
 #!/bin/bash
 rosservice call /apad1/FADP_enable "enable: true" 
+rosservice call /apad1/VelCon_enable "enable: true" 
 
 rosservice call /apad1/ConfigureVelocityController "ControllerName: 'FADP' 
 desired_mode: [2, 2, 0, 0, 0, 0]" 
-
-rosservice call /apad1/VelCon_enable "enable: true" 
 
 rostopic pub /apad1/stateRef auv_msgs/NavSts "header:
   seq: 0

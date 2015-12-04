@@ -23,10 +23,6 @@
 			<remap from="Enable" to="FADP_enable" />
 		</node>
 
-		
-		<node pkg="labust_control" type="depth_controller2" name="depth_control">
-			<remap from="Enable" to="DEPTH_enable"/>
-		</node>
 
 		<node pkg="labust_control" type="async_merger" name="nu_merger">
 			<remap from="in" to="nuRef" />
