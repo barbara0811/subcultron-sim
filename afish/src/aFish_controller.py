@@ -2,39 +2,48 @@
 
 __author__= "Anja Zrnec"
 
+import rospy
 import random
 import action_library # depth goal & new position
-import main_controller
 from auv_msgs.msg import NED, NavSts
 
 class FishController(object):
-
+	
+	def __init__(self):
 	#topics to subscribe
-	#rospy.Subscriber('ping_sensor', NED, #koju funkciju pozvat?)
-	self.position = None
-	self.newPosition = None
-	self.depth = 5 #na randum napraviti depth isto
+		self.position = None
+		self.newPosition = None
+		self.fishPositions = None
+		self.depth = 0
 	
-	rospy.Subscriber('position', NavSts, swim)
+		rospy.Subscriber('position', NavSts, swim)
+		rospy.Subscriber('positions', Positions, self.setNewPositions)
 
-	#topics to publish (?)
-	self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
-	## closest position for the mussel !?
+		#topics to publish
+		self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
+
+		rospy.spin()
 	
-	#scenario functions
-
 	def swim(self, msg):
 		
 		self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
-		self.newPosition = main_controller.generate_available_position(self.position) #collision avoidance (?) # can be same position if depth isn't equal!
-		action_library.send_depth_goal( self.stateRefPub, self.newPosition)
-		
+		self.newPosition = NED(msg.position.north + random.uniform(-1.0, 1.0), msg.position.east + random.uniform(-1.0, 1.0), msg.position.depth + random.uniform(-1.0, 1.0))
+		safeToMove = positionAvailable(self.newPosition)
+		if saveToMove:
+			action_library.send_depth_goal( self.stateRefPub, self.newPosition)
 		
 	
+	def positionAvailable(self, positionToCheck):
 
-	rospy.spin()
+		if positionCheck in self.fishPositions:
+			return true
+		else: 
+			return false
 	
-import rospy
+	def setNewPositions(self, msg):
+		
+		self.fishPositions = msg.positions
+
 if __name__ == '__main__':
 	rospy.init_node("fish_controller")
 	try:

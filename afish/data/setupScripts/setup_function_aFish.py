@@ -10,39 +10,40 @@ functionsLine = '# robot position subscribers'
 add = '#add'
 dinamicalFunctions = '# dinamical functions'
 
-def appendFunctionsToFile(f, numberOfRobots):
+def appendFunctionsToFile(numberOfRobots):
 
-	lineCounter = 0
+	f = open(rospack.get_path('afish') + '/src/communication_raw.py', 'r')
+	fNew = open(rospack.get_path('afish') + '/src/communication.py', 'a')
+	fNew.seek(0)
+	fNew.truncate()
 	for line in f:
-		lineCounter += 1
-		line = line.rstrip()
+		fNew.write(line)
+		line = line.strip()
 		if line == functionsLine:
-			appendSubscriberText(lineCounter, numberOfRobots)
+			appendSubscriberText(fNew, numberOfRobots)
 		if line == add:
-			numberOfFish(lineCounter, numberOfRobots)
+			numberOfFish(fNew, numberOfRobots)
 		if line == dinamicalFunctions:
-			appendFunctions(lineCounter, numberOfRobots)
+			appendFunctions(fNew, numberOfRobots)
 	f.close()
 
 
-def appendSubscriberText(index, numberOfRobots):
+def appendSubscriberText(f, numberOfRobots):
 
-	f.seek(index)
-	for i in numberOfRobots:
-		f.write("rospy.Subscriber(aFish" + i + "'/position', NavSts, self.updatePosition" + i + ")\n")
+	for i in range( 0, numberOfRobots):
+		f.write("		rospy.Subscriber('aFish" + str(i+1) + "/position', NavSts, self.updatePosition" + str(i+1) + ")\n")
 
-def numberOfFish(index, numberOfRobots):
 
-	f.seek(index)
-	f.write('self.numberOfRobots = ' + numberOfRobots)
+def numberOfFish(f, numberOfRobots):
 
-def appendFunctions(index, numberOfRobots):
+	f.write('		self.numberOfRobots = ' + str(numberOfRobots))
 
-	f.seek(index)
-	for i in numberOfRobots:
-		f.write( 'def updatePosition' + i + '(self, msg):')
-		f.write ('index = ' + i)
-		f.write ('self.publishNewPosition(msg, index)')
+def appendFunctions(f, numberOfRobots):
+
+	for i in range( 0, numberOfRobots):
+		f.write( '	def updatePosition' + str(i+1) + '(self, msg):\n')
+		f.write ('		index = ' + str(i+1) + '\n')
+		f.write ('		self.publishNewPosition(msg, index)\n\n')
 
 if __name__ == '__main__':
 
@@ -53,5 +54,4 @@ if __name__ == '__main__':
 	rospack = rospkg.RosPack()
 	numberOfRobots = int(sys.argv[1])
 	print numberOfRobots
-	f = open(rospack.get_path('afish') + '/src/communication.py', 'a+r')
-	appendFunctionsToFile(f, numberOfRobots)
+	appendFunctionsToFile(numberOfRobots)
