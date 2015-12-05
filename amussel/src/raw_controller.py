@@ -36,6 +36,8 @@ class ScenarioController(object):
         # - - -
         # topic subscribers 
         rospy.Subscriber('/scenario_start', Bool, self.start_cb)
+        #rospy.Subscriber('/battery_alert', NED, self.battery_cb)
+        rospy.Subscriber('goto_surface', Bool, self.surface_cb)
         rospy.Subscriber('position', NavSts, self.position_cb)
         rospy.Subscriber('ping_sensor', NED, self.ping_sensor_cb)
         rospy.Subscriber('current_sensor', TwistStamped, self.current_sensor_cb)
@@ -99,6 +101,10 @@ class ScenarioController(object):
     def position_cb(self, msg):
         
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
+        
+    def surface_cb(self, msg):
+        
+        self.send_depth_goal(0.5)
         
     def ping_sensor_cb(self, msg):
         

@@ -9,7 +9,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-10.6085622385,-17.6369583573,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-10.1792404859,-3.74623003414,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -23,7 +23,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-9.3312703097,-13.4371751501,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-2.94015741063,16.2145133694,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -37,7 +37,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-15.5228412692,0.33949141938,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[10.8118792894,-17.6883401304,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -51,7 +51,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-4.11868595459,-16.6223860022,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-12.4863460225,-16.1032795963,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -65,7 +65,7 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-17.5260573931,19.5315009032,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-8.90320377478,-8.66210681859,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/simulation/simulation_standard.xml" />
     <include file="$(find apad)/data/control/control_standard.xml" />
@@ -79,7 +79,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[-0.709305825542,10.5910918731,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[6.98847829696,-11.8904004956,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -93,7 +93,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[3.94666601431,0.0866331752631,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-8.04427522987,15.2855375443,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -107,7 +107,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[16.0632089488,-7.57046818858,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-6.42198899581,-13.0721782578,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -121,7 +121,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[5.60912245898,8.79053035999,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[11.2464291719,-0.410772247077,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -135,7 +135,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[10.8683410769,-14.2230544841,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[17.1061929202,-5.89307344113,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -149,7 +149,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[0.871220294957,-0.135218402238,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-0.64275822611,0.0793722656225,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -163,7 +163,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[-1.25543577474,14.7081212545,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-17.4947995041,-8.49471096662,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -177,7 +177,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[18.814201869,-5.07963718709,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[14.2701063504,-19.6344146665,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -191,7 +191,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[7.53032226835,0.210282000047,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-19.013519304,-17.911550095,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
@@ -205,7 +205,7 @@
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[-17.4677787948,14.5116712097,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[-17.3959538227,3.35298749492,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
     <include file="$(find amussel)/data/control/control_standard.xml" />
