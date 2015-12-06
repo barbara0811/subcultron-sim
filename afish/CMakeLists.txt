@@ -10,7 +10,11 @@ find_package(catkin REQUIRED COMPONENTS
     sensor_msgs
     snippets
     dynamic_reconfigure 
-    cmake_modules)
+    cmake_modules
+    message_generation
+    rospy
+    std_msgs
+)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -50,11 +54,10 @@ find_package(xacro)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   positions.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -74,6 +77,7 @@ find_package(xacro)
 generate_messages(
    DEPENDENCIES
    auv_msgs
+   std_msgs
 )
 
 ################################################
@@ -108,7 +112,7 @@ generate_messages(
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES pladypos
-   CATKIN_DEPENDS auv_msgs message_runtime roscpp dynamic_reconfigure
+   CATKIN_DEPENDS auv_msgs message_runtime roscpp dynamic_reconfigure message_runtime
 #  DEPENDS system_lib
 )
 

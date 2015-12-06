@@ -69,6 +69,94 @@
     		</lookAt>
 	</camera>
 	<!-- afish configuration dinamicly made  PATH  ../robotModel/afish.urdf-->
+	<vehicle>
+    		<name>afish1</name>
+    		<file>../robotModel/afish.urdf</file>
+    		<position>
+      		<x> 0</x>
+      		<y> 0 </y>
+      		<z> 0 </z>
+    		</position>
+    		<orientation>
+      		<r>0</r>
+      		<p>0</p>
+      		<y>0</y>
+    		</orientation>
+    		<imu>
+      		<name>imu1</name>
+      		<relativeTo>base_link</relativeTo>
+      		<position>
+        			<x>0</x>
+        			<y>0</y>
+        			<z>0</z>
+      		</position>
+      		<orientation>
+        			<r>0</r>
+        			<p>0</p>
+        			<y>0</y>
+      		</orientation>
+      		<std>0.00000001</std>
+    		</imu>
+    		<gpsSensor>
+      		<name>GPSSensor1</name>
+      		<relativeTo>base_link</relativeTo>
+      		<position>
+        			<x>0</x>
+        			<y>0</y>
+        			<z>0</z>
+      		</position>
+      		<orientation>
+        			<r>0</r>
+        			<p>0</p>
+        			<y>0</y>
+      		</orientation>
+      		<std>0.00005</std>
+    		</gpsSensor>
+  	</vehicle>
+	<vehicle>
+    		<name>afish2</name>
+    		<file>../robotModel/afish.urdf</file>
+    		<position>
+      		<x> 0</x>
+      		<y> 0 </y>
+      		<z> 0 </z>
+    		</position>
+    		<orientation>
+      		<r>0</r>
+      		<p>0</p>
+      		<y>0</y>
+    		</orientation>
+    		<imu>
+      		<name>imu2</name>
+      		<relativeTo>base_link</relativeTo>
+      		<position>
+        			<x>0</x>
+        			<y>0</y>
+        			<z>0</z>
+      		</position>
+      		<orientation>
+        			<r>0</r>
+        			<p>0</p>
+        			<y>0</y>
+      		</orientation>
+      		<std>0.00000001</std>
+    		</imu>
+    		<gpsSensor>
+      		<name>GPSSensor2</name>
+      		<relativeTo>base_link</relativeTo>
+      		<position>
+        			<x>0</x>
+        			<y>0</y>
+        			<z>0</z>
+      		</position>
+      		<orientation>
+        			<r>0</r>
+        			<p>0</p>
+        			<y>0</y>
+      		</orientation>
+      		<std>0.00005</std>
+    		</gpsSensor>
+  	</vehicle>
 	<object>
     		<name>terrain</name>
     		<file>terrain/shipwreck/terrain.ive</file>
@@ -87,20 +175,16 @@
       		<collisionShapeType> trimesh </collisionShapeType>
     		</physics>
   	</object>
-  	<!--<rosInterfaces>
+  	<rosInterfaces>
     		<ROSOdomToPAT>
-      		<topic>amussel1/uwsim_hook</topic>
-      		<vehicleName>amussel1</vehicleName>
+      		<topic>afish1/uwsim_hook</topic>
+      		<vehicleName>afish1</vehicleName>
     		</ROSOdomToPAT>
     		<ROSOdomToPAT>
-      		<topic>amussel2/uwsim_hook</topic>
-      		<vehicleName>amussel2</vehicleName>
+      		<topic>afish2/uwsim_hook</topic>
+      		<vehicleName>afish2</vehicleName>
     		</ROSOdomToPAT>
-    		<ROSOdomToPAT>
-      		<topic>amussel3/uwsim_hook</topic>
-      		<vehicleName>amussel3</vehicleName>
-    		</ROSOdomToPAT>
-  </rosInterfaces> -->   <!-- DODAJEMO DINAMICKI -->
+  </rosInterfaces>   <!-- DODAJEMO DINAMICKI -->
 </UWSimScene>
 		
 

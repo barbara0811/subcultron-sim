@@ -14,6 +14,7 @@ class PositionManager(object):
 		self.positionList = [None]*numberOfRobots
 
 		# robot position subscribers
+
 		rospy.Subscriber('aFish1/position', NavSts, self.updatePosition1)
 
 		# publishes list of positions

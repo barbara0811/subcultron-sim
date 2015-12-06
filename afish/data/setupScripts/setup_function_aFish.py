@@ -31,7 +31,7 @@ def appendFunctionsToFile(numberOfRobots):
 def appendSubscriberText(f, numberOfRobots):
 
 	for i in range( 0, numberOfRobots):
-		f.write("		rospy.Subscriber('aFish" + str(i+1) + "/position', NavSts, self.updatePosition" + str(i+1) + ")\n")
+		f.write("		rospy.Subscriber('afish" + str(i+1) + "/position', NavSts, self.updatePosition" + str(i+1) + ")\n")
 
 
 def numberOfFish(f, numberOfRobots):
