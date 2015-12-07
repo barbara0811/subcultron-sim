@@ -1,3 +1,1 @@
-Header header
-
-NavSts[] positions
+auv_msgs/NED[] positions

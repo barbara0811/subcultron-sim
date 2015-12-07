@@ -4,6 +4,8 @@ __author__ = "Anja Zrnec"
 
 import rospy
 from auv_msgs.msg import NED, NavSts
+from afish.msg import positions
+import time
 
 class PositionManager(object):
 
@@ -11,16 +13,21 @@ class PositionManager(object):
 
 		#add
 		self.numberOfRobots = 2
-		self.positionList = [None]*numberOfRobots
-
+		self.positionList = [NED(0,0,0)]*self.numberOfRobots
+		print self.positionList
 		# robot position subscribers
-		rospy.Subscriber('aFish1/position', NavSts, self.updatePosition1)
-		rospy.Subscriber('aFish2/position', NavSts, self.updatePosition2)
+#		rospy.Subscriber('aFish1/position', NavSts, self.updatePosition1)
+#		rospy.Subscriber('aFish2/position', NavSts, self.updatePosition2)
 
 
 		# publishes list of positions
 		# TODO new type of msg for list of positions
-		self.list = rospy.Publish('/positions', Positions, queue_size = 1)
+		self.list = rospy.Publisher('positions', positions, queue_size = 1)
+		
+		#test
+		while True:
+			self.publishNewPositions(NED( 1.0, 2.0, 3.0) , 0)
+			time.sleep(5)
 
 	# dinamical functions
 	def updatePosition1(self, msg):
@@ -37,9 +44,12 @@ class PositionManager(object):
 
 	def publishNewPositions(self, msg, index):
 
-		position = NED(msg.postion.north, msg.position.east, msg.position.depth)
-		self.positionList.insert(index, position)
-		self.list.publish(positionList)
+#		position = NED(msg.position.north, msg.position.east, msg.position.depth)
+		position = NED(msg.north, msg.east, msg.depth)
+		print position
+		self.positionList[index] = position
+		print self.positionList
+		self.list.publish(self.positionList)
 
 if __name__ == '__main__' :
 	
@@ -49,3 +59,4 @@ if __name__ == '__main__' :
 		communication = PositionManager()
 
 	except rospy.ROSInterruptException:
+		pass

@@ -4,32 +4,29 @@ __author__ = "Anja Zrnec"
 
 import rospy
 from auv_msgs.msg import NED, NavSts
-
+from afish.msg import positions
+from afish.msg import positions
 class PositionManager(object):
 
 	def __init__(self):
 
 		#add
 
-		self.positionList = [None]*numberOfRobots
+		self.positionList = [NED(0, 0, 0)]*numberOfRobots
 
 		# robot position subscribers
 
 
-		# publishes list of positions
-		# TODO new type of msg for list of positions
-		self.list = rospy.Publish('/positions', Positions, queue_size = 1)
+		# publishes list of positionsns
+		self.list = rospy.Publish('positions', positions, queue_size = 1)
 
 	# dinamical functions
-	def updatePosition1(self, msg):
-		index = 1
-		self.publishNewPosition(msg, index)
 
 	def publishNewPositions(self, msg, index):
 
 		position = NED(msg.postion.north, msg.position.east, msg.position.depth)
-		self.positionList.insert(index, position)
-		self.list.publish(positionList)
+		self.positionList[index] = position
+		self.list.publish(self.positionList)
 
 if __name__ == '__main__' :
 	

@@ -6,6 +6,7 @@ import rospy
 import random
 import action_library # depth goal & new position
 from auv_msgs.msg import NED, NavSts
+from afish.msg  import positions
 
 class FishController(object):
 	
@@ -16,8 +17,8 @@ class FishController(object):
 		self.fishPositions = None
 		self.depth = 0
 	
-		rospy.Subscriber('position', NavSts, swim)
-		rospy.Subscriber('positions', Positions, self.setNewPositions)
+		rospy.Subscriber('position', NavSts, self.swim)
+		rospy.Subscriber('positions', positions, self.setNewPositions)
 
 		#topics to publish
 		self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
@@ -43,6 +44,7 @@ class FishController(object):
 	def setNewPositions(self, msg):
 		
 		self.fishPositions = msg.positions
+		print self.fishPositions[0]
 
 if __name__ == '__main__':
 	rospy.init_node("fish_controller")

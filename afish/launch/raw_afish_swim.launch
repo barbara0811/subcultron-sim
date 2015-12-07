@@ -8,7 +8,7 @@
 	<group ns="afish1">
 	    	<rosparam file="$(find afish)/data/navigation/params/nav_standard.yaml" />
 	    	<rosparam file="$(find afish)/data/control/params/controllers_standard.yaml" />
-	    	<rosparam file="$(find afish)/data/dynamics/amussel.yaml" />
+	    	<rosparam file="$(find afish)/data/dynamics/afish.yaml" />
 	    	<rosparam param="eta0">[1.98548444034,4.49194037625,0,0,0,0]</rosparam>
 	    	<rosparam command="load" file="$(find afish)/data/locations/swarm_loc.yaml" />
 	    	<include file="$(find afish)/data/simulation/simulation_standard.xml" />
@@ -26,7 +26,7 @@
 	<group ns="afish2">
 	    	<rosparam file="$(find afish)/data/navigation/params/nav_standard.yaml" />
 	    	<rosparam file="$(find afish)/data/control/params/controllers_standard.yaml" />
-	    	<rosparam file="$(find afish)/data/dynamics/amussel.yaml" />
+	    	<rosparam file="$(find afish)/data/dynamics/afish.yaml" />
 	    	<rosparam param="eta0">[2.07520104831,-1.25309186084,0,0,0,0]</rosparam>
 	    	<rosparam command="load" file="$(find afish)/data/locations/swarm_loc.yaml" />
 	    	<include file="$(find afish)/data/simulation/simulation_standard.xml" />
