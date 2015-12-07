@@ -181,6 +181,11 @@ namespace labust
 			void onCurrents(const geometry_msgs::TwistStamped::ConstPtr& currents);
 
 			/**
+			 * Received the external static position. Used for docking.
+			 */
+			void onPositionStatic(const auv_msgs::NavSts::ConstPtr& position);
+
+			/**
 			 * The method calculates and publishes the needed NavSts.
 			 */
 			void publishNavSts();
@@ -218,7 +223,7 @@ namespace labust
 			/**
 			 * Subscriptions to input virtual forces and currents.
 			 */
-			ros::Subscriber tauIn, tauInWrench, currentsSub;
+			ros::Subscriber tauIn, tauInWrench, currentsSub, positionSub;
 			/**
 			 * Publishing of achieved forces.
 			 */
@@ -247,6 +252,11 @@ namespace labust
 			 * The simulation internal wrap.
 			 */
 			int wrap;
+			/**
+			 * The flag to disable calculation of model -- it enforces the static position.
+			 * Used for docking purposes.
+			 */
+			bool calcState;
 			/**
 			 * The flag to enable publishing of world frame data.
 			 */
