@@ -102,6 +102,8 @@ void SimCore::onInit()
 	tauInWrench = nh.subscribe<geometry_msgs::WrenchStamped>("tauInWrench", 1, &SimCore::onTau<geometry_msgs::WrenchStamped>, this);
 	//general
 	currentsSub = nh.subscribe<geometry_msgs::TwistStamped>("currents", 1, &SimCore::onCurrents, this);
+	positionSub = nh.subscribe<auv_msgs::NavSts>("position_static", 1, &SimCore::onPositionStatic, this);
+	calcState = true;
 
 	//Publishers
 	//Auv_msgs
@@ -135,6 +137,19 @@ void SimCore::onCurrents(const geometry_msgs::TwistStamped::ConstPtr& currents)
 {
 	boost::mutex::scoped_lock l(model_mux);
 	labust::tools::pointToVector(currents->twist.linear, model.current);
+}
+
+void SimCore::onPositionStatic(const auv_msgs::NavSts::ConstPtr& msg)
+{
+	vector pos = vector::Zero(6);
+	pos[0] = msg->position.north;
+	pos[1] = msg->position.east;
+	pos[2] = msg->position.depth;
+	model.setNuAndEta(model.Nu(), pos);
+
+	// end of the message flag
+	if (msg->status == 1) calcState = true;
+	else calcState = false;
 }
 
 void SimCore::etaNuToNavSts(const vector& eta, const vector& nu, auv_msgs::NavSts& state)
@@ -257,20 +272,23 @@ void SimCore::start()
 	while (ros::ok())
 	{
 		boost::mutex::scoped_lock model_lock(model_mux);
+		if (calcState)
 		{
-			boost::mutex::scoped_lock l(tau_mux);
-			for (size_t i=0; i<wrap;++i) model.step(tau);
+			{
+				boost::mutex::scoped_lock l(tau_mux);
+				for (size_t i=0; i<wrap;++i) model.step(tau);
+			}
+
+	//		{
+	//			boost::mutex::scoped_lock l(sensor_mux);
+	//			for (std::vector<SimSensorInterface::Ptr>::iterator it=sensors.begin();
+	//					it != sensors.end(); ++it)
+	//			{
+	//				(*it)->step(hook);
+	//			}
+	//		}
+			ROS_ERROR("Calculated state");
 		}
-
-//		{
-//			boost::mutex::scoped_lock l(sensor_mux);
-//			for (std::vector<SimSensorInterface::Ptr>::iterator it=sensors.begin();
-//					it != sensors.end(); ++it)
-//			{
-//				(*it)->step(hook);
-//			}
-//		}
-
 		//Publish states
 		publishNavSts();
 		publishOdom();
