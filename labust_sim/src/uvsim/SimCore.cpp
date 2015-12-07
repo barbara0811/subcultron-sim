@@ -145,6 +145,9 @@ void SimCore::onPositionStatic(const auv_msgs::NavSts::ConstPtr& msg)
 	pos[0] = msg->position.north;
 	pos[1] = msg->position.east;
 	pos[2] = msg->position.depth;
+	pos[3] = msg->orientation.roll;
+	pos[4] = msg->orientation.pitch;
+	pos[5] = msg->orientation.yaw;
 	model.setNuAndEta(model.Nu(), pos);
 
 	// end of the message flag
@@ -287,7 +290,6 @@ void SimCore::start()
 	//				(*it)->step(hook);
 	//			}
 	//		}
-			ROS_ERROR("Calculated state");
 		}
 		//Publish states
 		publishNavSts();
