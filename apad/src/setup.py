@@ -74,7 +74,6 @@ def fill_up_simulation_spec_file_pad(root, n, first_index):
 def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_mussel, positions_mussel, first_index_mussel):
     
     vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('apad') + '/data/simulation/' + 'vehicle.xml').getroot()
-    
     size = len(root)
     
     for i in range(n_pad):
@@ -88,23 +87,9 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
         tmp.find("imu").find("name").text = "imu" + str(first_index_pad + i + 1)
         tmp.find("gpsSensor").find("name").text = "GPSSensor" + str(first_index_pad + i + 1)
         root.insert(size - 1, tmp)    
-        
-    root.append(xml.etree.ElementTree.Element("rosInterfaces"))    
-    for i in range(n_pad):
-        name = "apad" + str(first_index_pad + i + 1)
-        tmp = xml.etree.ElementTree.Element("ROSOdomToPAT")
-        tmp.append(xml.etree.ElementTree.Element("topic"))
-        tmp[-1].text = name + "/uwsim_hook"
-        
-        tmp.append(xml.etree.ElementTree.Element("vehicleName"))
-        tmp[-1].text = name
-        
-        root.find("rosInterfaces").append(tmp)
-        
-    vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/data/simulation/' + 'vehicle.xml').getroot()
     
-    size = len(root)
-    
+    vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/data/simulation/' + 'vehicle.xml').getroot()    
+
     for i in range(n_mussel):
         tmp = deepcopy(vehicleRoot)
         name = "amussel" + str(first_index_mussel + i + 1)
@@ -116,8 +101,19 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
         tmp.find("imu").find("name").text = "imu" + str(first_index_mussel + i + 1)
         tmp.find("gpsSensor").find("name").text = "GPSSensor" + str(first_index_mussel + i + 1)
         root.insert(size - 1, tmp)    
-        
+
     root.append(xml.etree.ElementTree.Element("rosInterfaces"))    
+    for i in range(n_pad):
+        name = "apad" + str(first_index_pad + i + 1)
+        tmp = xml.etree.ElementTree.Element("ROSOdomToPAT")
+        tmp.append(xml.etree.ElementTree.Element("topic"))
+        tmp[-1].text = name + "/uwsim_hook"
+        
+        tmp.append(xml.etree.ElementTree.Element("vehicleName"))
+        tmp[-1].text = name
+        
+        root.find("rosInterfaces").append(tmp)
+          
     for i in range(n_mussel):
         name = "amussel" + str(first_index_mussel + i + 1)
         tmp = xml.etree.ElementTree.Element("ROSOdomToPAT")
