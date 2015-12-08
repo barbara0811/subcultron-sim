@@ -1,0 +1,37 @@
+<launch>
+  <param name="use_sim_time" value="true" />
+  <node name="simulation_clock2" pkg="snippets" type="simulation_clock2">
+
+    </node>
+  <arg default="$(optenv LOGGING false)" name="logging" />
+  <node args="--configfile $(find amussel)/data/simulation/swarm_test.xml       --dataPath  $(find amussel)/data/simulation/" name="uwsim" pkg="uwsim" type="uwsim" />
+  <group ns="apad1">
+    <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
+    <rosparam param="eta0">[22.7915869546,-99.2657143422,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
+    <include file="$(find apad)/data/simulation/simulation_standard.xml" />
+    <include file="$(find apad)/data/control/control_standard.xml" />
+    <include file="$(find apad)/data/primitives/primitives_standard.xml" />
+    <include file="$(find apad)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="apad1/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="apad" type="raw_controller.py" />
+    <node name="action_server" output="screen" pkg="apad" type="action_server.py" />
+  </group>
+  <group ns="amussel1">
+    <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
+    <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
+    <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
+    <rosparam param="eta0">[-69.8005314907,20.6801434502,0,0,0,0]</rosparam>
+    <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
+    <include file="$(find amussel)/data/simulation/simulation_standard.xml" />
+    <include file="$(find amussel)/data/control/control_standard.xml" />
+    <include file="$(find amussel)/data/primitives/primitives_standard.xml" />
+    <include file="$(find amussel)/data/simulation/visualization_standard.xml">
+      <arg name="hook_sel" value="amussel1/uwsim_hook" />
+    </include>
+    <node name="scenario_controller" output="screen" pkg="amussel" type="raw_controller.py" />
+  </group>
+</launch>
