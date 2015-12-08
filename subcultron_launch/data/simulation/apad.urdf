@@ -4,7 +4,7 @@
 <visual>
 <origin rpy="3.14159 0 0.786475" xyz="0 0 0"/>
 <geometry>
-<mesh filename="robot/Caddy/pladypos.osg"/>
+<mesh filename="pladypos.osg"/>
 </geometry>
 </visual>
 </link>
