@@ -15,10 +15,10 @@
 	    	<include file="$(find afish)/data/control/control_standard.xml" />
 	    	<include file="$(find afish)/data/primitives/primitives_standard.xml" />
 	    	<include file="$(find afish)/data/simulation/visualization_standard.xml">
-			<arg name="hook_sel" value="amussel1/uwsim_hook" />
+			<arg name="hook_sel" value="afish1/uwsim_hook" />
 	    	</include>
 	    	<node name = "communication" output = "screen" pkg = "afish" type = "communication.py">
-			<remap from = "afish1/position" to = "position">
+			<remap from = "afish1/position" to = "position" />
 		</node>
 		<node name = "fish_controller" output = "screen" pkg = "afish" type = "aFish_controller.py" />
   	</group>
@@ -33,10 +33,10 @@
 	    	<include file="$(find afish)/data/control/control_standard.xml" />
 	    	<include file="$(find afish)/data/primitives/primitives_standard.xml" />
 	    	<include file="$(find afish)/data/simulation/visualization_standard.xml">
-			<arg name="hook_sel" value="amussel1/uwsim_hook" />
+			<arg name="hook_sel" value="afish2/uwsim_hook" />
 	    	</include>
 	    	<node name = "communication" output = "screen" pkg = "afish" type = "communication.py">
-			<remap from = "afish2/position" to = "position">
+			<remap from = "afish2/position" to = "position" />
 		</node>
 		<node name = "fish_controller" output = "screen" pkg = "afish" type = "aFish_controller.py" />
   	</group>

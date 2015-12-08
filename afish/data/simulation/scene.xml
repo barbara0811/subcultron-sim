@@ -4,7 +4,7 @@
 	<oceanState>
 		<windx> 0.0 </windx>
 		<windy> 0.0 </windy>
-		<windspeed> 0 </windspeed>
+		<windSpeed> 0 </windSpeed>
 		<depth> 1000 </depth>
 		<reflectionDamping> 0.0 </reflectionDamping>
     		<waveScale> 0 </waveScale>
