@@ -159,7 +159,7 @@ class aPadActionServer:
                             self.pos_err.pop(0)
                             self.pos_err.append(dl)
 
-                        if (len(self.pos_err) == 20) and (math.fabs(sum(self.pos_err) / len(self.pos_err)) < 0.05):  # mission is successfully finished
+                        if (len(self.pos_err) == 20) and (math.fabs(sum(self.pos_err) / len(self.pos_err)) < 0.5):  # mission is successfully finished
                             self.action_rec_flag = 0  # waiting for new action
                             self.as_res.status = 0
                             self.pos_err = []
@@ -168,6 +168,7 @@ class aPadActionServer:
                         else:  # mission is still ongoing
                             self.as_feed.status = (1 - dl / dL) * 100  # mission completeness
                             self.as_feed.pose.position = self.position
+                            #print [math.fabs(sum(self.pos_err) / len(self.pos_err)), str(self.position)]
                             self.action_server.publish_feedback(self.as_feed)
 
                     elif self.as_goal.id == 1:
