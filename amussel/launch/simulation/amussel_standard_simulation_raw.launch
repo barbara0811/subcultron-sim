@@ -18,8 +18,8 @@
         pkg="uwsim" 
         name="uwsim" 
         type="uwsim" 
-        args="--configfile $(find amussel)/data/simulation/swarm_test.xml  
-  		--dataPath  $(find amussel)/data/simulation/"/>
+        args="--configfile $(find subcultron_launch)/data/simulation/swarm_test.xml  
+  		--dataPath  $(find subcultron_launch)/data/simulation/"/>
 	
   <!-- Start logger -->
   <!--node pkg="rosbag" type="record" name="logger" args="-a -x '(.*)/camera(.*)|(.*)/sonar/(.*)|(.*)/soundmetrics_aris3000/(.*)' -o /home/stdops/logs/bags/amussel" if="$(arg logging)" /-->
