@@ -4,7 +4,7 @@ import rospy
 import math
 from apad.msg import aPadAction, aPadGoal, aPadResult, aPadFeedback
 from geometry_msgs.msg import Point, Twist, Vector3, TwistStamped, PoseStamped, Pose, PoseWithCovarianceStamped
-from auv_msgs.msg import NavSts
+from auv_msgs.msg import NavSts, NED
 
 from navcon_msgs.srv import EnableControl, EnableControlRequest, ConfigureVelocityController
 
@@ -27,7 +27,7 @@ class aPadActionServer:
         self.as_feed = aPadFeedback()
 
         self.position = Point(0, 0, 0)
-        self.position_offset = Point(0, 0, 0)  # for docking -- object offset 
+        self.position_offset = Point(-0.5, -0.5, 0)  # for docking -- object offset 
 
         self.pos_old = Point(self.position.x, self.position.y, self.position.z)
         
@@ -41,10 +41,10 @@ class aPadActionServer:
 
         while not rospy.is_shutdown():
             # goal position for aMussel/aFish docked onto aPad
-            goalPosition = Pose()
-            goalPosition.position.x = self.position.x + self.position_offset.x
-            goalPosition.position.y = self.position.y + self.position_offset.y
-            goalPosition.position.z = self.position.z + self.position_offset.z
+            goalPosition = NED()
+            goalPosition.north = self.position.x + self.position_offset.x
+            goalPosition.east = self.position.y + self.position_offset.y
+            #goalPosition.z = self.position.z + self.position_offset.z
 
             if self.perched_flag == 1:
                 self.set_model_state(goalPosition)
@@ -168,7 +168,7 @@ class aPadActionServer:
                         else:  # mission is still ongoing
                             self.as_feed.status = (1 - dl / dL) * 100  # mission completeness
                             self.as_feed.pose.position = self.position
-                            #print [math.fabs(sum(self.pos_err) / len(self.pos_err)), str(self.position)]
+                            #print [math.fabs(sum(self.pos_err) / len(self.pos_err)), str(self.position), str(self.as_goal.pose.position)]
                             self.action_server.publish_feedback(self.as_feed)
 
                     elif self.as_goal.id == 1:
@@ -185,9 +185,9 @@ class aPadActionServer:
                         print 'executing release action'
                         self.perched_flag = 0
                         msg = NavSts()
-                        msg.position = self.position
+                        msg.position = NED(self.position.x, self.position.y, 0)
                         msg.status = 1
-                        self.staticPosPub.publish(position) # signal the end of static position to attached object
+                        self.staticPosPub.publish(msg) # signal the end of static position to attached object
                         print 'finished executing release action'
                         self.action_rec_flag = 0  # waiting for new action
                         self.as_res.status = 0
@@ -201,7 +201,7 @@ class aPadActionServer:
 
         msg = NavSts()
         msg.position = position
-        self.staticPosPub.publish(position)
+        self.staticPosPub.publish(msg)
 
     def position_cb(self, msg):    
         self.position.x = msg.position.north

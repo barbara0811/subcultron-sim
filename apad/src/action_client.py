@@ -29,6 +29,40 @@ class actionClient(object):
         print self.client.get_result()
         return self.client.get_result()
 
+    def send_perch_goal(self, obj):
+
+        self.client.wait_for_server()
+
+        print 'Connected to server'
+
+        # Creates a goal to send to the action server.
+        goal = aPadGoal(id=1, object=obj)
+        # Sends the goal to the action server.
+        self.client.send_goal(goal)
+        # Waits for the server to finish performing the action.
+        
+        self.client.wait_for_result()
+        # Prints out the result of executing the action
+        print self.client.get_result()
+        return self.client.get_result()
+
+    def send_release_goal(self):
+
+        self.client.wait_for_server()
+
+        print 'Connected to server'
+
+        # Creates a goal to send to the action server.
+        goal = aPadGoal(id=2)
+        # Sends the goal to the action server.
+        self.client.send_goal(goal)
+        # Waits for the server to finish performing the action.
+        
+        self.client.wait_for_result()
+        # Prints out the result of executing the action
+        print self.client.get_result()
+        return self.client.get_result()
+
     def feedback_cb(self, feedback):
         if feedback.status - self.feedback >= 5:
             #print " " + str(feedback.status) + "%"
