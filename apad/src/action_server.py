@@ -5,6 +5,9 @@ import math
 from apad.msg import aPadAction, aPadGoal, aPadResult, aPadFeedback
 from geometry_msgs.msg import Point, Twist, Vector3, TwistStamped, PoseStamped, Pose, PoseWithCovarianceStamped
 from auv_msgs.msg import NavSts
+
+from navcon_msgs.srv import EnableControl, EnableControlRequest, ConfigureVelocityController
+
 import actionlib
 
 class aPadActionServer:
@@ -55,15 +58,13 @@ class aPadActionServer:
                 if self.action_rec_flag == 1:
                 
                     if self.as_goal.id == 0:
-                        print 'Go to action'
-                        self.pos_old = Point(self.position.x, self.position.y, self.position.z)
-                        start = Vector3(self.position.x, self.position.y, self.position.z)
-                        end = Vector3(self.as_goal.pose.position.x, self.as_goal.pose.position.y,
-                                      self.as_goal.pose.position.z)
+                        print 'Go to position action'
+                        self.pos_old = Point(self.position.x, self.position.y, 0)
+                        start = Vector3(self.position.x, self.position.y, 0)
+                        end = Vector3(self.as_goal.pose.position.x, self.as_goal.pose.position.y, 0)
 
                         dl = math.sqrt(math.pow(self.as_goal.pose.position.x - self.position.x, 2) +
-                                        math.pow(self.as_goal.pose.position.y - self.position.y, 2) +
-                                        math.pow(self.as_goal.pose.position.z - self.position.z, 2))
+                                        math.pow(self.as_goal.pose.position.y - self.position.y, 2))
 
                         if dl < 0.1:
                             self.action_rec_flag = 0  # waiting for new action
@@ -78,12 +79,49 @@ class aPadActionServer:
                             # send goal message
                             try:
                                 # send goal
-                                if traj_resp.status < 0: # if error
-                                    self.as_res.status = -1
-                                    self.action_server.set_aborted(self.as_res)
-                                    self.action_rec_flag = 0  # waiting for new actions
-                                else:
-                                    self.action_rec_flag = 2  #executing trajectory
+                                fadp_enable = rospy.ServiceProxy('FADP_enable', EnableControl)
+                                fadp_enable(enable=True)
+
+                                config_vel_controller = rospy.ServiceProxy('ConfigureVelocityController', ConfigureVelocityController)
+                                config_vel_controller(ControllerName="FADP", desired_mode=[2, 2, 0, 0, 0, 0])
+
+                                velcon_enable = rospy.ServiceProxy('VelCon_enable', EnableControl)
+                                velcon_enable(enable=True)
+        
+                                stateRef = NavSts()
+                                stateRef.header.seq = 0
+                                stateRef.header.stamp.secs = 0
+                                stateRef.header.stamp.nsecs = 0
+                                stateRef.global_position.latitude = 0.0
+                                stateRef.global_position.longitude = 0.0
+                                stateRef.origin.latitude = 0.0
+                                stateRef.origin.longitude = 0.0
+                                stateRef.position.north = self.as_goal.pose.position.x
+                                stateRef.position.east = self.as_goal.pose.position.y
+                                stateRef.position.depth = 0
+                                stateRef.altitude = 0.0
+                                stateRef.body_velocity.x = 0
+                                stateRef.body_velocity.y = 0
+                                stateRef.body_velocity.z = 0
+                                stateRef.gbody_velocity.x = 0
+                                stateRef.gbody_velocity.y = 0
+                                stateRef.gbody_velocity.z = 0
+                                stateRef.orientation.roll = 0
+                                stateRef.orientation.pitch = 0
+                                stateRef.orientation.yaw = 0
+                                stateRef.orientation_rate.roll = 0
+                                stateRef.orientation_rate.pitch = 0
+                                stateRef.orientation_rate.yaw = 0
+                                stateRef.position_variance.north = 0
+                                stateRef.position_variance.east = 0
+                                stateRef.position_variance.depth = 0
+                                stateRef.orientation_variance.roll = 0
+                                stateRef.orientation_variance.pitch = 0
+                                stateRef.orientation_variance.yaw = 0
+                                stateRef.status = 0
+                                self.stateRefPub.publish(stateRef)
+                                
+                                self.action_rec_flag = 2  #executing trajectory
 
                             except rospy.ServiceException, e:
                                 print "Service gen_and_exe_traj call failed: %s" % e
@@ -108,14 +146,12 @@ class aPadActionServer:
                     self.as_res.id = self.as_goal.id
                     self.as_feed.id = self.as_goal.id
 
-                    if self.as_goal.id == 2:
+                    if self.as_goal.id == 0:
                         # Go to position action
                         dL = math.sqrt(math.pow(self.as_goal.pose.position.x - self.pos_old.x, 2) +
-                                       math.pow(self.as_goal.pose.position.y - self.pos_old.y, 2) +
-                                       math.pow(self.as_goal.pose.position.z - self.pos_old.z, 2))
+                                       math.pow(self.as_goal.pose.position.y - self.pos_old.y, 2))
                         dl = math.sqrt(math.pow(self.as_goal.pose.position.x - self.position.x, 2) +
-                                       math.pow(self.as_goal.pose.position.y - self.position.y, 2) +
-                                       math.pow(self.as_goal.pose.position.z - self.position.z, 2))
+                                       math.pow(self.as_goal.pose.position.y - self.position.y, 2))
 
                         if len(self.pos_err) < 20:
                             self.pos_err.append(dl)
