@@ -42,6 +42,7 @@ class ScenarioController(object):
         d = NavSts()
         d.position.north = self.position.north
         d.position.east = self.position.east
+        d.header.frame_id = rospy.get_namespace().replace('/', '')
         self.dockingPub.publish(d)
         
     def position_cb(self, msg):
