@@ -56,7 +56,7 @@ class ScenarioController(object):
         self.cl.send_position_goal(p)
 
         # perch
-        self.cl.send_perch_goal('amussel1')
+        self.cl.send_perch_goal(msg.header.frame_id)
 
         # go to position (with amussel docked)
         p = Point(0,0,0)
