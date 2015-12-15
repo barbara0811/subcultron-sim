@@ -46,13 +46,9 @@
       <z>1.57</z>
     </offsetr>
     <enablePhysics> 1 </enablePhysics>
-    <showTrajectory>
-      <target>amussel/base_link</target>
-    </showTrajectory>
   </simParams>
   <camera>
     <freeMotion> 1 </freeMotion>
-    <objectToTrack>apad/base_link</objectToTrack>
     <fov> 60 </fov>
     <aspectRatio> 1.33 </aspectRatio>
     <near> 1 </near>

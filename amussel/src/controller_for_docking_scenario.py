@@ -38,16 +38,33 @@ class ScenarioController(object):
     def start_cb(self, msg):
 
         self.startPub.publish(msg)
+        self.start = True
 
+        d = NavSts()
+        
+        #rate = rospy.Rate(10)
+        
+        #while not rospy.is_shutdown():
+        
+			#d.position.north = self.position.north
+			#d.position.east = self.position.east
+			#d.header.frame_id = rospy.get_namespace().replace('/', '')
+			#self.dockingPub.publish(d)
+        
+			#rate.sleep()
+        
+    def position_cb(self, msg):
+        
+        self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
+        
+        if self.position is None or self.start is False:
+			return
+        
         d = NavSts()
         d.position.north = self.position.north
         d.position.east = self.position.east
         d.header.frame_id = rospy.get_namespace().replace('/', '')
         self.dockingPub.publish(d)
-        
-    def position_cb(self, msg):
-        
-        self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
         
     def ping_sensor_cb(self, msg):
         return

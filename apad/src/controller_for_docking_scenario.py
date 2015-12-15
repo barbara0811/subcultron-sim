@@ -40,34 +40,40 @@ class ScenarioController(object):
     def start_cb(self, msg):
         
         self.startPub.publish(msg)
+        self.start= True
         
     def position_cb(self, msg):
         
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
         
     def docked_cb(self, msg):
+		
+		if self.start is False:
+			return
+		#go to amussel
+		heading = [msg.position.north - self.position.north, msg.position.east - self.position.east]
+		dist = sqrt(pow(heading[0], 2) + pow(heading[1], 2))
+		p = Point()
+		p.x = self.position.north + (dist - 0.05) * heading[0] / dist
+		p.y = msg.position.east + (dist - 0.05) * heading[1] / dist
+		self.cl.send_position_goal(p)
+		
+		if (dist<0.5):
 
-        # go to amussel
-        heading = [msg.position.north - self.position.north, msg.position.east - self.position.east]
-        dist = sqrt(pow(heading[0], 2) + pow(heading[1], 2))
-        p = Point()
-        p.x = self.position.north + (dist - 0.05) * heading[0] / dist
-        p.y = msg.position.east + (dist - 0.05) * heading[1] / dist
-        self.cl.send_position_goal(p)
+			# perch
+			self.cl.send_perch_goal(msg.header.frame_id)
 
-        # perch
-        self.cl.send_perch_goal(msg.header.frame_id)
-
-        # go to position (with amussel docked)
-        p = Point(0,0,0)
-        self.cl.send_position_goal(p)
+			# go to position (with amussel docked)
+			p = Point(0,0,0)
+			self.cl.send_position_goal(p)
         
-        # release amussel
-        self.cl.send_release_goal()
+			# release amussel
+			self.cl.send_release_goal()
 
-        # go to another position
-        p = Point(-10,-10,0)
-        self.cl.send_position_goal(p)
+			# go to another position
+			#p = Point(-10,-10,0)
+			#self.cl.send_position_goal(p)
+		
         
 
     def ping_sensor_cb(self, msg):
