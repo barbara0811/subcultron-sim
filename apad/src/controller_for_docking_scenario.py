@@ -55,7 +55,7 @@ class ScenarioController(object):
 		dist = sqrt(pow(heading[0], 2) + pow(heading[1], 2))
 		p = Point()
 		p.x = self.position.north + (dist - 0.05) * heading[0] / dist
-		p.y = msg.position.east + (dist - 0.05) * heading[1] / dist
+		p.y = self.position.east + (dist - 0.05) * heading[1] / dist
 		self.cl.send_position_goal(p)
 		
 		if (dist<0.5):
