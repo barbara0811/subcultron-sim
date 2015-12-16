@@ -213,9 +213,7 @@ class aPadActionServer:
                             self.action_server.publish_feedback(self.as_feed)
 
                     elif self.as_goal.id == 1:
-			if self.perched_count==4:
-				return                        
-			print 'executing perch action'
+                        print 'executing perch action'
                         self.perched_flag = 1
                         # static position publisher
                         #TODO make 4 static pose publishers, for 4 docking stations
@@ -227,8 +225,6 @@ class aPadActionServer:
                         self.action_server.set_succeeded(self.as_res)
 
                     elif self.as_goal.id == 2:
-			if self.perched_count==4:
-				return 
                         print 'executing release action'
                         self.perched_flag = 0
                         msg = NavSts()

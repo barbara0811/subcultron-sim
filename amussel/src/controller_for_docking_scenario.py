@@ -29,18 +29,20 @@ class ScenarioController(object):
         
         rospy.Subscriber('position', NavSts, self.position_cb)
         rospy.Subscriber("ping_sensor", NED, self.ping_sensor_cb)
+        rospy.Subscriber('goto_surface', Bool, self.surface_cb)
 
         self.dockingPub = rospy.Publisher('/apad1/docked', NavSts, queue_size=1)
         
         rospy.spin()
 
    
-    def start_cb(self, msg):
-
+    def start_cb(self, msg): 
+        
+        self.send_depth_goal(10)
         self.startPub.publish(msg)
         self.start = True
 
-        d = NavSts()
+        #d = NavSts()
         
         #rate = rospy.Rate(10)
         
@@ -52,6 +54,9 @@ class ScenarioController(object):
 			#self.dockingPub.publish(d)
         
 			#rate.sleep()
+
+    def surface_cb(self, msg): 
+        self.send_depth_goal(0.5)
         
     def position_cb(self, msg):
         
@@ -60,11 +65,12 @@ class ScenarioController(object):
         if self.position is None or self.start is False:
 			return
         
-        d = NavSts()
-        d.position.north = self.position.north
-        d.position.east = self.position.east
-        d.header.frame_id = rospy.get_namespace().replace('/', '')
-        self.dockingPub.publish(d)
+        if (msg.position.depth<0.5):
+			d = NavSts()
+			d.position.north = self.position.north
+			d.position.east = self.position.east
+			d.header.frame_id = rospy.get_namespace().replace('/', '')
+			self.dockingPub.publish(d)
         
     def ping_sensor_cb(self, msg):
         return

@@ -71,8 +71,8 @@ class ScenarioController(object):
 			self.cl.send_release_goal()
 
 			# go to another position
-			#p = Point(-10,-10,0)
-			#self.cl.send_position_goal(p)
+			p = Point(-10,-10,0)
+			self.cl.send_position_goal(p)
 		
         
 
