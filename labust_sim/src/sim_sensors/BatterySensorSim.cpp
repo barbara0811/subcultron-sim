@@ -11,6 +11,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
 #include <ros/ros.h>
+#include <string>
 
 struct BatterySensorSim
 {
@@ -20,13 +21,18 @@ struct BatterySensorSim
 		start = false;
 		ros::NodeHandle nh, ph("~");
 		ph.getParam("battery_threshold", batteryThresh);
-
+		
+		std::string ns = ros::this_node::getNamespace();
+		std::string s = "/amussel";
+		
+		agentId = ns.substr(9,ns.length()-1);
+		
 		batteryPublished = false;
 		gotPosition = false;
 
-		position = auv_msgs::NED();
+		position = auv_msgs::NavSts();
 		batteryPercentage = std_msgs::Int32();
-		batteryPercentage.data=100;
+		batteryPercentage.data=50;
 
 		// subscribers
 		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &BatterySensorSim::onPosition, this);
@@ -34,7 +40,7 @@ struct BatterySensorSim
 		// publishers
 		batteryPub = nh.advertise<std_msgs::Int32>("battery_level", 1);
 		surfaceReq = nh.advertise<std_msgs::Bool>("goto_surface", 1);
-		alertPub = nh.advertise<auv_msgs::NED>("/battery_alert", 1);
+		alertPub = nh.advertise<auv_msgs::NavSts>("/battery_alert", 1);
 		
 		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &BatterySensorSim::onStart, this);
 		timer = nh.createTimer(ros::Duration(1), &BatterySensorSim::timerCallback, this);
@@ -49,8 +55,12 @@ struct BatterySensorSim
         batteryPub.publish(batteryPercentage);
         std_msgs::Bool flag;
         flag.data=true;
-        if (batteryPercentage.data<batteryThresh) surfaceReq.publish(flag);
-        if ((batteryPercentage.data<batteryThresh) && (position.depth<1.0)) alertPub.publish(position); 
+        if (batteryPercentage.data==batteryThresh) surfaceReq.publish(flag);
+        if ((batteryPercentage.data<=batteryThresh) && (position.position.depth<1.0) && !batteryPublished) 
+        {
+			alertPub.publish(position); 
+			batteryPublished = true;
+		}
 	}
 
 	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
@@ -61,9 +71,10 @@ struct BatterySensorSim
 	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
 	{
 		// set position
-		position.north = msg->position.north;
-		position.east = msg->position.east;
-		position.depth = msg->position.depth;
+		position.position.north = msg->position.north;
+		position.position.east = msg->position.east;
+		position.position.depth = msg->position.depth;
+		position.header.frame_id=agentId;
 		gotPosition = true;
 	}
 
@@ -85,10 +96,10 @@ private:
 	// battery level range
 	int batteryThresh;
 	std_msgs::Int32 batteryPercentage;
-	int agentId;
+	std::string agentId;
 	ros::Timer timer;
 
-	auv_msgs::NED position;
+	auv_msgs::NavSts position;
 };
 
 int main(int argc, char* argv[])

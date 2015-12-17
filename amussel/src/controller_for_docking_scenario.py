@@ -56,7 +56,13 @@ class ScenarioController(object):
 			#rate.sleep()
 
     def surface_cb(self, msg): 
+    
         self.send_depth_goal(0.5)
+        d = NavSts()
+        d.position.north = self.position.north
+        d.position.east = self.position.east
+        d.header.frame_id = rospy.get_namespace().replace('/', '')
+        self.dockingPub.publish(d)
         
     def position_cb(self, msg):
         
@@ -65,12 +71,12 @@ class ScenarioController(object):
         if self.position is None or self.start is False:
 			return
         
-        if (msg.position.depth<0.5):
-			d = NavSts()
-			d.position.north = self.position.north
-			d.position.east = self.position.east
-			d.header.frame_id = rospy.get_namespace().replace('/', '')
-			self.dockingPub.publish(d)
+        #if (msg.position.depth<0.5):
+			#d = NavSts()
+			#d.position.north = self.position.north
+			#d.position.east = self.position.east
+			#d.header.frame_id = rospy.get_namespace().replace('/', '')
+			#self.dockingPub.publish(d)
         
     def ping_sensor_cb(self, msg):
         return
