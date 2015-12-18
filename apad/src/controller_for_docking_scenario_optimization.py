@@ -133,8 +133,14 @@ class ScenarioController(object):
         self.cbmAlgorithm.optimize(self.bestSolutionPub, self.weightMatrixPub, self.mdvrp)    
         
         solution = self.cbmAlgorithm.bestSolutionCoalition
-        myList = solution.routes[self.mdvrp.depotLabels.index(rospy.get_namespace())]
-        print [rospy.get_namespace(), myList]
+        indices = solution.routes[self.mdvrp.depotLabels.index(rospy.get_namespace())]
+        
+        toVisit = []
+        for i in indices[0]:
+            label = self.mdvrp.nodeLabels[i]
+            toVisit.append([label, consumers[label][0], consumers[label][1]])
+            
+        print [rospy.get_namespace(), toVisit]
         
     def charge_info_srv(self, req):
         
