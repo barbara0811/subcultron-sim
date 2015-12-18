@@ -71,7 +71,7 @@ class aPadActionServer:
         
         self.pos_err = []
         self.perched_flag = 0  # flag for dummy action perching onto aMussel/aFish/other objects action
-	self.perched_count = 0 # number of currently docked objects (default max 4)
+        self.perched_count = 0 # number of currently docked objects (default max 4)
         
         # initialize actions server structures
         self.action_server = actionlib.SimpleActionServer("action_server", aPadAction, auto_start=False)
@@ -213,8 +213,8 @@ class aPadActionServer:
                             self.action_server.publish_feedback(self.as_feed)
 
                     elif self.as_goal.id == 1:
-			if self.perched_count==4:
-				return                        
+			#if self.perched_count==4:
+				#return                        
 			print 'executing perch action'
                         self.perched_flag = 1
                         # static position publisher
@@ -223,12 +223,12 @@ class aPadActionServer:
                         print 'finished executing perch action ' + self.as_goal.object
                         self.action_rec_flag = 0  # waiting for new action
                         self.as_res.status = 0
-			self.perched_count+=1
+                        #self.perched_count+=1
                         self.action_server.set_succeeded(self.as_res)
 
                     elif self.as_goal.id == 2:
-			if self.perched_count==4:
-				return 
+			#if self.perched_count==4:
+				#return 
                         print 'executing release action'
                         self.perched_flag = 0
                         msg = NavSts()
@@ -239,7 +239,7 @@ class aPadActionServer:
                         print 'finished executing release action'
                         self.action_rec_flag = 0  # waiting for new action
                         self.as_res.status = 0
-			self.perched_count-=1
+                        #self.perched_count-=1
                         self.action_server.set_succeeded(self.as_res)
             else:
                 pass
