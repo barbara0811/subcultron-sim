@@ -132,6 +132,8 @@ class ScenarioController(object):
         
         self.cbmAlgorithm.optimize(self.bestSolutionPub, self.weightMatrixPub, self.mdvrp)    
         
+        rospy.sleep(1)
+        
         solution = self.cbmAlgorithm.bestSolutionCoalition
         indices = solution.routes[self.mdvrp.depotLabels.index(rospy.get_namespace())]
         
