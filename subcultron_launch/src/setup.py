@@ -20,7 +20,7 @@ sceneSpecFile = "swarm_test.xml"
 launchFileTemplate = "standard_simulation_raw.launch"
 launchFile = "standard_simulation.launch"
 
-controllerFile = "controller_for_docking_scenario.py"
+controllerFile = "controller_for_docking_scenario_optimization.py"
 outputToScreen = True
 
 

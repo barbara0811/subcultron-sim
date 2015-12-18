@@ -72,6 +72,7 @@ add_service_files(
    EvaluateExpression.srv
    RelayControl.srv
    RosbagControl.srv
+   GetChargeInfo.srv
 )
 
 ## Generate actions in the 'action' folder

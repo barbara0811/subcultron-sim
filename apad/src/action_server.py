@@ -52,6 +52,7 @@ class aPadActionServer:
     def __init__(self):
         
         # position
+        self.position = Point(0, 0, 0)
         rospy.Subscriber('position', NavSts, self.position_cb)
 
         # state reference publisher
@@ -63,7 +64,6 @@ class aPadActionServer:
         self.as_res = aPadResult()
         self.as_feed = aPadFeedback()
 
-        self.position = Point(0, 0, 0)
         # TODO create 4 docking stations -- 4 offset positions for every station + before docking, align the object to station
         self.position_offset = Point(-0.5, -0.5, 0)  # for docking -- object offset 
 

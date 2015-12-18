@@ -46,10 +46,10 @@ find_package(xacro)
 #)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-   DEPENDENCIES
-   auv_msgs
-)
+#generate_messages(
+#   DEPENDENCIES
+#   auv_msgs
+#)
 
 ###################################################
 ## Dynamic reconfigure
