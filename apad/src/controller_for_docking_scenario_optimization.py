@@ -83,7 +83,36 @@ class ScenarioController(object):
             self.chargeRequests.append(id)
 
         #if len(self.chargeRequests) >= 10:
-        #    self.charging_procedure()    
+        #    self.charging_procedure()
+        
+    def docking(self,msg):
+		if self.start is False:
+			return
+		#go to amussel
+		print("Picking up amussel with ID " + msg.header.frame_id)
+		heading = [msg.position.north - self.position.north, msg.position.east - self.position.east]
+		dist = sqrt(pow(heading[0], 2) + pow(heading[1], 2))
+		p = Point()
+		p.x = self.position.north + (dist - 0.05) * heading[0] / dist
+		p.y = self.position.east + (dist - 0.05) * heading[1] / dist
+		self.cl.send_position_goal(p)
+		self.cl.send_perch_goal(msg.header.frame_id)
+		
+		if (dist<-10):
+
+			# perch
+			self.cl.send_perch_goal(msg.header.frame_id)
+
+			# go to position (with amussel docked)
+			p = Point(0,0,0)
+			self.cl.send_position_goal(p)
+        
+			# release amussel
+			self.cl.send_release_goal()
+
+			# go to another position
+			p = Point(-10,-10,0)
+			self.cl.send_position_goal(p)    
 
     def charging_procedure(self, msg):
         
@@ -143,6 +172,19 @@ class ScenarioController(object):
             toVisit.append([label, consumers[label][0], consumers[label][1]])
             
         print [rospy.get_namespace(), toVisit]
+        
+        nextTarget = NavSts()
+        for tgt in toVisit:
+			t=tgt[0].strip("/amussel")
+			nextTarget.header.frame_id=t
+			nextTarget.position.north=tgt[1]
+			nextTarget.position.east=tgt[2]
+			#print nextTarget
+			self.docking(nextTarget)
+         
+        
+        
+        
         
     def charge_info_srv(self, req):
         
