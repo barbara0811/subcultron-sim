@@ -146,6 +146,10 @@
 		<!--If you do not want use the temperature simulation, set the temp_mode param to none -->
 		<param name="temp_mode" value="constant" />
 		<param name="temp_publish_rate" value="0.5" />
+
+		<!-- Noise simulation : available modes {static} 	                       -->
+		<!--If you do not want use the noise simulation, set the temp_mode param to none -->
+		<param name="noise_mode" value="none" />
 		
     </node>
 

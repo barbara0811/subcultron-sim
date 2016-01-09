@@ -8,6 +8,7 @@ It includes current simulation, temperature simulation ...
 __author__ = "barbanas"
 
 from std_msgs.msg import Bool
+from auv_msgs.msg import NED
 import rospy
 
 class EnvironmentSim(object):
@@ -23,6 +24,10 @@ class EnvironmentSim(object):
         self.tempSim = None
         self.init_temp_sim()
 
+        # noise
+        self.noiseSim = None
+        self.init_noise_sim()
+        
         rospy.spin()
 
     
@@ -119,6 +124,50 @@ class EnvironmentSim(object):
 
         else:
             rospy.logerr("Temperature mode {0} is not implemented!".format(tempMode))
+            
+    def init_noise_sim(self):
+        """
+        Initializes noise simulation object. Depending on noise_mode parameter,
+        it generates an instance of respective class. If the noise_mode is set to 
+        "none", the object will not be created.
+        """
+        noiseMode = rospy.get_param('~noise_mode')
+        if noiseMode == "static":
+            try:
+                from noise_sim_static import NoiseSimStatic
+            except ImportError:
+                rospy.logerr("ERROR: Can't import module NoiseSimstatic")
+                return -1
+            
+            sourcePosition = NED()
+            sourcePosition.north = rospy.get_param('~noise_source_north')
+            sourcePosition.east = rospy.get_param('~noise_source_east')
+            sourcePosition.depth = rospy.get_param('~noise_source_depth')
+            
+            self.noiseSim = NoiseSimStatic(sourcePosition)
+
+            '''
+            You can insert new noise modes here (just unindent for one tab to be in the
+                    same level as other elif keywords).
+            ***
+            Template:
+            elif noiseMode == "mode":
+                try:
+                    from noise_sim_mode import NoiseSimMode
+                except ImportError:
+                    rospy.logerr("ERROR: Can't import module NoiseSimMode")
+                    return -1
+                self.noiseSim = NoiseSimMode()
+            ***
+            IMPORTANT: implement the desired behavior in noise_sim_mode.py (for reference, 
+                    see already implemented modes)
+            '''
+
+        elif noiseMode == "none":
+            return 0
+
+        else:
+            rospy.logerr("Noise mode {0} is not implemented!".format(noiseMode))
 
 
 if __name__ == '__main__':

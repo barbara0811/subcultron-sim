@@ -20,7 +20,7 @@ sceneSpecFile = "swarm_test.xml"
 launchFileTemplate = "standard_simulation_raw.launch"
 launchFile = "standard_simulation.launch"
 
-controllerFile = "controller_for_docking_scenario_optimization.py"
+controllerFile = "controller_for_trust_scenario.py"
 outputToScreen = True
 
 
@@ -55,7 +55,7 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
     vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('afish') + '/data/simulation/' + 'vehicle.xml').getroot()
     size = len(root)
     
-    for i in range(n_pad):
+    for i in range(n_fish):
         tmp = deepcopy(vehicleRoot)
         name = "afish" + str(first_index_fish + i + 1)
         tmp.find("name").text = name
@@ -171,11 +171,9 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
         group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"afish" + str(first_index_fish + i + 1) + "/uwsim_hook"}))
 
         if outputToScreen:
-            pass
-            #group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+            group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
         else:   
-            pass
-            #group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller"}))
+            group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller"}))
         root.append(group)
 	
     for i in range(n_mussel):
