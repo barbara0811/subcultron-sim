@@ -2,7 +2,7 @@ subCULTron project trust scenario implementation.
 
 *TO RUN:*
 
--navigate to subcultron_launch/src/
+- navigate to subcultron_launch/src/
 
 >  python setup.py apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
 
@@ -10,7 +10,7 @@ subCULTron project trust scenario implementation.
 
 > roslaunch subcultron_launch standard_simulation.launch
 
--start scenario simulation:
+- start scenario simulation:
 
 > rostopic pub /scenario_start std_msgs/Bool "data: true"
 
