@@ -53,25 +53,25 @@
     <!-- == IMU sensor simulation node =========================== -->
     <!-- ========================================================= -->
 
-    <node 
+    <!--node 
 		pkg="labust_sim" 
 		type="imu_sim" 
 		name="imu_sim">
 
 		<remap from="meas_odom" to="meas_odom_noisy" if="$(optenv USE_NOISE 0)" />
-   </node>	
+   </node-->	
 
     <!-- ========================================================= -->
     <!-- == DVL sensor simulation node =========================== -->
     <!-- ========================================================= -->
 
-    <node 
+    <!--node 
 		pkg="labust_sim" 
 		type="dvl_sim" 
 		name="dvl_sim">
 
 	  	<remap from="meas_odom" to="meas_odom_noisy" if="$(optenv USE_NOISE 0)" />
-   </node>		
+   </node-->		
 
     <!-- ========================================================= -->
     <!-- == GPS sensor simulation node =========================== -->
@@ -105,27 +105,27 @@
     <!-- == Ping simulation node =========================== -->
     <!-- ========================================================= -->
 
-    <node 
+    <!--node 
 		pkg="labust_sim" 
 		type="ping_sim" 
 		name="ping_sim">
 
 		<param name="ping_range" value="20" />
 
-    </node>
+    </node-->
 
     <!-- ========================================================= -->
     <!-- == Battery simulation node =========================== -->
     <!-- ========================================================= -->
 
-    <node 
+    <!--node 
 		pkg="labust_sim" 
 		type="battery_sensor_sim" 
 		name="battery_sensor_sim">
 
 		<param name="battery_threshold" value="10" />
 
-    </node>
+    </node-->
 
     <!-- ========================================================= -->
     <!-- == Environment simulation node ========================== -->
@@ -139,12 +139,12 @@
 
 		<!-- Current simulation : available modes {constant, periodic} 			      -->
 		<!--If you do not want use the current simulation, set the current_mode param to none -->
-		<param name="current_mode" value="none" />
+		<param name="current_mode" value="constant" />
 		<param name="current_publish_rate" value="0.5" />
 
 		<!-- Temperature simulation : available modes {constant} 	                       -->
 		<!--If you do not want use the temperature simulation, set the temp_mode param to none -->
-		<param name="temp_mode" value="constant" />
+		<param name="temp_mode" value="none" />
 		<param name="temp_publish_rate" value="0.5" />
 
 		<!-- Noise simulation : available modes {static} 	                       -->
