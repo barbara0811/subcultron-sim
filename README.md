@@ -17,4 +17,5 @@ subCULTron project trust scenario implementation.
 - change noise source amplitude (setting a negative number turns the source off):
 
 > rostopic pub /noise_intensity std_msgs/Float64 "data: 10"
+
 > rostopic pub /noise_intensity std_msgs/Float64 "data: -1"
