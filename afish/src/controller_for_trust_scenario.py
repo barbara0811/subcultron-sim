@@ -22,9 +22,12 @@ import numpy as np
 
 area = [[-20, 20], [-20, 20]]
 
-aFishList = ["/afish1/", "/afish2/", "/afish3/", "/afish4/", "/afish5/"]
+aFishList = []
+for i in range(5):
+    aFishList.append("/afish" + str(i + 1) + "/")
+
 aMusselList = []
-for i in range(10):
+for i in range(5):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -48,16 +51,20 @@ class ScenarioController(object):
         
         # trust
         self.communicationRange = 10
-        self.A = np.zeros([len(aFishList)])          # graph connectivity matrix
-        self.b = np.zeros([len(aMusselList)])        # visited aMussels
-        self.T =  np.zeros([len(aMusselList), 2])    # the latest aMussel sensory reading, vector -- [north, east]
+        
+        self.A = np.zeros([len(aFishList)])                # graph connectivity matrix
+        self.b = np.zeros([len(aMusselList)])              # visited aMussels
+        self.current =  np.zeros([len(aMusselList), 2])    # the latest aMussel sensory reading, vector -- [north, east]
         
         self.tau = np.zeros([len(aMusselList)])      # observation function about agent's trustworthiness
         self.delta =  np.zeros([len(aMusselList)])   # performance
         self.sigma =  np.zeros([len(aMusselList)])   # confidence
         
-        self.zeta =  np.zeros([len(aFishList), len(aMusselList)])    # trust vector
-        self.index = aFishList.index(rospy.get_namespace())
+        self.zeta =  np.zeros([len(aFishList), len(aMusselList)])    # trust matrix --> rows: aFish trust vectors
+        self.index = aFishList.index(rospy.get_namespace())          # agent's index
+        
+        # initialize trust variables
+        self.init_trust()
         
         # publishers
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
@@ -80,10 +87,10 @@ class ScenarioController(object):
         rospy.Timer(rospy.Duration(0.1), self.bacterial_chemotaxis_levy_walk)
         
         # trust scenario
-        rospy.Timer(rospy.Duration(0.2), self.trust_scenario)
+        rospy.Timer(rospy.Duration(0.2), self.update_communication_structures)
         
         # open to overwrite file content -- used for path visualization
-        f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','w')
+        #f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','w')
 
         rospy.spin()
       
@@ -93,11 +100,11 @@ class ScenarioController(object):
         
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
         
-        if not self.start:
-            return
+        #if not self.start:
+        #    return
 
-        f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','a')
-        f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
+        #f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        #f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
         
@@ -131,7 +138,7 @@ class ScenarioController(object):
                 posErr.pop(0)
                 posErr.append(dl)
     
-            if (len(posErr) == 20) and (fabs(sum(posErr) / len(posErr)) < 0.5):  # mission is successfully finished
+            if (len(posErr) == 20) and (fabs(sum(posErr) / len(posErr)) < 0.1):  # mission is successfully finished
                 break
         
         self.start = True
@@ -154,7 +161,7 @@ class ScenarioController(object):
         return [self.position.north, self.position.east, self.position.depth]
     
     def get_trust_info_srv(self, req):
-            
+        
         return {"zeta": self.zeta[self.index]}
     
     # scenario functions
@@ -287,13 +294,25 @@ class ScenarioController(object):
             
         x = delta + c * x
         return x
-                
-    def trust_scenario(self, event):
+      
+    def init_trust(self):
+        '''
+        Initialization function for trust variables.
+        '''
+        pass
+           
+    def update_communication_structures(self, event):  
+        '''
+        A function that gets called periodically. It updates agent's communication structures
+        and sensory reading data.
+        '''
         
         while self.position is None or not self.start:
             rospy.sleep(0.1)
             
         # update aFish connectivity matrix based on new position information
+        newConnection = False # new connection flag TODO --> check if this is the correct behavior
+        
         aFishesInRange = []
         for i in range(len(aFishList)):
             try:
@@ -303,6 +322,8 @@ class ScenarioController(object):
                 if sqrt(pow(self.position.north - p.x, 2) + \
                         pow(self.position.east - p.y, 2) + \
                         pow(self.position.depth - p.z, 2)) < self.communicationRange:
+                    if self.A[i] == 0:
+                        newConnection = True
                     self.A[i] = 1
                     aFishesInRange.append(i)
                 else:
@@ -313,7 +334,7 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
         
         # update aMussel connectivity matrix based on new position information
-        aMusselsInRange = [] #np.zeros([len(aMusselList), 1])
+        aMusselsInRange = []
         for i in range(len(aMusselList)):
             try:
                 rospy.wait_for_service(aMusselList[i] + 'get_position', 0.2)
@@ -323,7 +344,7 @@ class ScenarioController(object):
                 if sqrt(pow(self.position.north - p.x, 2) + \
                         pow(self.position.east - p.y, 2) + \
                         pow(self.position.depth - p.z, 2)) < self.communicationRange:
-                    aMusselsInRange.append(i) #aMusselsInRange[i] = 1
+                    aMusselsInRange.append(i)
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
@@ -339,7 +360,6 @@ class ScenarioController(object):
             
                 result = get_trust()
                 self.zeta[i] = result.zeta
-                print self.zeta
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
@@ -352,14 +372,21 @@ class ScenarioController(object):
                 get_sen = rospy.ServiceProxy(aMusselList[i] + 'get_sensory_reading', GetSensoryReading)
             
                 result = get_sen()
-                self.T[i] = result.current
+                self.current[i] = result.current
                 self.b[i] = 1
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
-        
-        
+                 
+    def trust(self, event):
+        '''
+        Trust implementation. Gets called upon information change.
+        TODO -- implement + test behavior (is it better if it is called periodically?)
+        '''
+        # Petra
+
+        return
         
                         
 if __name__ == "__main__":
