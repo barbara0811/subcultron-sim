@@ -2,19 +2,29 @@ subCULTron project trust scenario implementation.
 
 *TO RUN:*
 
-- navigate to subcultron_launch/src/
+- Navigate to subcultron_launch/src/
+
+> roscd subcultron_launch/src
+
+- Prepare the simulation structures (has to be done only once for each configuration):
 
 >  python setup.py apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
 
 > source ../data/simulation/simulation_config.bash
 
-> roslaunch subcultron_launch standard_simulation.launch
+- In separate terminals, run:
 
-- start scenario simulation:
+> roscore
+
+> roslaunch subcultron_launch standard_simulation.launch 
+
+To stop the simulation, simply press ctrl-c in the second terminal (roscore can be left running at all times).
+
+- Start scenario simulation:
 
 > rostopic pub /scenario_start std_msgs/Bool "data: true"
 
-- change noise source amplitude (setting a negative number turns the source off):
+- Change noise source amplitude (setting a negative number turns the source off, a positive number attracts all aFishes in the area of noise source):
 
 > rostopic pub /noise_intensity std_msgs/Float64 "data: 10"
 
