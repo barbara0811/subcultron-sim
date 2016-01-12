@@ -22,14 +22,14 @@ from copy import deepcopy
 from scipy.integrate import odeint
 import numpy as np
 
-area = [[-40, 40], [-40, 40]]
+area = [[-10, 10], [-10, 10]]
 
 aFishList = []
-for i in range(5):
+for i in range(3):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(1):
+for i in range(10):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -53,25 +53,37 @@ class ScenarioController(object):
         
         # trust
         self.communicationRange = 10
-        self.trust_sample = 0.2
+        self.trust_sample = 2
         
         self.A = np.zeros([len(aFishList)])                # graph connectivity matrix
+        self.A_previous = np.zeros([len(aFishList)])                # graph connectivity matrix
         self.b = np.zeros([len(aMusselList)])              # visited aMussels
+        self.b_previous = np.zeros([len(aMusselList)])              # visited aMussels
         self.current =  np.zeros([len(aMusselList), 2])    # the latest aMussel sensory reading, vector -- [north, east]
         
         self.tau = np.zeros([len(aMusselList)])      # observation function about agent's trustworthiness
         self.delta =  np.zeros([len(aMusselList)])   # performance
+        self.delta_previous =  np.zeros([len(aMusselList)])   # performance
         self.sigma =  np.zeros([len(aMusselList)])   # confidence
+        self.sigma_previous =  np.zeros([len(aMusselList)])   # confidence
         self.sigma_init =  np.zeros([len(aMusselList)])   # initial values of confidence
+        self.sigma_init_previous =  np.zeros([len(aMusselList)])   # initial values of confidence
         self.zeta_init =  np.zeros([len(aMusselList)])   # initial values of trust
+        self.zeta_init_previous =  np.zeros([len(aMusselList)])   # initial values of trust
         self.adapt = 1
         self.K = 0.02
 
+        self.diff_zeta_previous = np.zeros([len(aMusselList)])
+        self.diff_zeta = np.zeros([len(aMusselList)])
+        self.diff_sigma_previous = np.zeros([len(aMusselList)])
+        self.diff_sigma = np.zeros([len(aMusselList)])
+
+        self.flag_no_comm = np.zeros([len(aMusselList)])
+
         self.zeta =  np.zeros([len(aFishList), len(aMusselList)])    # trust matrix --> rows: aFish trust vectors
+        self.zeta_previous =  np.zeros([len(aFishList), len(aMusselList)])    # trust matrix --> rows: aFish trust vectors
         self.index = aFishList.index(rospy.get_namespace())          # agent's index
         
-        # initialize trust variables
-        self.init_trust()
         
         # publishers
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
@@ -95,6 +107,7 @@ class ScenarioController(object):
         
         # trust scenario
         rospy.Timer(rospy.Duration(self.trust_sample), self.update_communication_structures)
+        rospy.Timer(rospy.Duration(self.trust_sample), self.trust)
         
         # open to overwrite file content -- used for path visualization
         #f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','w')
@@ -182,7 +195,7 @@ class ScenarioController(object):
 
         # uncomment for simulation time tracking
         #if '1' in rospy.get_namespace():
-        #    print "$$$$$$$$$$$$$$$$$  " + str(rospy.get_time() - self.startTime)
+        #    #print "$$$$$$$$$$$$$$$$$  " + str(rospy.get_time() - self.startTime)
         C = 0
         
         # get sensory signal amplitude
@@ -203,10 +216,10 @@ class ScenarioController(object):
                 self.levyA = 0
                 # constant time period for tumbling activity
                 self.levyTimeout = rospy.get_time() + 0.2
-                #print "outside the area, tumbling"
+                ##print "outside the area, tumbling"
             elif self.levyTimeout is None:
                 t = self.levy_random()
-                #print "## keeping direction for " + str(t)
+                ##print "## keeping direction for " + str(t)
                 self.levyTimeout = rospy.get_time() + t
                 self.levyA = 1
             elif rospy.get_time() >= self.levyTimeout:
@@ -218,7 +231,7 @@ class ScenarioController(object):
                 else:
                     # levy random variable
                     t = self.levy_random()
-                    #print "## keeping direction for " + str(t)
+                    ##print "## keeping direction for " + str(t)
                     self.levyTimeout = rospy.get_time() + t
                     
             A = self.levyA
@@ -311,14 +324,22 @@ class ScenarioController(object):
         Initialization function for trust variables.
         '''
 
+        self.sigma_init_previous = self.sigma_init
+        self.zeta_init_previous = self.zeta_init
+        self.delta_previous = self.delta
+        self.delta =  np.zeros([len(aMusselList)])   # performance
+        self.sigma_init =  np.zeros([len(aMusselList)]) 
+        self.zeta_init =  np.zeros([len(aMusselList)]) 
         for i in range(len(aMusselList)):
             if self.b[i] == 1:
-                self.sigma_init[i] = round(random.random(),1)
+                self.sigma_init[i] = round(random(),1)
                 self.zeta_init[i] = 0.1
                 for j in range(len(aMusselList)):
-                    self.delta[i] = self.delta[i] + (np.linalg.norm(self.current[j] - self.current[i])/max(np.apply_along_axis(np.linalg.norm,1,self.current)))**2
-                self.delta[i] = math.sqrt(self.delta[i])
-
+                    if self.b[j] == 1: 
+                        max_norm = max(np.apply_along_axis(np.linalg.norm,1,self.current))
+                        if max_norm != 0:
+                            self.delta[i] = self.delta[i] + (np.linalg.norm(self.current[j] - self.current[i])/max_norm)**2
+                self.delta[i] = sqrt(self.delta[i])
 
 
            
@@ -345,17 +366,19 @@ class ScenarioController(object):
                         pow(self.position.depth - p.z, 2)) < self.communicationRange:
                     if self.A[i] == 0:
                         newConnection = True
+                    self.A_previous[i] = self.A[i]
                     self.A[i] = 1
                     aFishesInRange.append(i)
                 else:
+                    self.A_previous[i] = self.A[i]
                     self.A[i] = 0
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
         
-        if len(aFishesInRange) == len(aFishList):
-            print "fully connected"
+        # if len(aFishesInRange) == len(aFishList):
+            #print "fully connected"
         # update aMussel connectivity matrix based on new position information
         aMusselsInRange = []
         for i in range(len(aMusselList)):
@@ -396,6 +419,7 @@ class ScenarioController(object):
             
                 result = get_sen()
                 self.current[i] = result.current
+                self.b_previous[i] = self.b[i]
                 self.b[i] = 1
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
@@ -403,7 +427,16 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
     
 
-    def sign(x): 
+    def deriv(self,y,t, alpha): # return derivatives of the array y #edit: put an extra arg
+        return np.array([ self.diff_zeta[alpha[0]], 0])
+    
+
+    def deriv_sigma(self,y,t, alpha): # return derivatives of the array y #edit: put an extra arg
+        return np.array([ self.diff_sigma[alpha[0]], 0])
+
+
+
+    def sign(self,x): 
         '''
         signum function
         '''
@@ -422,71 +455,61 @@ class ScenarioController(object):
         TODO -- implement + test behavior (is it better if it is called periodically?)
         '''
         
-        result_zeta_previous = np.zeros([len(aMusselList)])
-        result_zeta = np.zeros([len(aMusselList)])
-        result_sigma_previous = np.zeros([len(aMusselList)]) # TODO
-        result_sigma = np.zeros([len(aMusselList)])
+        # initialize trust variables
+        self.init_trust()
 
-        diff_zeta_previous = np.zeros([len(aMusselList)])
-        diff_zeta = np.zeros([len(aMusselList)])
-        diff_sigma_previous = np.zeros([len(aMusselList)])
-        diff_sigma = np.zeros([len(aMusselList)])
-
-        delta_previous = np.zeros([len(aMusselList)])
-        sigma_init_previous = np.zeros([len(aMusselList)])
-        zeta_init_previous = np.zeros([len(aMusselList)])
-        zeta_previous = np.zeros([len(aFishList), len(aMusselList)])  
-        A_previous = np.zeros([len(aFishList)])
-
-        time_step = np.linspace(0.0,self.trust_sample,2)
-
-        flag = np.zeros([len(aMusselList)])
+        time_step = np.linspace(0.0,0.001,2)
 
         for i in range(len(aMusselList)):
-            #TODO
 
-            ## last zeta'  and sigma' value needed
-
-            if result_sigma_previous[i] == 0:
+            if self.sigma_previous[i] == 0:
                 self.tau[i] = 0
             else:                  
-                self.tau[i] = math.exp(-(delta_previous[i] ** 2)/(result_sigma_previous[i] ** 2))
+                self.tau[i] = math.exp(-(self.delta_previous[i] ** 2)/(self.sigma_previous[i] ** 2))
 
             for j in range(len(aFishList)):
-                diff_zeta[i] = diff_zeta[i] + A_previous[j]*sign(zeta_previous[j,i] - zeta_previous[self.index,i]) + self.b[i]*sign(self.tau[i] - zeta_previous[self.index,i])
+                self.diff_zeta[i] = self.diff_zeta[i] + self.A_previous[j]*self.sign(self.zeta_previous[j,i] - self.zeta_previous[self.index,i]) + self.b_previous[i]*self.sign(self.tau[i] - self.zeta_previous[self.index,i])
 
             
             if self.adapt > 0:
-                diff_sigma[i] = - self.K*self.b[i]*sign(self.tau[i] - zeta_previous[self.index,i])
+                self.diff_sigma[i] = - self.K*self.b_previous[i]*self.sign(self.tau[i] - self.zeta_previous[self.index,i])
             else:
-                diff_sigma[i] = 0
+                self.diff_sigma[i] = 0
                      
     
-            if self.b[i] == 0:
-                flag[i] = 1
-                diff_zeta[i] = 0
-                diff_sigma[i] = 0
+            if self.b_previous[i] == 0:
+                self.flag_no_comm[i] = 1
+                self.diff_zeta[i] = 0
+                self.diff_sigma[i] = 0
 
-        diff_zeta = diff_zeta_previous + diff_zeta 
-        diff_sigma = diff_sigma_previous + diff_sigma
+            print self.diff_zeta[i]
+
+        self.diff_zeta = self.diff_zeta_previous + self.diff_zeta 
+        self.diff_sigma = self.diff_sigma_previous + self.diff_sigma
+
+        self.diff_zeta_previous = self.diff_zeta
+        self.diff_sigma_previous = self.diff_sigma
 
         for i in range(len(aMusselList)):       
-            if flag[i] == 0:
+            if self.flag_no_comm[i] == 0:
 
-                yinit = [zeta_init_previous[i], 0]
-                yINT = odeint(deriv,yinit,time_step)
-                result_zeta[i] = yINT[:,0][1]
+                alpha = [i]
+                yinit = [self.zeta_init_previous[i], 0]
+                yINT = odeint(self.deriv,yinit,time_step,args=(alpha, ))
+                self.zeta[self.index,i] = yINT[:,0][1]           
                 
-                sigmainit = [sigma_init_previous[i], 0]
-                sigmaINT = odeint(deriv_sigma,sigmainit,time,_step)
-                result_sigma[i] = sigmaINT[:,0][1]
+                sigmainit = [self.sigma_init_previous[i], 0]
+                sigmaINT = odeint(self.deriv_sigma,sigmainit,time_step,args=(alpha, ))
+                self.sigma[i] = sigmaINT[:,0][1]
             else:
-                result_zeta[i] = result_zeta_previous[i]
-                result_sigma[i] = result_sigma_previous[i]
-                flag[i] = 0
+                self.zeta[self.index,i] = self.zeta_previous[self.index,i]
+                self.sigma[i] = self.sigma_previous[i]          
+                self.flag_no_comm[i] = 0
 
-        return result_zeta
-        
+        self.zeta_previous = self.zeta
+        self.sigma_previous = self.sigma
+        print self.zeta
+
                         
 if __name__ == "__main__":
     
