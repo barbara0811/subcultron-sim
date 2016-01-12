@@ -123,7 +123,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
         group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find apad)/data/locations/swarm_loc.yaml"}))
         
         # Static TF
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/devices/static_frames.xml"}))
+        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/devices/static_frames.xml"}))
         # Load the simulation
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/simulation_standard.xml"}))
         
@@ -135,13 +135,14 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/visualization_standard.xml"}))
         group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"apad" + str(first_index_pad + i + 1) + "/uwsim_hook"}))
 
+        '''
         if outputToScreen:
             group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
             group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server", "output":"screen"}))
         else:	
             group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller"}))
             group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
-        
+        '''
         root.append(group)
 
     for i in range(n_fish):
@@ -158,7 +159,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
         group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find afish)/data/locations/swarm_loc.yaml"}))
         
         # Static TF
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/devices/static_frames.xml"}))
+        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/devices/static_frames.xml"}))
         # Load the simulation
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/simulation/simulation_standard.xml"}))
         
@@ -190,7 +191,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
         group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find amussel)/data/locations/swarm_loc.yaml"}))
         
         # Static TF
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
+        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
         # Load the simulation
         group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/simulation_standard.xml"}))
         

@@ -10,36 +10,27 @@
 #include <auv_msgs/NED.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
+ #include <std_msgs/Float64.h>
 #include <ros/ros.h>
 #include <string>
 
 struct BatterySensorSim
 {
 	BatterySensorSim()
-		//batteryThresh(5) // default value
 	{
 		start = false;
 		sleepMode = false;
 
 		ros::NodeHandle nh, ph("~");
-		//ph.getParam("battery_threshold", batteryThresh);
 		
 		std::string ns = ros::this_node::getNamespace();
-		//std::string s = "/amussel";
-		
-		//agentId = ns.substr(9,ns.length()-1);
-		
-		//batteryPublished = false;
-		//gotPosition = false;
 
-		//position = auv_msgs::NavSts();
 		batteryPercentage = std_msgs::Int32();
 		batteryPercentage.data=50;
 
 		// subscribers
 		powerSleepMode = nh.subscribe<std_msgs::Bool>("power_sleep_mode", 1, &BatterySensorSim::onPowerSleep, this);
-		//positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &BatterySensorSim::onPosition, this);
-		//chargeSub = nh.subscribe<auv_msgs::NavSts>("charging", 1, &BatterySensorSim::onPosition, this);
+		chargeSub = nh.subscribe<std_msgs::Float64>("charging", 1, &BatterySensorSim::onCharge, this);
 		// publishers
 		batteryPub = nh.advertise<std_msgs::Int32>("battery_level", 1);
 		//surfaceReq = nh.advertise<std_msgs::Bool>("goto_surface", 1);
@@ -56,16 +47,6 @@ struct BatterySensorSim
 		
 		if (batteryPercentage.data>0) batteryPercentage.data-=1;
         batteryPub.publish(batteryPercentage);
-        /*
-        std_msgs::Bool flag;
-        flag.data=true;
-        if (batteryPercentage.data==batteryThresh) surfaceReq.publish(flag);
-        if ((batteryPercentage.data<=batteryThresh) && (position.position.depth<1.0) && !batteryPublished) 
-        {
-			alertPub.publish(position); 
-			batteryPublished = true;
-		}
-		*/
 	}
 
 	void onStart(const typename std_msgs::Bool::ConstPtr& msg)

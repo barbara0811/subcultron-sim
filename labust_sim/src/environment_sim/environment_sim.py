@@ -17,16 +17,19 @@ class EnvironmentSim(object):
         self.start = False
 
         # current
-        self.currentSim = None
-        self.init_current_sim()
+        if rospy.has_param('~current_mode'):
+            self.currentSim = None
+            self.init_current_sim()
 
         # temperature
-        self.tempSim = None
-        self.init_temp_sim()
+        if rospy.has_param('~temp_mode'):
+            self.tempSim = None
+            self.init_temp_sim()
 
         # noise
-        self.noiseSim = None
-        self.init_noise_sim()
+        if rospy.has_param('~noise_mode'):
+            self.noiseSim = None
+            self.init_noise_sim()
         
         rospy.spin()
 

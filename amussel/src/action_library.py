@@ -55,3 +55,38 @@ def send_depth_goal(stateRefPub, position):
     except rospy.ServiceException, e:
         rospy.logerr("Failed to call change depth action" % e)
         return -1
+    
+class Anchor(object):
+    
+    def __init__(self):
+        self.anchored = False
+        
+        
+    def hold(self):
+        '''
+        Args:
+            - none
+        Returns:
+            bool -- task success
+        '''
+        self.anchored = True
+        return True
+    
+    def release(self):
+        '''
+        Args:
+            - none
+        Returns:
+            bool -- task success
+        '''
+        self.anchored = False
+        return True
+    
+    def check_status(self):
+        '''
+        Args:
+            - none
+        Returns:
+            bool -- anchoring status
+        '''
+        return self.anchored

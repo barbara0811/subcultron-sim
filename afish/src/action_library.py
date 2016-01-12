@@ -61,3 +61,198 @@ def send_state_ref(stateRefPub, stateRef):
     except rospy.ServiceException, e:
         rospy.logerr("Failed to call change depth action" % e)
         return -1
+
+class GPS(object):
+    
+    def has_fix(self):
+        '''
+        Args:
+            - none
+        Returns:
+            True/False
+        '''
+        
+        pass
+    
+    def get_data(self):
+        '''
+        Args:
+            - none
+        Returns:
+            vector<float> (latitude, longitude, altitude)
+        '''
+        
+        pass
+    
+    def get_accuracy(self):
+        '''
+        Args:
+            - none
+        Returns:
+            float (hdop)
+        '''
+        pass
+    
+class AcousticModem(object):
+    
+    def send(self, destination, data):
+        '''
+        Args:
+            destination: receiver id #TODO --> define how it is represented (int/string?)
+            data: string
+        Returns:
+            - none
+        '''
+        pass
+    
+    def receive(self):
+        '''
+        Args:
+            - none
+        Returns:
+            data: source + received data (string)
+        '''
+        pass
+
+class WiFi(object):
+    
+    def send(self, destination, data):
+        '''
+        Args:
+            destination: receiver id #TODO --> define how it is represented (int/string?)
+            data: string
+        Returns:
+            - none
+        '''
+        pass
+    
+    def receive(self):
+        '''
+        Args:
+            - none
+        Returns:
+            data: source + received data (string)
+        '''
+        pass
+
+class Clock(object):
+    
+    def get_time(self):
+        '''
+        Args:
+            - none
+        Returns:
+            time: long (float)
+        '''
+        
+        return rospy.get_time()
+
+class Induction(object):
+    '''
+    Inductive charging module.
+    '''
+    
+    def __init__(self):
+        self.coils = ["", "", "", ""]
+        self.enabledCoils = set()
+        
+    def enable_coil(self, i):
+        '''
+        For receiver.
+        
+        Args:
+            i: int -- coil index 
+        Returns:
+            bool -- action success
+        '''
+        pass
+
+    def disable_coil(self, i):
+        '''
+        For receiver.
+        
+        Args:
+            i: int -- coil index 
+        Returns:
+            bool -- action success
+        '''
+        pass
+    
+    def send_energy(self, i):
+        '''
+        Args:
+            i: int -- coil index 
+        Returns:
+            bool -- task success
+        '''
+        pass
+    
+    def get_charging_power(self, i):
+        '''
+        Args:
+            i: int -- coil index 
+        Returns:
+            int --
+        '''
+        pass
+    
+class Docking(object):
+    '''
+    Docking module.
+    '''
+    
+    def __init__(self):
+        self.slots = ["", "", "", ""]
+        self.slotLocationOffset = [[-5, 0], [0, -5], [5, 0], [0, 5]]
+        self.occupiedSlots = set()
+        
+    def lock_robot(self, target, i):
+        '''
+        Args:
+            target: string -- target robot id
+            i: int -- docking slot id
+        Returns:
+            bool -- task success
+        '''
+        if i in self.occupiedSlots:
+            raise AttributeError("Trying to lock robot onto already occupied slot!")
+            return False
+        
+        if i <= len(self.slots):
+            raise AttributeError("Trying to lock robot onto non-existent slot!")
+            return False
+        
+        self.occupiedSlots.add(i)
+        self.slots[i] = target
+        return True
+
+    def release_robot(self):
+        '''
+        Args:
+            target: string -- target robot id
+            i: int -- docking slot id
+        Returns:
+            bool -- task success
+        '''
+        if i not in self.occupiedSlots:
+            raise AttributeError("Trying to release robot from unoccupied slot!")
+            return False
+        
+        if i <= len(self.slots):
+            raise AttributeError("Trying to release robot from non-existent slot!")
+            return False
+        
+        self.occupiedSlots.remove(i)
+        self.slots[i] = ""
+        return True
+    
+    def check_availability(self):
+        '''
+        Args:
+            - none
+        Returns:
+            int[] -- available slots
+        '''
+        
+        return (set(range(len(self.slots))) - self.occupiedSlots).toList()
+    
