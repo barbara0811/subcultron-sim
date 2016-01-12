@@ -22,7 +22,7 @@ class EnvironmentSim(object):
             self.init_current_sim()
 
         # temperature
-        if rospy.has_param('~temp_mode'):
+        if rospy.has_param('~temperature_mode'):
             self.tempSim = None
             self.init_temp_sim()
 
