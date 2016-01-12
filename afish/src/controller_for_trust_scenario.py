@@ -22,14 +22,14 @@ from copy import deepcopy
 from scipy.integrate import odeint
 import numpy as np
 
-area = [[-40, 40], [-40, 40]]
+area = [[-10, 10], [-10, 10]]
 
 aFishList = []
-for i in range(5):
+for i in range(1):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(1):
+for i in range(10):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -318,9 +318,6 @@ class ScenarioController(object):
                 for j in range(len(aMusselList)):
                     self.delta[i] = self.delta[i] + (np.linalg.norm(self.current[j] - self.current[i])/max(np.apply_along_axis(np.linalg.norm,1,self.current)))**2
                 self.delta[i] = math.sqrt(self.delta[i])
-
-
-
            
     def update_communication_structures(self, event):  
         '''
@@ -354,8 +351,6 @@ class ScenarioController(object):
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
         
-        if len(aFishesInRange) == len(aFishList):
-            print "fully connected"
         # update aMussel connectivity matrix based on new position information
         aMusselsInRange = []
         for i in range(len(aMusselList)):
@@ -395,8 +390,11 @@ class ScenarioController(object):
                 get_sen = rospy.ServiceProxy(aMusselList[i] + 'get_sensory_reading', GetSensoryReading)
             
                 result = get_sen()
-                self.current[i] = result.current
-                self.b[i] = 1
+                
+                if len(result.current) == 2:
+                    self.current[i] = result.current
+                    self.b[i] = 1
+                    
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
