@@ -20,6 +20,7 @@ class ScenarioController(object):
     
     def __init__(self):
 
+        self.gotCurrent = False
         self.current = NED(0, 0, 0)
         self.position = None
         self.start = False
@@ -62,6 +63,7 @@ class ScenarioController(object):
         if not self.start:
             return
         
+        self.gotCurrent = True
         self.current.north = msg.twist.linear.x
         self.current.east = msg.twist.linear.y
     
@@ -76,7 +78,10 @@ class ScenarioController(object):
         
     def get_sensory_reading_srv(self, req):
         
-        return {'current': [self.current.north, self.current.east]}
+        if not self.gotCurrent:
+            return {}
+        else:
+            return {'current': [self.current.north, self.current.east]}
         
     def send_depth_goal(self, depth):
 

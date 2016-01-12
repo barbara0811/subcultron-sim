@@ -25,6 +25,7 @@ import numpy as np
 area = [[-10, 10], [-10, 10]]
 
 aFishList = []
+
 for i in range(3):
     aFishList.append("/afish" + str(i + 1) + "/")
 
@@ -341,7 +342,6 @@ class ScenarioController(object):
                             self.delta[i] = self.delta[i] + (np.linalg.norm(self.current[j] - self.current[i])/max_norm)**2
                 self.delta[i] = sqrt(self.delta[i])
 
-
            
     def update_communication_structures(self, event):  
         '''
@@ -377,8 +377,6 @@ class ScenarioController(object):
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
         
-        # if len(aFishesInRange) == len(aFishList):
-            #print "fully connected"
         # update aMussel connectivity matrix based on new position information
         aMusselsInRange = []
         for i in range(len(aMusselList)):
@@ -418,9 +416,12 @@ class ScenarioController(object):
                 get_sen = rospy.ServiceProxy(aMusselList[i] + 'get_sensory_reading', GetSensoryReading)
             
                 result = get_sen()
-                self.current[i] = result.current
-                self.b_previous[i] = self.b[i]
-                self.b[i] = 1
+                
+                if len(result.current) == 2:
+                    self.b_previous[i] = self.b[i]
+                    self.current[i] = result.current
+                    self.b[i] = 1
+                    
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:

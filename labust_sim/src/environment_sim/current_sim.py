@@ -10,6 +10,7 @@ import rospy
 from std_msgs.msg import Bool
 from auv_msgs.msg import NavSts, NED
 from geometry_msgs.msg import TwistStamped
+import numpy.random as random
 
 class CurrentSim(object):
     """
@@ -62,6 +63,8 @@ class CurrentSim(object):
         self.position.depth = msg.position.depth
  
         newCurrent = self.get_current(self.position.north, self.position.east)
+        newCurrent.twist.linear.x += random.normal(0, 0.15)
+        newCurrent.twist.linear.y += random.normal(0, 0.15)
 
         if newCurrent is None:
             newCurrent = TwistStamped()
