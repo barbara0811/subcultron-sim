@@ -73,6 +73,9 @@ add_service_files(
    RelayControl.srv
    RosbagControl.srv
    GetChargeInfo.srv
+   GetPosition.srv
+   GetSensoryReading.srv
+   GetTrustInfo.srv
 )
 
 ## Generate actions in the 'action' folder
