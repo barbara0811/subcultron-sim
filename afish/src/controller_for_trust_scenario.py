@@ -20,14 +20,14 @@ from random import random, choice
 from copy import deepcopy
 import numpy as np
 
-area = [[-20, 20], [-20, 20]]
+area = [[-40, 40], [-40, 40]]
 
 aFishList = []
 for i in range(5):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(5):
+for i in range(1):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -188,6 +188,9 @@ class ScenarioController(object):
             oldAmplitude = amp[0]
         
         if newAmplitude < 0:    # no sensory data -- perform Levy walk
+            # clean up leftover chemotaxis flag (otherwise it can get stuck in tumbling)
+            if self.tumble:
+                self.tumble = False
             # levy walk
             if self.levyTumble:
                 self.levyA = 0
@@ -228,7 +231,7 @@ class ScenarioController(object):
         if newAmplitude < 0: # Levy walk
             angVelocity = choice([-1, 1]) * (1 - A) * (60 + np.random.normal(0, 10))
         else: # bacterial chemotaxis
-            angVelocity = (1 - A) * (30 + np.random.normal(0, 10))
+            angVelocity = (1 - A) * (30 + np.random.normal(0, 5))
         angVelocityRad = radians(angVelocity)
         
         deltax = linVelocity * cos(angVelocityRad + radians(self.yaw))
@@ -333,6 +336,8 @@ class ScenarioController(object):
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
         
+        if len(aFishesInRange) == len(aFishList):
+            print "fully connected"
         # update aMussel connectivity matrix based on new position information
         aMusselsInRange = []
         for i in range(len(aMusselList)):
