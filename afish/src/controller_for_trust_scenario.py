@@ -9,6 +9,7 @@ __author__ = "barbanas"
 
 import rospy
 import action_library
+import math
 
 from misc_msgs.srv import GetPosition, GetSensoryReading, GetTrustInfo
 from navcon_msgs.srv import EnableControl, ConfigureVelocityController
@@ -18,6 +19,7 @@ from std_msgs.msg import Bool, Float64
 from math import radians, pow, sin, cos, pi, log, tan, sqrt, fabs
 from random import random, choice
 from copy import deepcopy
+from scipy.integrate import odeint
 import numpy as np
 
 area = [[-20, 20], [-20, 20]]
@@ -51,6 +53,7 @@ class ScenarioController(object):
         
         # trust
         self.communicationRange = 10
+        self.trust_sample = 0.2
         
         self.A = np.zeros([len(aFishList)])                # graph connectivity matrix
         self.b = np.zeros([len(aMusselList)])              # visited aMussels
@@ -59,7 +62,11 @@ class ScenarioController(object):
         self.tau = np.zeros([len(aMusselList)])      # observation function about agent's trustworthiness
         self.delta =  np.zeros([len(aMusselList)])   # performance
         self.sigma =  np.zeros([len(aMusselList)])   # confidence
-        
+        self.sigma_init =  np.zeros([len(aMusselList)])   # initial values of confidence
+        self.zeta_init =  np.zeros([len(aMusselList)])   # initial values of trust
+        self.adapt = 1
+        self.K = 0.02
+
         self.zeta =  np.zeros([len(aFishList), len(aMusselList)])    # trust matrix --> rows: aFish trust vectors
         self.index = aFishList.index(rospy.get_namespace())          # agent's index
         
@@ -87,7 +94,7 @@ class ScenarioController(object):
         rospy.Timer(rospy.Duration(0.1), self.bacterial_chemotaxis_levy_walk)
         
         # trust scenario
-        rospy.Timer(rospy.Duration(0.2), self.update_communication_structures)
+        rospy.Timer(rospy.Duration(self.trust_sample), self.update_communication_structures)
         
         # open to overwrite file content -- used for path visualization
         #f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','w')
@@ -294,12 +301,23 @@ class ScenarioController(object):
             
         x = delta + c * x
         return x
-      
+
+
     def init_trust(self):
         '''
         Initialization function for trust variables.
         '''
-        pass
+
+        for i in range(len(aMusselList)):
+            if self.b[i] == 1:
+                self.sigma_init[i] = round(random.random(),1)
+                self.zeta_init[i] = 0.1
+                for j in range(len(aMusselList)):
+                    self.delta[i] = self.delta[i] + (np.linalg.norm(self.current[j] - self.current[i])/max(np.apply_along_axis(np.linalg.norm,1,self.current)))**2
+                self.delta[i] = math.sqrt(self.delta[i])
+
+
+
            
     def update_communication_structures(self, event):  
         '''
@@ -378,15 +396,91 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
-                 
+    
+
+    def sign(x): 
+        '''
+        signum function
+        '''
+        
+        if x < 0: 
+            return -1 
+        elif x > 0: 
+            return 1 
+        else: 
+            return 0 
+
+
     def trust(self, event):
         '''
         Trust implementation. Gets called upon information change.
         TODO -- implement + test behavior (is it better if it is called periodically?)
         '''
-        # Petra
+        
+        result_zeta_previous = np.zeros([len(aMusselList)])
+        result_zeta = np.zeros([len(aMusselList)])
+        result_sigma_previous = np.zeros([len(aMusselList)]) # TODO
+        result_sigma = np.zeros([len(aMusselList)])
 
-        return
+        diff_zeta_previous = np.zeros([len(aMusselList)])
+        diff_zeta = np.zeros([len(aMusselList)])
+        diff_sigma_previous = np.zeros([len(aMusselList)])
+        diff_sigma = np.zeros([len(aMusselList)])
+
+        delta_previous = np.zeros([len(aMusselList)])
+        sigma_init_previous = np.zeros([len(aMusselList)])
+        zeta_init_previous = np.zeros([len(aMusselList)])
+        zeta_previous = np.zeros([len(aFishList), len(aMusselList)])  
+        A_previous = np.zeros([len(aFishList)])
+
+        time_step = np.linspace(0.0,self.trust_sample,2)
+
+        flag = np.zeros([len(aMusselList)])
+
+        for i in range(len(aMusselList)):
+            #TODO
+
+            ## last zeta'  and sigma' value needed
+
+            if result_sigma_previous[i] == 0:
+                self.tau[i] = 0
+            else:                  
+                self.tau[i] = math.exp(-(delta_previous[i] ** 2)/(result_sigma_previous[i] ** 2))
+
+            for j in range(len(aFishList)):
+                diff_zeta[i] = diff_zeta[i] + A_previous[j]*sign(zeta_previous[j,i] - zeta_previous[self.index,i]) + self.b[i]*sign(self.tau[i] - zeta_previous[self.index,i])
+
+            
+            if self.adapt > 0:
+                diff_sigma[i] = - self.K*self.b[i]*sign(self.tau[i] - zeta_previous[self.index,i])
+            else:
+                diff_sigma[i] = 0
+                     
+    
+            if self.b[i] == 0:
+                flag[i] = 1
+                diff_zeta[i] = 0
+                diff_sigma[i] = 0
+
+        diff_zeta = diff_zeta_previous + diff_zeta 
+        diff_sigma = diff_sigma_previous + diff_sigma
+
+        for i in range(len(aMusselList)):       
+            if flag[i] == 0:
+
+                yinit = [zeta_init_previous[i], 0]
+                yINT = odeint(deriv,yinit,time_step)
+                result_zeta[i] = yINT[:,0][1]
+                
+                sigmainit = [sigma_init_previous[i], 0]
+                sigmaINT = odeint(deriv_sigma,sigmainit,time,_step)
+                result_sigma[i] = sigmaINT[:,0][1]
+            else:
+                result_zeta[i] = result_zeta_previous[i]
+                result_sigma[i] = result_sigma_previous[i]
+                flag[i] = 0
+
+        return result_zeta
         
                         
 if __name__ == "__main__":
