@@ -20,17 +20,18 @@ from math import radians, pow, sin, cos, pi, log, tan, sqrt, fabs
 from random import random, choice
 from copy import deepcopy
 from scipy.integrate import odeint
+import itertools
 import numpy as np
 
-area = [[-10, 10], [-10, 10]]
+area = [[-5, 5], [-5, 5]]
 
 aFishList = []
 
-for i in range(3):
+for i in range(2):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(10):
+for i in range(5):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -54,7 +55,7 @@ class ScenarioController(object):
         
         # trust
         self.communicationRange = 10
-        self.trust_sample = 2
+        self.trust_sample = 0.001
         
         self.A = np.zeros([len(aFishList)])                # graph connectivity matrix
         self.A_previous = np.zeros([len(aFishList)])                # graph connectivity matrix
@@ -319,6 +320,19 @@ class ScenarioController(object):
         x = delta + c * x
         return x
 
+    def get_max_norm(self):
+        '''
+        A method to calculate maximum norm of all possible permutations in a matrix of currents.
+
+        '''
+        
+        permutations_indices = list(itertools.permutations(np.linspace(0,len(aMusselList) - 1,len(aMusselList)),2))
+        permutations_norms = np.zeros([len(permutations_indices)])
+        for i in range(len(permutations_indices)):
+            permutations_norms[i] = np.linalg.norm(self.current[int(permutations_indices[i][0])] - self.current[int(permutations_indices[i][1])])
+
+        return max(permutations_norms)
+
 
     def init_trust(self):
         '''
@@ -335,12 +349,16 @@ class ScenarioController(object):
             if self.b[i] == 1:
                 self.sigma_init[i] = round(random(),1)
                 self.zeta_init[i] = 0.1
+                nb_of_subs = 0
                 for j in range(len(aMusselList)):
                     if self.b[j] == 1: 
-                        max_norm = max(np.apply_along_axis(np.linalg.norm,1,self.current))
+                        max_norm = self.get_max_norm()   
                         if max_norm != 0:
-                            self.delta[i] = self.delta[i] + (np.linalg.norm(self.current[j] - self.current[i])/max_norm)**2
-                self.delta[i] = sqrt(self.delta[i])
+                            self.delta[i] = self.delta[i] + ((np.linalg.norm(self.current[j] - self.current[i]))/max_norm)**2
+                            nb_of_subs += 1
+                self.delta[i] = sqrt(self.delta[i])/nb_of_subs
+                nb_of_subs = 0
+        # print "delta: " + str(self.delta) + "\n"
 
            
     def update_communication_structures(self, event):  
@@ -426,6 +444,8 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
+
+        # print "struja: " + str(self.current) + "\n"
     
 
     def deriv(self,y,t, alpha): # return derivatives of the array y #edit: put an extra arg
@@ -458,8 +478,10 @@ class ScenarioController(object):
         
         # initialize trust variables
         self.init_trust()
-
-        time_step = np.linspace(0.0,0.001,2)
+        self.diff_zeta = np.zeros([len(aMusselList)])
+        self.diff_sigma = np.zeros([len(aMusselList)])
+        time_step = np.linspace(0.0,self.trust_sample,2)
+        self.flag_no_comm = np.zeros([len(aMusselList)])
 
         for i in range(len(aMusselList)):
 
@@ -483,9 +505,10 @@ class ScenarioController(object):
                 self.diff_zeta[i] = 0
                 self.diff_sigma[i] = 0
 
-            print self.diff_zeta[i]
+        # print "diff previous: " + str(self.diff_zeta_previous)
 
         self.diff_zeta = self.diff_zeta_previous + self.diff_zeta 
+        # print "diff: " + str(self.diff_zeta)
         self.diff_sigma = self.diff_sigma_previous + self.diff_sigma
 
         self.diff_zeta_previous = self.diff_zeta
@@ -507,9 +530,11 @@ class ScenarioController(object):
                 self.sigma[i] = self.sigma_previous[i]          
                 self.flag_no_comm[i] = 0
 
+        # print "zeta previous: " + str(self.zeta_previous[self.index])
+        print "zeta: " + str(self.zeta[self.index])
         self.zeta_previous = self.zeta
         self.sigma_previous = self.sigma
-        print self.zeta
+            
 
                         
 if __name__ == "__main__":
