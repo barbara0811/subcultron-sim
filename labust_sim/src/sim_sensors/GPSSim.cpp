@@ -102,6 +102,7 @@ struct GPSSim
 
 			static int i=0;
 			i=++i%rate;
+			gps_pub.publish(fix);
 			if (fix->altitude>=-0.1 && (i == 0))
 			{
 				gps_pub.publish(fix);
@@ -109,7 +110,7 @@ struct GPSSim
 		}
 		catch (tf2::TransformException& ex)
 		{
-			ROS_WARN("%s",ex.what());
+			ROS_ERROR("%s",ex.what());
 		}
 	}
 

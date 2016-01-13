@@ -114,6 +114,18 @@
 
     </node-->
 
+
+    <!-- ========================================================= -->
+    <!-- == Battery simulation node =========================== -->
+    <!-- ========================================================= -->
+
+    <node 
+		pkg="labust_sim" 
+		type="battery_sensor_sim" 
+		name="battery_sensor_sim">
+
+    </node>
+
     <!-- ========================================================= -->
     <!-- == Environment simulation node ========================== -->
     <!-- ========================================================= -->
@@ -141,7 +153,7 @@
 		<param name="noise_intensity" value="-1.0" />
 		<param name="noise_source_north" value="10" />
 		<param name="noise_source_east" value="-10" />
-		<param name="noise_source_depth" value="2" />
+		<param name="noise_source_depth" value="5" />
     </node>
 
 </launch>

@@ -108,6 +108,10 @@ class ScenarioController(object):
            
     def start_cb(self, msg):
         
+        battery = action_library.Battery()
+        print battery.get_level()
+        print "################"
+        return
         self.startTime = rospy.get_time()
         
         # enable and configure controllers

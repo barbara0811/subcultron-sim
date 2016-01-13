@@ -9,8 +9,8 @@
 #include <auv_msgs/NavSts.h>
 #include <auv_msgs/NED.h>
 #include <std_msgs/Bool.h>
-#include <std_msgs/Int32.h>
- #include <std_msgs/Float64.h>
+#include <std_msgs/Float64.h>
+#include <misc_msgs/GetChargeInfo.h>
 #include <ros/ros.h>
 #include <string>
 
@@ -25,17 +25,20 @@ struct BatterySensorSim
 		
 		std::string ns = ros::this_node::getNamespace();
 
-		batteryPercentage = std_msgs::Int32();
+		batteryPercentage = std_msgs::Float64();
 		batteryPercentage.data=50;
 
 		// subscribers
 		powerSleepMode = nh.subscribe<std_msgs::Bool>("power_sleep_mode", 1, &BatterySensorSim::onPowerSleep, this);
 		chargeSub = nh.subscribe<std_msgs::Float64>("charging", 1, &BatterySensorSim::onCharge, this);
-		// publishers
-		batteryPub = nh.advertise<std_msgs::Int32>("battery_level", 1);
-		//surfaceReq = nh.advertise<std_msgs::Bool>("goto_surface", 1);
-		//alertPub = nh.advertise<auv_msgs::NavSts>("/battery_alert", 1);
+		chargeSub = nh.subscribe<std_msgs::Float64>("draining", 1, &BatterySensorSim::onDrain, this); // when sending energy to another agent
 		
+		// publishers
+		batteryPub = nh.advertise<std_msgs::Float64>("battery_level", 1);
+
+		// services
+		getBatterySrv = nh.advertiseService("get_battery_level", &BatterySensorSim::getBatteryLevel, this);
+
 		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &BatterySensorSim::onStart, this);
 		timer = nh.createTimer(ros::Duration(1), &BatterySensorSim::timerCallback, this);
 	}
@@ -45,8 +48,18 @@ struct BatterySensorSim
 		if ((not start) or sleepMode)
 		    return;
 		
-		if (batteryPercentage.data>0) batteryPercentage.data-=1;
+		if (batteryPercentage.data > 0) batteryPercentage.data -= 0.2;
         batteryPub.publish(batteryPercentage);
+	}
+
+	void onCharge(const typename std_msgs::Float64::ConstPtr& msg)
+	{
+		batteryPercentage.data += msg->data;
+	}
+
+	void onDrain(const typename std_msgs::Float64::ConstPtr& msg)
+	{
+		batteryPercentage.data -= msg->data;
 	}
 
 	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
@@ -59,42 +72,29 @@ struct BatterySensorSim
 		sleepMode = msg->data;
 	}
 
-	/*
-	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
+	bool getBatteryLevel(misc_msgs::GetChargeInfo::Request &req, misc_msgs::GetChargeInfo::Response &resp)
 	{
-		// set position
-		position.position.north = msg->position.north;
-		position.position.east = msg->position.east;
-		position.position.depth = msg->position.depth;
-		position.header.frame_id=agentId;
-		gotPosition = true;
+		resp.battery_level = batteryPercentage.data;
+		return true;
 	}
-	*/
-
-	
 
 private:
+
 	// flags
 	bool start;
 	bool sleepMode;
-	//bool gotPosition;
-	//bool batteryPublished;
 
 	ros::Subscriber startSub;
 	ros::Subscriber powerSleepMode;
-	//ros::Subscriber positionSub;
-	//ros::Subscriber chargeSub;
+
+	ros::Subscriber chargeSub;
 	ros::Publisher batteryPub;
-	//ros::Publisher alertPub;
-	//ros::Publisher surfaceReq;
+
+	ros::ServiceServer getBatterySrv;
 
 	// battery level range
-	//int batteryThresh;
-	std_msgs::Int32 batteryPercentage;
-	//std::string agentId;
+	std_msgs::Float64 batteryPercentage;
 	ros::Timer timer;
-
-	//auv_msgs::NavSts position;
 };
 
 int main(int argc, char* argv[])

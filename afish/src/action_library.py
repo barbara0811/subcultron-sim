@@ -2,6 +2,8 @@
 import rospy
 from navcon_msgs.srv import EnableControl, ConfigureVelocityController
 from auv_msgs.msg import NavSts
+from misc_msgs.srv import GetChargeInfo
+from std_msgs.msg import Float64
 
 def send_position_goal(stateRefPub, position):
 
@@ -147,6 +149,20 @@ class Clock(object):
         
         return rospy.get_time()
 
+class Battery(object):
+    '''
+    Battery module.
+    '''
+    
+    def __init__(self):
+        pass
+    
+    def get_level(self):
+        rospy.wait_for_service('get_battery_level', 0.2)
+        battery_level = rospy.ServiceProxy('get_battery_level', GetChargeInfo)
+        level = battery_level().battery_level
+        return level
+    
 class Induction(object):
     '''
     Inductive charging module.
@@ -155,6 +171,7 @@ class Induction(object):
     def __init__(self):
         self.coils = ["", "", "", ""]
         self.enabledCoils = set()
+        self.drainPub = rospy.Publisher("draining", Float64, queue_size=1) 
         
     def enable_coil(self, i):
         '''
@@ -165,7 +182,12 @@ class Induction(object):
         Returns:
             bool -- action success
         '''
-        pass
+        if i in self.enabledCoils:
+            raise AttributeError("Trying to enable already enabled coil!")
+            return False
+            
+        self.enabledCoils.add(i)
+        return True
 
     def disable_coil(self, i):
         '''
@@ -176,16 +198,25 @@ class Induction(object):
         Returns:
             bool -- action success
         '''
-        pass
+        if i not in self.enabledCoils:
+            raise AttributeError("Trying to disable already disabled coil!")
+            return False
+            
+        self.enabledCoils.remove(i)
+        return True
     
-    def send_energy(self, i):
+    def send_energy(self, receiver, i):
         '''
         Args:
             i: int -- coil index 
         Returns:
             bool -- task success
         '''
-        pass
+        step = 0.1
+        
+        chargingPub = rospy.Publisher(receiver + "charging", Float64, queue_size=1)
+        self.drainPub.publish(step)
+        chargingPub.publish(step)
     
     def get_charging_power(self, i):
         '''

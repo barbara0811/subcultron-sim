@@ -118,14 +118,12 @@
     <!-- == Battery simulation node =========================== -->
     <!-- ========================================================= -->
 
-    <!--node 
+    <node 
 		pkg="labust_sim" 
 		type="battery_sensor_sim" 
 		name="battery_sensor_sim">
 
-		<param name="battery_threshold" value="10" />
-
-    </node-->
+    </node>
 
     <!-- ========================================================= -->
     <!-- == Environment simulation node ========================== -->

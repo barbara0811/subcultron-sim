@@ -20,7 +20,9 @@ sceneSpecFile = "swarm_test.xml"
 launchFileTemplate = "standard_simulation_raw.launch"
 launchFile = "standard_simulation.launch"
 
-controllerFile = "controller_for_trust_scenario.py"
+#controllerFile = "controller_for_trust_scenario.py"
+#controllerFile = "controller_for_scenario_one.py"
+controllerFile = "API_test.py"
 outputToScreen = True
 
 
