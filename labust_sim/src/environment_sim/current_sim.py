@@ -11,6 +11,7 @@ from std_msgs.msg import Bool
 from auv_msgs.msg import NavSts, NED
 from geometry_msgs.msg import TwistStamped
 import numpy.random as random
+from copy import deepcopy
 
 class CurrentSim(object):
     """
@@ -63,15 +64,22 @@ class CurrentSim(object):
         self.position.depth = msg.position.depth
  
         newCurrent = self.get_current(self.position.north, self.position.east)
-        newCurrent.twist.linear.x += random.normal(0, 0.15)
-        newCurrent.twist.linear.y += random.normal(0, 0.15)
+        
+        if "amussel5" in rospy.get_namespace():
+            newCurrent.twist.linear.x += 10
+            newCurrent.twist.linear.y += 10
+        '''
+        else:
+            newCurrent.twist.linear.x += random.normal(0, 0.1)
+            newCurrent.twist.linear.y += random.normal(0, 0.1)
+        '''
 
         if newCurrent is None:
             newCurrent = TwistStamped()
             newCurrent.twist.linear.x = 0
             newCurrent.twist.linear.y = 0
             newCurrent.twist.linear.z = 0
-            self.oldCurrent = newCurrent
+            self.oldCurrent = deepcopy(newCurrent)
             self.currSensorPub.publish(newCurrent)
             return
 
@@ -87,7 +95,7 @@ class CurrentSim(object):
         # publish only when current changes or current was not published in some time
         if publish or (self.currPubTimeout < rospy.get_time()):
             # save current value
-            self.oldCurrent = newCurrent
+            self.oldCurrent = deepcopy(newCurrent)
             # set current sensor info
             self.currSensorPub.publish(newCurrent)
             # move timeout to a different time

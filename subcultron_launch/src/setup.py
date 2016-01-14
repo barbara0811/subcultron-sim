@@ -353,3 +353,8 @@ if __name__ == "__main__":
     tree.write(fileOut)
      
     fileOut.close()
+    
+    if controllerFile == "controller_for_trust_scenario.py":
+        import uwsim_location_holder_generator as gen
+        gen.generate(n_fish, n_mussel)
+        

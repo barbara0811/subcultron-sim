@@ -15,6 +15,7 @@ from geometry_msgs.msg import Point, TwistStamped
 import rospy
 import rospkg
 rospack = rospkg.RosPack()
+from copy import deepcopy
 
 __author__ = "barbanas"
 
@@ -135,5 +136,5 @@ class CurrentRegion:
             return False
 
     def get_current(self):
-        return self.current
+        return deepcopy(self.current)
         

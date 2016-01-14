@@ -47,7 +47,7 @@ class ScenarioController(object):
         self.start = True
         while self.position is None:
             rospy.sleep(0.1)
-        self.send_depth_goal(12.5)
+        self.send_depth_goal(6)
         
         self.startPub.publish(msg)
     

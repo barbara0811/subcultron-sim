@@ -23,15 +23,15 @@ from scipy.integrate import odeint
 import itertools
 import numpy as np
 
-area = [[-5, 5], [-5, 5]]
+area = [[-10, 10], [-10, 10]]
 
 aFishList = []
 
-for i in range(2):
+for i in range(5):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(5):
+for i in range(10):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -54,7 +54,7 @@ class ScenarioController(object):
         self.levyTumble = False
         
         # trust
-        self.communicationRange = 10
+        self.communicationRange = 5
         self.trust_sample = 0.001
         
         self.A = np.zeros([len(aFishList)])                # graph connectivity matrix
@@ -103,17 +103,19 @@ class ScenarioController(object):
         # get trust vector service
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
+        # open to overwrite file content -- used for path visualization
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
+        
         # periodic function call
+            
         # random / biased random walk
         rospy.Timer(rospy.Duration(0.1), self.bacterial_chemotaxis_levy_walk)
         
         # trust scenario
-        rospy.Timer(rospy.Duration(self.trust_sample), self.update_communication_structures)
+        rospy.Timer(rospy.Duration(0.2), self.update_communication_structures)
         rospy.Timer(rospy.Duration(self.trust_sample), self.trust)
         
-        # open to overwrite file content -- used for path visualization
-        #f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','w')
-
         rospy.spin()
       
     # callback functions
@@ -122,11 +124,11 @@ class ScenarioController(object):
         
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth)
         
-        #if not self.start:
-        #    return
+        if not self.start:
+            return
 
-        #f = open('/home/barbara/Desktop' + rospy.get_namespace()[:-1] + 'path.txt','a')
-        #f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
         
@@ -197,7 +199,7 @@ class ScenarioController(object):
 
         # uncomment for simulation time tracking
         #if '1' in rospy.get_namespace():
-        #    #print "$$$$$$$$$$$$$$$$$  " + str(rospy.get_time() - self.startTime)
+        #    print "$$$$$$$$$$$$$$$$$  " + str(rospy.get_time() - self.startTime)
         C = 0
         
         # get sensory signal amplitude
@@ -356,7 +358,8 @@ class ScenarioController(object):
                         if max_norm != 0:
                             self.delta[i] = self.delta[i] + ((np.linalg.norm(self.current[j] - self.current[i]))/max_norm)**2
                             nb_of_subs += 1
-                self.delta[i] = sqrt(self.delta[i])/nb_of_subs
+                if nb_of_subs > 0:
+                    self.delta[i] = sqrt(self.delta[i])/nb_of_subs
                 nb_of_subs = 0
         # print "delta: " + str(self.delta) + "\n"
 
@@ -370,13 +373,20 @@ class ScenarioController(object):
         while self.position is None or not self.start:
             rospy.sleep(0.1)
             
+        print "zeta: " + str(self.zeta[self.index])
+        
+        #if "1" in rospy.get_namespace():
+        #    print ".. " + str(rospy.get_time())
+        
+        '''
+        ---- OLD ----
         # update aFish connectivity matrix based on new position information
         newConnection = False # new connection flag TODO --> check if this is the correct behavior
         
         aFishesInRange = []
         for i in range(len(aFishList)):
             try:
-                rospy.wait_for_service(aFishList[i] + 'get_position', 0.2)
+                rospy.wait_for_service(aFishList[i] + 'get_position', 0.05)
                 get_pos = rospy.ServiceProxy(aFishList[i] + 'get_position', GetPosition)
                 p = get_pos()
                 if sqrt(pow(self.position.north - p.x, 2) + \
@@ -394,12 +404,12 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
-        
+                
         # update aMussel connectivity matrix based on new position information
         aMusselsInRange = []
         for i in range(len(aMusselList)):
             try:
-                rospy.wait_for_service(aMusselList[i] + 'get_position', 0.2)
+                rospy.wait_for_service(aMusselList[i] + 'get_position', 0.05)
                 get_pos = rospy.ServiceProxy(aMusselList[i] + 'get_position', GetPosition)
             
                 p = get_pos()
@@ -411,26 +421,45 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
-                        
+        
+        '''
+            
+        rospy.wait_for_service('/get_connectivity_vectors', 0.1)
+        get_conn = rospy.ServiceProxy('/get_connectivity_vectors', GetTrustInfo)
+        
+        result = get_conn(self.index)
+        self.A = np.array(result.A)
+        mussels = np.array(result.b)
+        
+        aFishesInRange = np.nonzero(self.A)[0]
+        aMusselsInRange = np.nonzero(mussels)[0]
+        
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
+        aStr = ""
+        for item in self.A:
+            aStr += str(item) + " "
+        f.write(aStr[:-1] + "\n")
+        
         # exchange trust information with aFishes in range
         for i in aFishesInRange:
             if i == self.index:
                 continue
             try:
-                rospy.wait_for_service(aFishList[i] + 'get_trust_info', 0.2)
+                rospy.wait_for_service(aFishList[i] + 'get_trust_info', 0.05)
                 get_trust = rospy.ServiceProxy(aFishList[i] + 'get_trust_info', GetTrustInfo)
             
-                result = get_trust()
+                result = get_trust(0)
                 self.zeta[i] = result.zeta
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
-                print "Service call failed: %s"%e
+                print "Service call failed: %s"%e     
+         
         
         # get sensory reading data from aMussels in range
         for i in aMusselsInRange:
             try:
-                rospy.wait_for_service(aMusselList[i] + 'get_sensory_reading', 0.2)
+                rospy.wait_for_service(aMusselList[i] + 'get_sensory_reading', 0.1)
                 get_sen = rospy.ServiceProxy(aMusselList[i] + 'get_sensory_reading', GetSensoryReading)
             
                 result = get_sen()
@@ -444,8 +473,6 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
             except rospy.ROSException, e:
                 print "Service call failed: %s"%e
-
-        # print "struja: " + str(self.current) + "\n"
     
 
     def deriv(self,y,t, alpha): # return derivatives of the array y #edit: put an extra arg
@@ -475,6 +502,9 @@ class ScenarioController(object):
         Trust implementation. Gets called upon information change.
         TODO -- implement + test behavior (is it better if it is called periodically?)
         '''
+        
+        while self.position is None or not self.start:
+            rospy.sleep(0.1)
         
         # initialize trust variables
         self.init_trust()
@@ -531,7 +561,7 @@ class ScenarioController(object):
                 self.flag_no_comm[i] = 0
 
         # print "zeta previous: " + str(self.zeta_previous[self.index])
-        print "zeta: " + str(self.zeta[self.index])
+        
         self.zeta_previous = self.zeta
         self.sigma_previous = self.sigma
             

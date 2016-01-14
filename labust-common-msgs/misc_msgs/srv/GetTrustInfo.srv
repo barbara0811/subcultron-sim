@@ -1,2 +1,5 @@
+int32 index
 ---
 float64[] zeta 	# trust vector
+int32[] A	# connectivity vector to nodes that calculate trust
+int32[] b	# connectivity vector to nodes that collect data
