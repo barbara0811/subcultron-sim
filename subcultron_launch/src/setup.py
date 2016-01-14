@@ -225,41 +225,43 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
        
 if __name__ == "__main__":
     
-    if len(sys.argv) < 3:
-        print "USAGE: python setup.py apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] \n\
+    if len(sys.argv) < 4:
+        print "USAGE: python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] \n\
         [north_min] [north_max] [east_min] [east_max]"
         sys.exit(0)
         
-    n_pad = int(sys.argv[1])
+    scenario = sys.argv[1]
+    
+    n_pad = int(sys.argv[2])
     north_range_pad = [-100, 100]
     east_range_pad = [-100, 100]
     first_index_pad = 0
 
-    n_fish = int(sys.argv[2])
+    n_fish = int(sys.argv[3])
     north_range_fish = [-100, 100]
     east_range_fish = [-100, 100]
     first_index_fish = 0
     
-    n_mussel = int(sys.argv[3])
+    n_mussel = int(sys.argv[4])
     north_range_mussel = [-100, 100]
     east_range_mussel = [-100, 100]
     first_index_mussel = 0
     
+    if len(sys.argv) >= 12:
+        east_range_pad[1] = east_range_fish[1] = east_range_mussel[1] = float(sys.argv[11])
     if len(sys.argv) >= 11:
-        east_range_pad[1] = east_range_fish[1] = east_range_mussel[1] = float(sys.argv[10])
+        east_range_pad[0] = east_range_fish[0] = east_range_mussel[0] = float(sys.argv[10])
     if len(sys.argv) >= 10:
-        east_range_pad[0] = east_range_fish[0] = east_range_mussel[0] = float(sys.argv[9])
+        north_range_pad[1] = north_range_fish[1] = north_range_mussel[1] = float(sys.argv[9])
     if len(sys.argv) >= 9:
-        north_range_pad[1] = north_range_fish[1] = north_range_mussel[1] = float(sys.argv[8])
-    if len(sys.argv) >= 8:
-        north_range_pad[0] = north_range_fish[0] = north_range_mussel[0] = float(sys.argv[7])
+        north_range_pad[0] = north_range_fish[0] = north_range_mussel[0] = float(sys.argv[8])
 
+    if len(sys.argv) >= 8:
+        first_index_mussel = int(sys.argv[7])
     if len(sys.argv) >= 7:
-        first_index_mussel = int(sys.argv[6])
+        first_index_fish = int(sys.argv[6])
     if len(sys.argv) >= 6:
-        first_index_fish = int(sys.argv[5])
-    if len(sys.argv) >= 5:
-        first_index_pad = int(sys.argv[4])
+        first_index_pad = int(sys.argv[5])
 
     rospack = rospkg.RosPack()
     
