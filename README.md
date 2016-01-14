@@ -1,5 +1,13 @@
 subCULTron project trust scenario implementation.
 
+*HOW TO DEFINE NEW SCENARIO STRUCTURES:*
+
+- Open /subcultron_launch/data/scenario/scenario_spec.xml and define basic structures (as specified for other scenarios)
+
+- Controller files are specified in \<vehicle\>/src/, e.g. amussel/src/controller_for_scenario_one.py
+
+- Simulation specification files are located in \<vehicle\>/data/simulation/scenario/, e.g. amussel/data/simulation/scenario/simulation_scenario_one.xml. To generate simulation specification file, simply copy standard_simulation.xml file and modify it to meet specific scenario's needs.
+
 *TO RUN:*
 
 - Navigate to subcultron_launch/src/
@@ -8,7 +16,7 @@ subCULTron project trust scenario implementation.
 
 - Prepare the simulation structures (has to be done only once for each configuration):
 
->  python setup.py apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
+>  python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
 
 > source ../data/simulation/simulation_config.bash
 
