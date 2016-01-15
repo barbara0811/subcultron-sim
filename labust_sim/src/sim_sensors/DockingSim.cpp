@@ -2,11 +2,9 @@
  * Docking simulator. Counts number of docked agents.
  *********************************************************************/
 
-#include <auv_msgs/NavSts.h>
-#include <auv_msgs/NED.h>
-#include <std_msgs/Bool.h>
-#include <std_msgs/Int32.h>
- #include <misc_msgs/GetDockingInfo.h>
+#include <misc_msgs/GetDockingInfo.h>
+#include <misc_msgs/ChangeDockingStatus.h>
+
 #include <ros/ros.h>
 
 struct DockingSim
@@ -17,66 +15,44 @@ struct DockingSim
 		ros::NodeHandle nh, ph("~");
 		ph.getParam("maximum_docked", maxDocked);
 
-		slots = std::vector<std::string>(maxDocked, ""); // docking slot occupators (namespaces)
-
-		// subscribers
-		newDockedSub = nh.subscribe<auv_msgs::NavSts>("docked", 1, &DockingSim::onDocked, this);
+		occupied = std::vector<int>();
+		available = std::vector<int>();
+		for(int i = 0; i < maxDocked; i++ )
+    		available.push_back(i);
 
 		// services
 		checkAvailabilitySrv = nh.advertiseService("check_docking_availability", &DockingSim::checkDockingAvailability, this);
+		changeDockingStatusSrv = nh.advertiseService("change_docking_status", &DockingSim::changeDockingStatus, this);		
 	}
 
-	
-	void onDocked(const typename auv_msgs::NavSts::ConstPtr& msg)
+	bool changeDockingStatus(misc_msgs::ChangeDockingStatus::Request &req, misc_msgs::ChangeDockingStatus::Response &resp)
 	{
-		if (numberDocked < maxDocked)
-		{ 
-			// find an empty slot
-			for(int i = 0; i < maxDocked; i++)
-			{
-				if (slots[i].length() == 0)
-				{
-					ROS_ERROR("empty slot!!");
-					slots[i] = msg->header.frame_id; // assign the node to slot
-					break;
-				}
-			}
-			ROS_ERROR("!!");
-			numberDocked += 1;
-		}
-		ROS_ERROR("!! %d %d", numberDocked,maxDocked);
-	}
-	
-	void onReleased(const typename auv_msgs::NavSts::ConstPtr& msg)
-	{
-		if (numberDocked > 0) 
+		if (req.status) // request for docking
 		{
-			for(int i = 0; i < maxDocked; i++)
+			if (std::find(occupied.begin(), occupied.end(), req.slot) == occupied.end())
 			{
-				if (slots[i].compare(msg->header.frame_id))
-				{
-					slots[i] = "";	// remove the node from slot
-					break;
-				}
+				//slots[req.slot] = "--"; // assign the node to slot
+				occupied.push_back(req.slot);
+				available.erase(std::remove(available.begin(), available.end(), req.slot), available.end());
+				return true;
 			}
-			numberDocked -= 1;
+			return false;
+		}
+		else
+		{
+			if(std::find(occupied.begin(), occupied.end(), req.slot) != occupied.end()) 
+			{
+				occupied.erase(std::remove(occupied.begin(), occupied.end(), req.slot), occupied.end());
+				available.push_back(req.slot);
+				return true;
+			}
+			return false;
 		}
 	}
 
 	bool checkDockingAvailability(misc_msgs::GetDockingInfo::Request &req, misc_msgs::GetDockingInfo::Response &resp)
 	{
-		std::vector<int> available;
-
-		for(int i = 0; i < maxDocked; i++)
-		{
-			if (slots[i].length() == 0)
-			{
-				available.push_back(i);
-			}
-		}
-
 		resp.available_slots = available;
-		resp.slots = slots;
 		return true;
 	}
 
@@ -85,21 +61,18 @@ private:
 	ros::Subscriber newDockedSub;
 
 	ros::ServiceServer checkAvailabilitySrv;
+	ros::ServiceServer changeDockingStatusSrv;
 
-	std::vector<std::string> slots;
-	int maxDocked, numberDocked;
-	int agentId;
-	ros::Timer timer;
+	std::vector<int> occupied, available;
 
+	int maxDocked;
 };
 
 int main(int argc, char* argv[])
 {
-	ros::init(argc,argv,"dockking_sim");
+	ros::init(argc,argv,"docking_sim");
 	ros::NodeHandle nh;
 	DockingSim dockingSim;
 	ros::spin();
 	return 0;
 }
-
-
