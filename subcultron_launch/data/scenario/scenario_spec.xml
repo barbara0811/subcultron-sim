@@ -24,4 +24,13 @@
 		<agent>aPad</agent>
 	</scenario>
 
+	<scenario>
+		<name>API_test</name>
+		<controllerFile>API_test.py</controllerFile>
+		<simulationXmlFile>simulation_API_test.xml</simulationXmlFile>
+		<agent>aPad</agent>
+		<agent>aMussel</agent>
+		<agent>aFish</agent>
+	</scenario>
+
 </scenarioSpecFile>

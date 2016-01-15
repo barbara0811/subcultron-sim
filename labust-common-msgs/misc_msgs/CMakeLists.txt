@@ -76,6 +76,7 @@ add_service_files(
    GetPosition.srv
    GetSensoryReading.srv
    GetTrustInfo.srv
+   GetDockingInfo.srv
 )
 
 ## Generate actions in the 'action' folder

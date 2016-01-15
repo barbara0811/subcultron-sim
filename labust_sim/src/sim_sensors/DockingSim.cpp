@@ -2,11 +2,11 @@
  * Docking simulator. Counts number of docked agents.
  *********************************************************************/
 
-
 #include <auv_msgs/NavSts.h>
 #include <auv_msgs/NED.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
+ #include <misc_msgs/GetDockingInfo.h>
 #include <ros/ros.h>
 
 struct DockingSim
@@ -14,79 +14,83 @@ struct DockingSim
 	DockingSim():
 		maxDocked(4) // default value
 	{
-		start = false;
 		ros::NodeHandle nh, ph("~");
 		ph.getParam("maximum_docked", maxDocked);
 
-		gotPosition = false;
-
-		position = auv_msgs::NED();
+		slots = std::vector<std::string>(maxDocked, ""); // docking slot occupators (namespaces)
 
 		// subscribers
-		positionSub = nh.subscribe<auv_msgs::NavSts>("position", 1, &DockingSim::onPosition, this);
 		newDockedSub = nh.subscribe<auv_msgs::NavSts>("docked", 1, &DockingSim::onDocked, this);
-		
-		// publishers
-        //chargePub = nh.subscribe<auv_msgs::NavSts>("charging", 1, &DockingSim::onPosition, this);
-        maxReachedPub = nh.advertise<std_msgs::Int32>("maximum_docked_reached", 1);
-		
-		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &DockingSim::onStart, this);
-		timer = nh.createTimer(ros::Duration(2), &DockingSim::timerCallback, this);
-	}
-	
-	void timerCallback(const ros::TimerEvent& event)
-	{
-		if ((not gotPosition) or (not start))
-		    return;
-		    
-		if (numberDocked.data==maxDocked) maxReachedPub.publish(numberDocked); 
-		
+
+		// services
+		checkAvailabilitySrv = nh.advertiseService("check_docking_availability", &DockingSim::checkDockingAvailability, this);
 	}
 
-	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
-	{
-		start = true;
-	}
-
-	void onPosition(const typename auv_msgs::NavSts::ConstPtr& msg)
-	{
-		// set position
-		position.north = msg->position.north;
-		position.east = msg->position.east;
-		position.depth = msg->position.depth;
-		gotPosition = true;
-	}
 	
 	void onDocked(const typename auv_msgs::NavSts::ConstPtr& msg)
 	{
-		if (numberDocked.data<maxDocked) numberDocked.data+=1;
+		if (numberDocked < maxDocked)
+		{ 
+			// find an empty slot
+			for(int i = 0; i < maxDocked; i++)
+			{
+				if (slots[i].length() == 0)
+				{
+					ROS_ERROR("empty slot!!");
+					slots[i] = msg->header.frame_id; // assign the node to slot
+					break;
+				}
+			}
+			ROS_ERROR("!!");
+			numberDocked += 1;
+		}
+		ROS_ERROR("!! %d %d", numberDocked,maxDocked);
 	}
 	
 	void onReleased(const typename auv_msgs::NavSts::ConstPtr& msg)
 	{
-		if (numberDocked.data>0) numberDocked.data-=1;
+		if (numberDocked > 0) 
+		{
+			for(int i = 0; i < maxDocked; i++)
+			{
+				if (slots[i].compare(msg->header.frame_id))
+				{
+					slots[i] = "";	// remove the node from slot
+					break;
+				}
+			}
+			numberDocked -= 1;
+		}
 	}
 
-	
+	bool checkDockingAvailability(misc_msgs::GetDockingInfo::Request &req, misc_msgs::GetDockingInfo::Response &resp)
+	{
+		std::vector<int> available;
+
+		for(int i = 0; i < maxDocked; i++)
+		{
+			if (slots[i].length() == 0)
+			{
+				available.push_back(i);
+			}
+		}
+
+		resp.available_slots = available;
+		resp.slots = slots;
+		return true;
+	}
 
 private:
-	// flags
-	bool start;
-	bool gotPosition;
 
-	ros::Subscriber startSub;
-	ros::Subscriber positionSub;
 	ros::Subscriber newDockedSub;
-	ros::Publisher chargePub;
-	ros::Publisher maxReachedPub;
 
-	// battery level range
-	int maxDocked;
-	std_msgs::Int32 numberDocked;
+	ros::ServiceServer checkAvailabilitySrv;
+
+	std::vector<std::string> slots;
+	int maxDocked, numberDocked;
 	int agentId;
 	ros::Timer timer;
 
-	auv_msgs::NED position;
 };
 
 int main(int argc, char* argv[])

@@ -233,6 +233,7 @@ class Docking(object):
     '''
     
     def __init__(self):
+        
         self.slots = ["", "", "", ""]
         self.slotLocationOffset = [[-5, 0], [0, -5], [5, 0], [0, 5]]
         self.occupiedSlots = set()

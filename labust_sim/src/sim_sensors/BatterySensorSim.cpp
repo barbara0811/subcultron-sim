@@ -16,31 +16,37 @@
 
 struct BatterySensorSim
 {
-	BatterySensorSim()
+	BatterySensorSim():
+		drainingFactor(1.0),
+		initialBatteryLevel(50.0),
+		timerDuration(1.0)
 	{
 		start = false;
 		sleepMode = false;
 
 		ros::NodeHandle nh, ph("~");
+		ph.getParam("draining_factor", drainingFactor);
+		ph.getParam("battery_level", initialBatteryLevel);
 		
 		std::string ns = ros::this_node::getNamespace();
 
 		batteryPercentage = std_msgs::Float64();
-		batteryPercentage.data=50;
+		batteryPercentage.data = initialBatteryLevel;
 
 		// subscribers
 		powerSleepMode = nh.subscribe<std_msgs::Bool>("power_sleep_mode", 1, &BatterySensorSim::onPowerSleep, this);
 		chargeSub = nh.subscribe<std_msgs::Float64>("charging", 1, &BatterySensorSim::onCharge, this);
-		chargeSub = nh.subscribe<std_msgs::Float64>("draining", 1, &BatterySensorSim::onDrain, this); // when sending energy to another agent
+		drainSub = nh.subscribe<std_msgs::Float64>("draining", 1, &BatterySensorSim::onDrain, this); // when sending energy to another agent
+		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &BatterySensorSim::onStart, this);
 		
 		// publishers
 		batteryPub = nh.advertise<std_msgs::Float64>("battery_level", 1);
 
 		// services
 		getBatterySrv = nh.advertiseService("get_battery_level", &BatterySensorSim::getBatteryLevel, this);
-
-		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &BatterySensorSim::onStart, this);
-		timer = nh.createTimer(ros::Duration(1), &BatterySensorSim::timerCallback, this);
+		
+		// timer
+		timer = nh.createTimer(ros::Duration(timerDuration), &BatterySensorSim::timerCallback, this);
 	}
 	
 	void timerCallback(const ros::TimerEvent& event)
@@ -48,7 +54,9 @@ struct BatterySensorSim
 		if ((not start) or sleepMode)
 		    return;
 		
-		if (batteryPercentage.data > 0) batteryPercentage.data -= 0.2;
+		if (batteryPercentage.data > 0) 
+			batteryPercentage.data -= drainingFactor * timerDuration;
+
         batteryPub.publish(batteryPercentage);
 	}
 
@@ -60,6 +68,7 @@ struct BatterySensorSim
 	void onDrain(const typename std_msgs::Float64::ConstPtr& msg)
 	{
 		batteryPercentage.data -= msg->data;
+		batteryPub.publish(batteryPercentage);
 	}
 
 	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
@@ -84,16 +93,23 @@ private:
 	bool start;
 	bool sleepMode;
 
+	float initialBatteryLevel;
+
 	ros::Subscriber startSub;
 	ros::Subscriber powerSleepMode;
 
 	ros::Subscriber chargeSub;
+	ros::Subscriber drainSub;
 	ros::Publisher batteryPub;
 
 	ros::ServiceServer getBatterySrv;
 
 	// battery level range
 	std_msgs::Float64 batteryPercentage;
+
+	float drainingFactor;
+
+	float timerDuration;
 	ros::Timer timer;
 };
 

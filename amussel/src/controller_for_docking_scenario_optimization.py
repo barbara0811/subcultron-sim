@@ -9,7 +9,7 @@ __author__ = "barbanas"
 import rospy
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped, Point
-from std_msgs.msg import Bool, Int32, String
+from std_msgs.msg import Bool, Float64, String
 from math import atan2, radians, degrees, sqrt, pow, fabs
 from misc_msgs.srv import GetChargeInfo
 import action_library
@@ -33,7 +33,7 @@ class ScenarioController(object):
         rospy.Subscriber('position', NavSts, self.position_cb)
 
         self.batteryLevel = None
-        rospy.Subscriber('battery_level', Int32, self.battery_level_cb)
+        rospy.Subscriber('battery_level', Float64, self.battery_level_cb)
         self.batteryAlertPub = rospy.Publisher('/battery_alert', NavSts, queue_size=100)
         self.sleepModePub = rospy.Publisher('power_sleep_mode', Bool, queue_size=1)
         self.alertPublished = False
@@ -80,7 +80,7 @@ class ScenarioController(object):
         if self.chargeType is None:
             return
         
-        return [self.batteryLevel, self.position.north, self.position.east, 0, self.chargeType]
+        return {'battery_level': self.batteryLevel, 'x': self.position.north, 'y': self.position.east, 'z': 0, 'type': self.chargeType}
     
     def send_depth_goal(self, depth):
 
