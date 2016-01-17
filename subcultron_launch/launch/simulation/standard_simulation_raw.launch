@@ -11,6 +11,13 @@
 		name="simulation_clock2">
 
     </node>
+  <node 
+		pkg="subcultron_launch" 
+		type="uwsim_location_holder.py" 
+		name="uwsim_location_holder"
+		output="screen">
+
+    </node>
   <arg name="logging" default="$(optenv LOGGING false)" />
   
 

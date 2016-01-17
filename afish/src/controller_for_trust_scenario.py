@@ -220,7 +220,7 @@ class ScenarioController(object):
             if self.levyTumble:
                 self.levyA = 0
                 # constant time period for tumbling activity
-                self.levyTimeout = rospy.get_time() + 0.2
+                self.levyTimeout = rospy.get_time() + 0.1
                 ##print "outside the area, tumbling"
             elif self.levyTimeout is None:
                 t = self.levy_random()
@@ -232,7 +232,7 @@ class ScenarioController(object):
                 self.levyA = 1 - self.levyA
                 if self.levyA == 0:
                     # constant time period for tumbling activity
-                    self.levyTimeout = rospy.get_time() + 0.2
+                    self.levyTimeout = rospy.get_time() + 0.1
                 else:
                     # levy random variable
                     t = self.levy_random()
@@ -408,7 +408,7 @@ class ScenarioController(object):
         while self.position is None or not self.start:
             rospy.sleep(0.1)
             
-        print "zeta: " + str(self.zeta[self.index])
+        #print "zeta: " + str(self.zeta[self.index])
         
         #if "1" in rospy.get_namespace():
         #    print ".. " + str(rospy.get_time())

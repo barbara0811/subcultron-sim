@@ -14,13 +14,20 @@ from random import uniform
 from auv_msgs.msg import NED
 import xml.etree.ElementTree
 
+########################################
+scenario = "docking_scenario"
+########################################
+
 sceneSpecTemplate = "swarm_test_raw.xml"
 sceneSpecFile = "swarm_test.xml"
 
 launchFileTemplate = "standard_simulation_raw.launch"
 launchFile = "standard_simulation.launch"
 
-controllerFile = "controller_for_trust_scenario.py"
+agents = []
+controllerFile = "" #"API_test.py"
+simulationSpecFile = ""
+
 outputToScreen = True
 
 
@@ -109,179 +116,210 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
         
 def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, positions_fish, first_index_fish, n_mussel, positions_mussel, first_index_mussel):
     
-    for i in range(n_pad):
-        name = 'apad' + str(first_index_pad + i + 1)
-        group = xml.etree.ElementTree.Element("group", {"ns":name})
-        
-        # Load parameters
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find apad)/data/navigation/params/nav_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find apad)/data/control/params/controllers_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find apad)/data/dynamics/apad.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
-        group[-1].text = "[" + str(positions_pad[i].north) + "," + str(positions_pad[i].east) + "," + str(positions_pad[i].depth) + ",0,0,0]"
-        # Location parameters
-        group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find apad)/data/locations/swarm_loc.yaml"}))
-        
-        # Static TF
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/devices/static_frames.xml"}))
-        # Load the simulation
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/simulation_standard.xml"}))
-        
-        # Load the controllers
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/control/control_standard.xml"}))
-        # Load the primitives
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/primitives/primitives_standard.xml"}))
-        # Load visualization
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/visualization_standard.xml"}))
-        group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"apad" + str(first_index_pad + i + 1) + "/uwsim_hook"}))
+    if "aPad" in agents:
+        for i in range(n_pad):
+            name = 'apad' + str(first_index_pad + i + 1)
+            group = xml.etree.ElementTree.Element("group", {"ns":name})
+            
+            # Load parameters
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find apad)/data/navigation/params/nav_standard.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find apad)/data/control/params/controllers_standard.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find apad)/data/dynamics/apad.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
+            group[-1].text = "[" + str(positions_pad[i].north) + "," + str(positions_pad[i].east) + "," + str(positions_pad[i].depth) + ",0,0,0]"
+            # Location parameters
+            group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find apad)/data/locations/swarm_loc.yaml"}))
+            
+            # Static TF
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/devices/static_frames.xml"}))
+            # Load the simulation
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/scenario/" + simulationSpecFile}))
+            
+            # Load the controllers
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/control/control_standard.xml"}))
+            # Load the primitives
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/primitives/primitives_standard.xml"}))
+            # Load visualization
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/visualization_standard.xml"}))
+            group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"apad" + str(first_index_pad + i + 1) + "/uwsim_hook"}))
+    
+            
+            if outputToScreen:
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server", "output":"screen"}))
+            else:	
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
+            
+            root.append(group)
 
-        if outputToScreen:
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server", "output":"screen"}))
-        else:	
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller"}))
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
-        
-        root.append(group)
-
-    for i in range(n_fish):
-        name = 'afish' + str(first_index_fish + i + 1)
-        group = xml.etree.ElementTree.Element("group", {"ns":name})
-        
-        # Load parameters
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find afish)/data/navigation/params/nav_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find afish)/data/control/params/controllers_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find afish)/data/dynamics/afish.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
-        group[-1].text = "[" + str(positions_fish[i].north) + "," + str(positions_fish[i].east) + "," + str(positions_fish[i].depth) + ",0,0,0]"
-        # Location parameters
-        group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find afish)/data/locations/swarm_loc.yaml"}))
-        
-        # Static TF
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/devices/static_frames.xml"}))
-        # Load the simulation
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/simulation/simulation_standard.xml"}))
-        
-        # Load the controllers
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/control/control_standard.xml"}))
-        # Load the primitives
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/primitives/primitives_standard.xml"}))
-        # Load visualization
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/simulation/visualization_standard.xml"}))
-        group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"afish" + str(first_index_fish + i + 1) + "/uwsim_hook"}))
-
-        if outputToScreen:
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
-        else:   
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller"}))
-        root.append(group)
+    if "aFish" in agents:
+        for i in range(n_fish):
+            name = 'afish' + str(first_index_fish + i + 1)
+            group = xml.etree.ElementTree.Element("group", {"ns":name})
+            
+            # Load parameters
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find afish)/data/navigation/params/nav_standard.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find afish)/data/control/params/controllers_standard.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find afish)/data/dynamics/afish.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
+            group[-1].text = "[" + str(positions_fish[i].north) + "," + str(positions_fish[i].east) + "," + str(positions_fish[i].depth) + ",0,0,0]"
+            # Location parameters
+            group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find afish)/data/locations/swarm_loc.yaml"}))
+            
+            # Static TF
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/devices/static_frames.xml"}))
+            # Load the simulation
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/simulation/scenario/" + simulationSpecFile}))
+            
+            # Load the controllers
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/control/control_standard.xml"}))
+            # Load the primitives
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/primitives/primitives_standard.xml"}))
+            # Load visualization
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/simulation/visualization_standard.xml"}))
+            group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"afish" + str(first_index_fish + i + 1) + "/uwsim_hook"}))
+    
+            if outputToScreen:
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+            else:   
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller"}))
+            root.append(group)
 	
-    for i in range(n_mussel):
-        name = 'amussel' + str(first_index_mussel + i + 1)
-        group = xml.etree.ElementTree.Element("group", {"ns":name})
-        
-        # Load parameters
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/navigation/params/nav_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/control/params/controllers_standard.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/dynamics/amussel.yaml"}))
-        group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
-        group[-1].text = "[" + str(positions_mussel[i].north) + "," + str(positions_mussel[i].east) + "," + str(positions_mussel[i].depth) + ",0,0,0]"
-        # Location parameters
-        group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find amussel)/data/locations/swarm_loc.yaml"}))
-        
-        # Static TF
-        #group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
-        # Load the simulation
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/simulation_standard.xml"}))
-        
-        # Load the controllers
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/control/control_standard.xml"}))
-        # Load the primitives
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/primitives/primitives_standard.xml"}))
-        # Load visualization
-        group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/visualization_standard.xml"}))
-        group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index_mussel + i + 1) + "/uwsim_hook"}))
-
-        #README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
-        if outputToScreen:
-            pass
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
-        else:	
-            pass
-            group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller"}))
-        
-        root.append(group)  
+    if "aMussel" in agents:
+        for i in range(n_mussel):
+            name = 'amussel' + str(first_index_mussel + i + 1)
+            group = xml.etree.ElementTree.Element("group", {"ns":name})
+            
+            # Load parameters
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/navigation/params/nav_standard.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/control/params/controllers_standard.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"file":"$(find amussel)/data/dynamics/amussel.yaml"}))
+            group.append(xml.etree.ElementTree.Element("rosparam", {"param":"eta0"}))
+            group[-1].text = "[" + str(positions_mussel[i].north) + "," + str(positions_mussel[i].east) + "," + str(positions_mussel[i].depth) + ",0,0,0]"
+            # Location parameters
+            group.append(xml.etree.ElementTree.Element("rosparam", {"command":"load", "file":"$(find amussel)/data/locations/swarm_loc.yaml"}))
+            
+            # Static TF
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
+            # Load the simulation
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/scenario/" + simulationSpecFile}))
+            
+            # Load the controllers
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/control/control_standard.xml"}))
+            # Load the primitives
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/primitives/primitives_standard.xml"}))
+            # Load visualization
+            group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/visualization_standard.xml"}))
+            group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index_mussel + i + 1) + "/uwsim_hook"}))
+    
+            #README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
+            if outputToScreen:
+                pass
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+            else:	
+                pass
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller"}))
+            
+            root.append(group)  
        
 if __name__ == "__main__":
     
-    if len(sys.argv) < 3:
-        print "USAGE: python setup.py apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] \n\
+    if len(sys.argv) < 4:
+        print "USAGE: python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] \n\
         [north_min] [north_max] [east_min] [east_max]"
         sys.exit(0)
         
-    n_pad = int(sys.argv[1])
+    scenario = sys.argv[1]
+    
+    n_pad = int(sys.argv[2])
     north_range_pad = [-100, 100]
     east_range_pad = [-100, 100]
     first_index_pad = 0
 
-    n_fish = int(sys.argv[2])
+    n_fish = int(sys.argv[3])
     north_range_fish = [-100, 100]
     east_range_fish = [-100, 100]
     first_index_fish = 0
     
-    n_mussel = int(sys.argv[3])
+    n_mussel = int(sys.argv[4])
     north_range_mussel = [-100, 100]
     east_range_mussel = [-100, 100]
     first_index_mussel = 0
     
+    if len(sys.argv) >= 12:
+        east_range_pad[1] = east_range_fish[1] = east_range_mussel[1] = float(sys.argv[11])
     if len(sys.argv) >= 11:
-        east_range_pad[1] = east_range_fish[1] = east_range_mussel[1] = float(sys.argv[10])
+        east_range_pad[0] = east_range_fish[0] = east_range_mussel[0] = float(sys.argv[10])
     if len(sys.argv) >= 10:
-        east_range_pad[0] = east_range_fish[0] = east_range_mussel[0] = float(sys.argv[9])
+        north_range_pad[1] = north_range_fish[1] = north_range_mussel[1] = float(sys.argv[9])
     if len(sys.argv) >= 9:
-        north_range_pad[1] = north_range_fish[1] = north_range_mussel[1] = float(sys.argv[8])
+        north_range_pad[0] = north_range_fish[0] = north_range_mussel[0] = float(sys.argv[8])
+
     if len(sys.argv) >= 8:
-        north_range_pad[0] = north_range_fish[0] = north_range_mussel[0] = float(sys.argv[7])
-
+        first_index_mussel = int(sys.argv[7])
     if len(sys.argv) >= 7:
-        first_index_mussel = int(sys.argv[6])
+        first_index_fish = int(sys.argv[6])
     if len(sys.argv) >= 6:
-        first_index_fish = int(sys.argv[5])
-    if len(sys.argv) >= 5:
-        first_index_pad = int(sys.argv[4])
+        first_index_pad = int(sys.argv[5])
 
+    rospack = rospkg.RosPack()
+    
+    scenarioSpec = xml.etree.ElementTree.parse(rospack.get_path('subcultron_launch') + '/data/scenario/scenario_spec.xml').getroot()
+    
+    for child in scenarioSpec:
+        if child.find('name').text == scenario:
+            controllerFile = child.find('controllerFile').text
+            simulationSpecFile = child.find('simulationXmlFile').text
+            for ag in child.findall('agent'):
+                agents.append(ag.text) 
+                
     print ""    
     print "apad number"
-    print n_pad 
-    print "north range"
-    print north_range_pad
-    print "east range"
-    print east_range_pad
-    print "first index"
-    print first_index_pad 
-    print "" 
+    if "aPad" in agents:
+        print n_pad 
+        print "north range"
+        print north_range_pad
+        print "east range"
+        print east_range_pad
+        print "first index"
+        print first_index_pad 
+    else:
+        print "0"
+        n_pad = 0
+        
+    print ""
     print ""    
     print "afish number"
-    print n_fish
-    print "north range"
-    print north_range_fish
-    print "east range"
-    print east_range_fish
-    print "first index"
-    print first_index_fish 
-    print "" 
+    if "aFish" in agents:
+        print n_fish
+        print "north range"
+        print north_range_fish
+        print "east range"
+        print east_range_fish
+        print "first index"
+        print first_index_fish  
+    else:
+        print "0"
+        n_fish = 0
+    
+    print ""
     print ""    
     print "amussel number"
-    print n_mussel 
-    print "north range"
-    print north_range_mussel
-    print "east range"
-    print east_range_mussel
-    print "first index"
-    print first_index_mussel 
-    print "" 
+    if "aMussel" in agents:
+        print n_mussel 
+        print "north range"
+        print north_range_mussel
+        print "east range"
+        print east_range_mussel
+        print "first index"
+        print first_index_mussel 
+    else:
+        print "0" 
+        n_mussel = 0
+    print ""
     
-    
+    print "Scenario: " + scenario
     # generate random positions  
     positions_pad = []
     posID_pad = []
@@ -315,9 +353,7 @@ if __name__ == "__main__":
         if tmp not in posID_mussel:
             posID_mussel.append(tmp)
             positions_mussel.append(NED(north, east, 0))
-            
-    rospack = rospkg.RosPack()
-            
+    
     # write into scene specification file (swarm_test.xml)
     fileOut = open(rospack.get_path('subcultron_launch') + '/data/simulation/' + sceneSpecFile, 'w')
    
@@ -354,7 +390,6 @@ if __name__ == "__main__":
      
     fileOut.close()
     
-    if controllerFile == "controller_for_trust_scenario.py":
-        import uwsim_location_holder_generator as gen
-        gen.generate(n_fish, n_mussel)
+    import uwsim_location_holder_generator as gen
+    gen.generate(n_fish, n_mussel)
         

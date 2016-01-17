@@ -72,7 +72,7 @@ class NoiseSim(object):
 
         # signal noise source shutdown
         if newNoise < 0:
-            if self.oldNoise > 0 or self.oldNoise is None:
+            if self.oldNoise >= 0 or self.oldNoise is None:
                 self.oldNoise = newNoise
                 self.noiseSensorPub.publish(newNoise)
             return

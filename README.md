@@ -8,7 +8,7 @@ subCULTron project trust scenario implementation.
 
 - Prepare the simulation structures (has to be done only once for each configuration):
 
->  python setup.py apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
+>  python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
 
 > source ../data/simulation/simulation_config.bash
 
