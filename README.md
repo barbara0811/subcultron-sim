@@ -1,4 +1,4 @@
-subCULTron project trust scenario implementation.
+subCULTron project repository
 
 *HOW TO DEFINE NEW SCENARIO STRUCTURES:*
 
@@ -31,9 +31,3 @@ To stop the simulation, simply press ctrl-c in the second terminal (roscore can 
 - Start scenario simulation:
 
 > rostopic pub /scenario_start std_msgs/Bool "data: true"
-
-- Change noise source amplitude (setting a negative number turns the source off, a positive number attracts all aFishes in the area of noise source):
-
-> rostopic pub /noise_intensity std_msgs/Float64 "data: 10"
-
-> rostopic pub /noise_intensity std_msgs/Float64 "data: -1"
