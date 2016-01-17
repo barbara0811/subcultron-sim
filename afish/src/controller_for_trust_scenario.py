@@ -23,7 +23,7 @@ from scipy.integrate import odeint
 import itertools
 import numpy as np
 
-area = [[-10, 10], [-10, 10]]
+area = [[-5, 5], [-5, 5]]
 
 aFishList = []
 
@@ -31,7 +31,7 @@ for i in range(5):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(10):
+for i in range(5):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -104,8 +104,9 @@ class ScenarioController(object):
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
         # open to overwrite file content -- used for path visualization
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
+        f = open('/home/petra/Desktop/logs_trust/conns_A.txt','w')
         
         # periodic function call
             
@@ -127,7 +128,7 @@ class ScenarioController(object):
         if not self.start:
             return
 
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
         f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
@@ -364,6 +365,40 @@ class ScenarioController(object):
         # print "delta: " + str(self.delta) + "\n"
 
            
+    def check_connectivity_matrix(self, matrix_A):
+
+
+        connected_A = 0
+        pr = [1]
+        #check if tree is a spanning tree
+        deg = np.zeros([len(aFishList),len(aFishList)])
+        row_sum = np.zeros([len(aFishList)])
+
+        for i in range(len(aFishList)):
+            deg[i,i] = sum(matrix_A[i])
+        L = deg - matrix_A
+        row_sum = sum(np.transpose(L))
+
+        # V - full matrix whose columns are the corresponding eigenvectors
+        # D - diagonal matrix of eigenvalues
+
+        D, V = np.linalg.eig(L)
+        D = np.floor(D)
+        # number of eigenvalues = 0
+        number = len(np.where(D == 0)[0])  
+
+        if number == 1:
+            V_values = np.transpose(V)
+            pr = np.round(np.dot(L,V_values[np.where(np.absolute(D) == 0)[0][0]]))
+
+        if sum(row_sum) == 0 and sum(pr) == 0 and number == 1:
+            connected_A = 1
+
+
+        return connected_A
+
+
+
     def update_communication_structures(self, event):  
         '''
         A function that gets called periodically. It updates agent's communication structures
@@ -434,10 +469,23 @@ class ScenarioController(object):
         aFishesInRange = np.nonzero(self.A)[0]
         aMusselsInRange = np.nonzero(mussels)[0]
         
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
-        aStr = ""
-        for item in self.A:
-            aStr += str(item) + " "
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
+        matrix_A = np.zeros([len(aFishList),len(aFishList)])
+
+        for i in range(len(self.A)):
+            matrix_A[self.index,i] = self.A[i]
+            matrix_A[i,self.index] = self.A[i]
+
+        aStr = str(rospy.get_time()) + "\n"
+        for i in range(len(aFishList)):
+            for item in matrix_A[i,:]:
+                aStr += str(int(item)) + " "
+            aStr += "\n"
+        f.write(aStr[:-1] + "\n")
+
+        f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+        connected_A = self.check_connectivity_matrix(matrix_A)
+        aStr = str(rospy.get_time()) + "\n" + str(int(connected_A)) + "\n"
         f.write(aStr[:-1] + "\n")
         
         # exchange trust information with aFishes in range
