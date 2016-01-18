@@ -37,13 +37,18 @@ class ScenarioController(object):
         # start device simulation
         self.startPub.publish(msg)
         
+        self.i = induction.Induction(4)
+        
         # API test
         self.clock_test()
         
-        self.battery_test()
+        #self.battery_test()
         
-        raw_input("\n...press any key for docking test...")
-        self.docking_test()
+        #raw_input("\n...press any key for docking test...")
+        #self.docking_test()
+        
+        raw_input("\n...press any key for induction test...")
+        self.induction_test()
         
         # motion
         stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
@@ -124,6 +129,46 @@ class ScenarioController(object):
         print "Slots: " + str(res[1]) + ", available slots: " + str(res[2])
         
         print "\n---"
+        
+    def induction_test(self):
+        
+        b = battery.Battery()
+        
+        print "\n%%%%% Induction test %%%%%"
+        from misc_msgs.srv import GetChargeInfo
+        
+        print "Receiver: amussel1, sender: apad1"
+        
+        charge_info = rospy.ServiceProxy('/amussel1/get_battery_level', GetChargeInfo)
+        try:
+            c = charge_info()
+            batteryLevel = c.battery_level
+        except rospy.ServiceException as exc:
+            print("Service did not process request: " + str(exc))
+        
+        print "Battery level, amussel1: " + str(batteryLevel)
+        print "Battery level, apad1: " + str(b.get_level())  
+        
+        print "\nSending energy to amussel1 for 5 seconds..."
+        
+        self.i.request_charging("/amussel1/", 1)
+        r = rospy.Rate(2)
+        i = 0
+        while i < 20:
+            self.i.send_energy("/amussel1/")
+            r.sleep()
+            i += 1
+            
+        self.i.stop_sending("/amussel1/")
+        
+        try:
+            c = charge_info()
+            batteryLevel = c.battery_level
+        except rospy.ServiceException as exc:
+            print("Service did not process request: " + str(exc))
+        
+        print "Battery level, amussel1: " + str(batteryLevel)
+        print "Battery level, apad1: " + str(b.get_level())  
         
     def position_cb(self, msg):
         

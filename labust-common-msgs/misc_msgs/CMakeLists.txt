@@ -64,6 +64,7 @@ add_message_files(
    DataEventsContainer.msg
    RhodamineAdc.msg
    RhodamineData.msg
+   ConnMatrix.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -78,6 +79,7 @@ add_service_files(
    GetTrustInfo.srv
    GetDockingInfo.srv
    ChangeDockingStatus.srv
+   SendEnergy.srv
 )
 
 ## Generate actions in the 'action' folder

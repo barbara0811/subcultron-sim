@@ -29,7 +29,6 @@ class ScenarioController(object):
         self.chargePub = rospy.Publisher('charging', Float64, queue_size=1)
         self.drainPub = rospy.Publisher('draining', Float64, queue_size=1)
 
-        
         rospy.spin()
 
     def start_cb(self, msg):
