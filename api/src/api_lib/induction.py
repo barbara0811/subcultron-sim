@@ -61,7 +61,7 @@ class Induction(object):
             print "Service call failed: %s"%e
         
         # send energy to receiver
-        self.pubCharge[receiver] = rospy.Publisher(receiver + "charging", Float64, queue_size = 1)
+        self.pubCharge[receiver] = rospy.Publisher(receiver + "charging", Float64, queue_size=1)
         
         
     def send_energy(self, receiver):

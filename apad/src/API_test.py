@@ -11,7 +11,7 @@ from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped, Point
 from std_msgs.msg import Bool, Float64, String
 from math import atan2, radians, degrees, sqrt, pow, fabs
-from api_lib import docking, battery, clock, induction
+from api_lib import docking, battery, clock, induction, wifi
 #import action_library
 
 class ScenarioController(object):
@@ -27,6 +27,9 @@ class ScenarioController(object):
         self.chargePub = rospy.Publisher('charging', Float64, queue_size=1)
         self.drainPub = rospy.Publisher('draining', Float64, queue_size=1)
 
+        self.i = induction.Induction(4)
+        self.w = wifi.WiFi()
+        
         rospy.spin()
 
     def start_cb(self, msg):
@@ -37,8 +40,6 @@ class ScenarioController(object):
         # start device simulation
         self.startPub.publish(msg)
         
-        self.i = induction.Induction(4)
-        
         # API test
         self.clock_test()
         
@@ -47,8 +48,11 @@ class ScenarioController(object):
         #raw_input("\n...press any key for docking test...")
         #self.docking_test()
         
-        raw_input("\n...press any key for induction test...")
-        self.induction_test()
+        #raw_input("\n...press any key for induction test...")
+        #self.induction_test()
+        
+        raw_input("\n...press any key for WiFi test...")
+        self.wifi_test()
         
         # motion
         stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
@@ -169,6 +173,13 @@ class ScenarioController(object):
         
         print "Battery level, amussel1: " + str(batteryLevel)
         print "Battery level, apad1: " + str(b.get_level())  
+        
+    def wifi_test(self):
+        
+        msg = "Message from aPad to aMussel"
+        print rospy.get_namespace() + " sending message: \"" + msg + "\"" 
+        self.w.send("/amussel1/", msg)
+        
         
     def position_cb(self, msg):
         

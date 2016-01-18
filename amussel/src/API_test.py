@@ -11,7 +11,7 @@ from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped, Point
 from std_msgs.msg import Bool, Float64, String
 from math import atan2, radians, degrees, sqrt, pow, fabs
-from api_lib import docking, battery, clock, induction
+from api_lib import docking, battery, clock, induction, wifi
 #import action_library
 
 class ScenarioController(object):
@@ -27,6 +27,9 @@ class ScenarioController(object):
         self.chargePub = rospy.Publisher('charging', Float64, queue_size=1)
         self.drainPub = rospy.Publisher('draining', Float64, queue_size=1)
 
+        self.i = induction.Induction(1)
+        self.w = wifi.WiFi()
+        
         rospy.spin()
 
     def start_cb(self, msg):
@@ -37,12 +40,17 @@ class ScenarioController(object):
         # start device simulation
         self.startPub.publish(msg)
         
-        self.i = induction.Induction(1)
         
         # API test
         #self.clock_test()
         
         #self.battery_test()
+        # WiFi test
+        message = None
+        while message is None:
+            message = self.w.receive()
+            rospy.sleep(0.5)
+        print rospy.get_namespace() + " got message: \"" + message + "\""
         
         # motion
         stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
