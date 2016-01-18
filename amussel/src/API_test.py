@@ -11,7 +11,7 @@ from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import TwistStamped, Point
 from std_msgs.msg import Bool, Float64, String
 from math import atan2, radians, degrees, sqrt, pow, fabs
-from api_lib import docking, battery, clock, induction, wifi
+from api_lib import docking, battery, clock, induction, wifi, anchoring
 #import action_library
 
 class ScenarioController(object):
@@ -43,14 +43,13 @@ class ScenarioController(object):
         
         # API test
         #self.clock_test()
-        
         #self.battery_test()
+        
         # WiFi test
-        message = None
-        while message is None:
-            message = self.w.receive()
-            rospy.sleep(0.5)
-        print rospy.get_namespace() + " got message: \"" + message + "\""
+        #self.wifi_test()
+        
+        # anchoring test
+        self.anchor_test()
         
         # motion
         stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
@@ -107,7 +106,27 @@ class ScenarioController(object):
         print "Battery level after 2 seconds: " + str(b.get_level())
         
         print "\n---"
+        
+    def wifi_test(self):
+        
+        message = None
+        while message is None:
+            message = self.w.receive()
+            rospy.sleep(0.5)
+        print rospy.get_namespace() + " got message: \"" + message + "\""
+        
+    def anchor_test(self):
+        
+        print "\n%%%%% Anchor test %%%%%\n"
+        a = anchoring.Anchor()
+        raw_input("Press any key to hold position")
+        print "Holding position...\n"
+        a.hold()
     
+        raw_input("Press any key to release position")
+        print "Releasing position..."
+        a.release()
+        
     def position_cb(self, msg):
         
         self.position = NED(msg.position.north, msg.position.east, msg.position.depth)

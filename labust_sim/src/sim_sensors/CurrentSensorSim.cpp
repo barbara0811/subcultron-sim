@@ -9,6 +9,7 @@
 #include <geometry_msgs/Point.h>
 #include <auv_msgs/NavSts.h>
 #include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
 #include <ros/ros.h>
 
 struct CurrentSensorSim
@@ -17,6 +18,7 @@ struct CurrentSensorSim
 		currentDepth(0.5) // default value
 	{
 		start = false;
+		anchored = false;
 		ros::NodeHandle nh, ph("~");
 		ph.getParam("current_depth", currentDepth);
 
@@ -34,6 +36,8 @@ struct CurrentSensorSim
 		
 		currPubTimeout = ros::Time::now() + ros::Duration(0.2);
 		startSub = nh.subscribe<std_msgs::Bool>("start_sim", 1, &CurrentSensorSim::onStart, this);
+
+		anchorSrv = nh.advertiseService("anchor", &CurrentSensorSim::changeAnchoredStatus, this);	
 	}
 
 	void onStart(const typename std_msgs::Bool::ConstPtr& msg)
@@ -68,7 +72,7 @@ struct CurrentSensorSim
 		    current = newCurrent;
 
   		    // check depth and set current accordingly
-		    if (position.z <= currentDepth) 
+		    if (position.z <= currentDepth and not anchored) 
 		    {
 		    	currentPub.publish(newCurrent);
 		    }
@@ -86,15 +90,24 @@ struct CurrentSensorSim
 		}
 	}
 
+	bool changeAnchoredStatus(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &resp)
+	{
+		anchored = not anchored;
+		return true;
+	}
+
 private:
 	// flags
 	bool start;
 	bool gotPosition;
 	bool currentPublished;
+	bool anchored;
 
 	ros::Subscriber startSub;
 	ros::Subscriber positionSub;
 	ros::Subscriber currentSensorSub;
+
+	ros::ServiceServer anchorSrv;
 	
 	// current value affecting agent
 	ros::Publisher currentPub;
