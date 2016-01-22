@@ -8,6 +8,7 @@ def generate(fish, mussel):
     file.write("from geometry_msgs.msg import Point\n")
     file.write("from auv_msgs.msg import NavSts\n")
     file.write("from misc_msgs.srv import GetTrustInfo\n")
+    file.write("from misc_msgs.msg import ConnMatrix\n")
     file.write("import numpy as np\n")
     file.write("from math import sqrt, pow\n")
     file.write("import rospy\n\n")
@@ -30,7 +31,8 @@ def generate(fish, mussel):
         file.write("        self.amussel" + str(i + 1) + "locSub = rospy.Subscriber('/amussel" + str(i + 1) + "/position', NavSts, self.amussel" + str(i + 1) + "position_cb)\n")
     file.write("\n")
     
-    file.write("        rospy.Timer(rospy.Duration(0.2), self.calculate_connectivity_matrix)\n\n")
+    file.write("        self.APub = rospy.Publisher('/conn_matrix', ConnMatrix, queue_size = 1)\n")
+    file.write("        rospy.Timer(rospy.Duration(0.1), self.calculate_connectivity_matrix)\n\n")
     
     file.write("        rospy.Service('get_connectivity_vectors', GetTrustInfo, self.get_conn_vectors_srv)\n\n")
     
@@ -61,7 +63,11 @@ def generate(fish, mussel):
                "                if self.distance(self.positions[i], self.positions[j]) <= self.communicationRange:\n" +
                "                    self.connMatrix[i][j] = self.connMatrix[j][i] = 1\n" +
                "                else:\n" +
-               "                    self.connMatrix[i][j] = self.connMatrix[j][i] = 0\n" 
+               "                    self.connMatrix[i][j] = self.connMatrix[j][i] = 0\n" + 
+               "        T = []\n" +
+               "        for i in range(" + str(fish) + "):\n" +
+               "            T.extend(self.connMatrix[i][:" + str(fish) +"])\n" +
+               "        self.APub.publish(T)\n" 
                    )
     file.write("\n")
     

@@ -12,6 +12,7 @@ import action_library
 import math
 
 from misc_msgs.srv import GetPosition, GetSensoryReading, GetTrustInfo
+from misc_msgs.msg import ConnMatrix
 from navcon_msgs.srv import EnableControl, ConfigureVelocityController
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import Point
@@ -27,7 +28,7 @@ area = [[-5, 5], [-5, 5]]
 
 aFishList = []
 
-for i in range(5):
+for i in range(3):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
@@ -86,7 +87,10 @@ class ScenarioController(object):
         self.zeta_previous =  np.zeros([len(aFishList), len(aMusselList)])    # trust matrix --> rows: aFish trust vectors
         self.index = aFishList.index(rospy.get_namespace())          # agent's index
         
-        
+        self.matrix_A = np.zeros([len(aFishList), len(aFishList)])
+        self.time_first = 0
+        self.time_second = 0
+
         # publishers
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
         self.startPub = rospy.Publisher('start_sim', Bool, queue_size=1)
@@ -97,6 +101,8 @@ class ScenarioController(object):
         
         rospy.Subscriber('noise_sensor', Float64, self.noise_cb)
         
+        rospy.Subscriber('/conn_matrix', ConnMatrix, self.conn_matrix_cb)
+
         # position service
         rospy.Service('get_position', GetPosition, self.get_position_srv)
         
@@ -114,7 +120,7 @@ class ScenarioController(object):
         rospy.Timer(rospy.Duration(0.1), self.bacterial_chemotaxis_levy_walk)
         
         # trust scenario
-        rospy.Timer(rospy.Duration(0.2), self.update_communication_structures)
+        rospy.Timer(rospy.Duration(0.1), self.update_communication_structures)
         rospy.Timer(rospy.Duration(self.trust_sample), self.trust)
         
         rospy.spin()
@@ -365,8 +371,19 @@ class ScenarioController(object):
         # print "delta: " + str(self.delta) + "\n"
 
            
-    def check_connectivity_matrix(self, matrix_A):
+    def conn_matrix_cb(self, msg):
 
+        if '1' not in rospy.get_namespace():
+            return
+
+        
+        matrix_A = np.reshape(msg.matrix,(len(aFishList),len(aFishList)))
+        self.matrix_A += matrix_A
+
+        for i in range(len(aFishList)):
+            for j in range(len(aFishList)):
+                if self.matrix_A[i,j] > 1:
+                    self.matrix_A[i,j] = 1
 
         connected_A = 0
         pr = [1]
@@ -375,15 +392,15 @@ class ScenarioController(object):
         row_sum = np.zeros([len(aFishList)])
 
         for i in range(len(aFishList)):
-            deg[i,i] = sum(matrix_A[i])
-        L = deg - matrix_A
+            deg[i,i] = sum(self.matrix_A[i])
+        L = deg - self.matrix_A
         row_sum = sum(np.transpose(L))
 
         # V - full matrix whose columns are the corresponding eigenvectors
         # D - diagonal matrix of eigenvalues
 
         D, V = np.linalg.eig(L)
-        D = np.floor(D)
+        D = np.around(D)
         # number of eigenvalues = 0
         number = len(np.where(D == 0)[0])  
 
@@ -393,9 +410,15 @@ class ScenarioController(object):
 
         if sum(row_sum) == 0 and sum(pr) == 0 and number == 1:
             connected_A = 1
+            self.time_second = rospy.get_time()
 
-
-        return connected_A
+        if connected_A == 1:
+            f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+            aStr = str(self.time_second - self.time_first)
+            f.write(aStr + "\n")
+            self.matrix_A = np.zeros([len(aFishList),len(aFishList)])
+            self.time_first = rospy.get_time()
+        # return connected_A
 
 
 
@@ -408,7 +431,7 @@ class ScenarioController(object):
         while self.position is None or not self.start:
             rospy.sleep(0.1)
             
-        print "zeta: " + str(self.zeta[self.index])
+        
         
         #if "1" in rospy.get_namespace():
         #    print ".. " + str(rospy.get_time())
@@ -483,10 +506,10 @@ class ScenarioController(object):
             aStr += "\n"
         f.write(aStr[:-1] + "\n")
 
-        f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
-        connected_A = self.check_connectivity_matrix(matrix_A)
-        aStr = str(rospy.get_time()) + "\n" + str(int(connected_A)) + "\n"
-        f.write(aStr[:-1] + "\n")
+        # f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+        # connected_A = self.check_connectivity_matrix(matrix_A)
+        # aStr = str(rospy.get_time()) + "\n" + str(int(connected_A)) + "\n"
+        # f.write(aStr[:-1] + "\n")
         
         # exchange trust information with aFishes in range
         for i in aFishesInRange:
@@ -612,6 +635,8 @@ class ScenarioController(object):
         
         self.zeta_previous = self.zeta
         self.sigma_previous = self.sigma
+
+        print "zeta: " + str(self.zeta[self.index])
             
 
                         
