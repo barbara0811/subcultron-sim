@@ -139,8 +139,8 @@
 		<param name="noise_mode" value="static" />
 		<param name="noise_publish_rate" value="0.5" />
 		<param name="noise_intensity" value="-1.0" />
-		<param name="noise_source_north" value="5" />
-		<param name="noise_source_east" value="-5" />
+		<param name="noise_source_north" value="0" />
+		<param name="noise_source_east" value="0" />
 		<param name="noise_source_depth" value="5" />
     </node>
 

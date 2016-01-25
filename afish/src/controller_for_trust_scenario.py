@@ -18,13 +18,13 @@ from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import Point
 from std_msgs.msg import Bool, Float64
 from math import radians, pow, sin, cos, pi, log, tan, sqrt, fabs
-from random import random, choice
+from random import random, choice, expovariate
 from copy import deepcopy
 from scipy.integrate import odeint
 import itertools
 import numpy as np
 
-area = [[-5, 5], [-5, 5]]
+area = [[-10, 10], [-10, 10]]
 
 aFishList = []
 
@@ -95,6 +95,11 @@ class ScenarioController(object):
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
         self.startPub = rospy.Publisher('start_sim', Bool, queue_size=1)
         
+        self.noiseIntensityPub = rospy.Publisher("/noise_intensity", Float64, queue_size=1)
+        self.noiseTimeout = None
+        self.noiseRate = 30.0 # seconds (noise activation rate)
+        self.noiseActivated = False
+        
         # subscribers
         rospy.Subscriber('/scenario_start', Bool, self.start_cb)
         rospy.Subscriber('position', NavSts, self.position_cb)
@@ -110,9 +115,9 @@ class ScenarioController(object):
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
         # open to overwrite file content -- used for path visualization
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
-        f = open('/home/petra/Desktop/logs_trust/conns_A.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','w')
         
         # periodic function call
             
@@ -134,7 +139,7 @@ class ScenarioController(object):
         if not self.start:
             return
 
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
         f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
@@ -174,6 +179,9 @@ class ScenarioController(object):
         
         self.start = True
         self.startPub.publish(msg)
+        if "1" in rospy.get_namespace():
+	        t = expovariate(1.0/float(self.noiseRate))
+	        self.noiseTimeout = rospy.get_time() + t
         
     def noise_cb(self, msg):
         
@@ -203,6 +211,11 @@ class ScenarioController(object):
         '''
         while self.position is None or not self.start:
             rospy.sleep(0.1)
+            
+        if self.noiseTimeout is not None and not self.noiseActivated and rospy.get_time() >= self.noiseTimeout and "1" in rospy.get_namespace():
+            self.noiseIntensityPub.publish(Float64(10.0))
+            self.noiseActivated = True
+            return
 
         # uncomment for simulation time tracking
         #if '1' in rospy.get_namespace():
@@ -227,10 +240,10 @@ class ScenarioController(object):
                 self.levyA = 0
                 # constant time period for tumbling activity
                 self.levyTimeout = rospy.get_time() + 0.2
-                ##print "outside the area, tumbling"
+                #print "outside the area, tumbling"
             elif self.levyTimeout is None:
                 t = self.levy_random()
-                ##print "## keeping direction for " + str(t)
+                #print "## keeping direction for " + str(t)
                 self.levyTimeout = rospy.get_time() + t
                 self.levyA = 1
             elif rospy.get_time() >= self.levyTimeout:
@@ -239,10 +252,11 @@ class ScenarioController(object):
                 if self.levyA == 0:
                     # constant time period for tumbling activity
                     self.levyTimeout = rospy.get_time() + 0.2
+                    #print "tumbling"
                 else:
                     # levy random variable
                     t = self.levy_random()
-                    ##print "## keeping direction for " + str(t)
+                    #print "## keeping direction for " + str(t)
                     self.levyTimeout = rospy.get_time() + t
                     
             A = self.levyA
@@ -376,7 +390,6 @@ class ScenarioController(object):
         if '1' not in rospy.get_namespace():
             return
 
-        
         matrix_A = np.reshape(msg.matrix,(len(aFishList),len(aFishList)))
         self.matrix_A += matrix_A
 
@@ -413,7 +426,7 @@ class ScenarioController(object):
             self.time_second = rospy.get_time()
 
         if connected_A == 1:
-            f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+            f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','a')
             aStr = str(self.time_second - self.time_first)
             f.write(aStr + "\n")
             self.matrix_A = np.zeros([len(aFishList),len(aFishList)])
@@ -430,11 +443,6 @@ class ScenarioController(object):
         
         while self.position is None or not self.start:
             rospy.sleep(0.1)
-            
-        
-        
-        #if "1" in rospy.get_namespace():
-        #    print ".. " + str(rospy.get_time())
         
         '''
         ---- OLD ----
@@ -491,8 +499,16 @@ class ScenarioController(object):
         
         aFishesInRange = np.nonzero(self.A)[0]
         aMusselsInRange = np.nonzero(mussels)[0]
+
+        if "1" in rospy.get_namespace():
+            if len(aFishesInRange) == len(aFishList) - 1 and self.noiseActivated:
+            	self.noiseIntensityPub.publish(Float64(-1.0))
+            	self.noiseActivated = False
+            	t = expovariate(1.0/float(self.noiseRate))
+            	self.noiseTimeout = rospy.get_time() + t
+
         
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
         matrix_A = np.zeros([len(aFishList),len(aFishList)])
 
         for i in range(len(self.A)):
@@ -506,7 +522,7 @@ class ScenarioController(object):
             aStr += "\n"
         f.write(aStr[:-1] + "\n")
 
-        # f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+        # f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','a')
         # connected_A = self.check_connectivity_matrix(matrix_A)
         # aStr = str(rospy.get_time()) + "\n" + str(int(connected_A)) + "\n"
         # f.write(aStr[:-1] + "\n")
