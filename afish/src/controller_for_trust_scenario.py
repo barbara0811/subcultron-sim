@@ -661,7 +661,7 @@ class ScenarioController(object):
         self.zeta_previous = self.zeta
         self.sigma_previous = self.sigma
 
-        # print "zeta: " + str(self.zeta[self.index])
+        print "zeta: " + str(self.zeta[self.index])
             
 
                         
