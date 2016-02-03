@@ -55,6 +55,8 @@ class NoiseSimStatic(NoiseSim):
         
         if a2 == 0:
             a2 = 1 # if there is no rotation (unit vector, angle is 0)
+        if a1 == 0:
+            return 0
         theta = acos(float(vectProduct) / (a1 * a2))
         
         if abs(theta) <= pi / 4:
