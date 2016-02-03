@@ -88,6 +88,8 @@ class ScenarioController(object):
         self.index = aFishList.index(rospy.get_namespace())          # agent's index
         
         self.matrix_A = np.zeros([len(aFishList), len(aFishList)])
+        self.connected_A_previous = 0
+        self.aStr = ""
         self.time_first = 0
         self.time_second = 0
 
@@ -97,7 +99,7 @@ class ScenarioController(object):
         
         self.noiseIntensityPub = rospy.Publisher("/noise_intensity", Float64, queue_size=1)
         self.noiseTimeout = None
-        self.noiseRate = 30.0 # seconds (noise activation rate)
+        self.noiseRate = 5.0 # seconds (noise activation rate)
         self.noiseActivated = False
         
         # subscribers
@@ -115,9 +117,9 @@ class ScenarioController(object):
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
         # open to overwrite file content -- used for path visualization
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
-        f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','w')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
+        f = open('/home/petra/Desktop/logs_trust/conns_A.txt','w')
         
         # periodic function call
             
@@ -139,7 +141,7 @@ class ScenarioController(object):
         if not self.start:
             return
 
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
         f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
@@ -425,12 +427,18 @@ class ScenarioController(object):
             connected_A = 1
             self.time_second = rospy.get_time()
 
-        if connected_A == 1:
-            f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','a')
-            aStr = str(self.time_second - self.time_first)
-            f.write(aStr + "\n")
+        if connected_A == 1 and self.connected_A_previous == 1:                   
+            self.aStr = str(self.time_second - self.time_first)           
             self.matrix_A = np.zeros([len(aFishList),len(aFishList)])
+
+
+        if connected_A == 0 and self.connected_A_previous == 1:
+            f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+            f.write(self.aStr + "\n")
             self.time_first = rospy.get_time()
+
+        self.connected_A_previous = connected_A
+
         # return connected_A
 
 
@@ -508,8 +516,9 @@ class ScenarioController(object):
             	self.noiseTimeout = rospy.get_time() + t
 
         
-        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
+        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
         matrix_A = np.zeros([len(aFishList),len(aFishList)])
+        # matrix_A = np.reshape(msg.matrix,(len(aFishList),len(aFishList)))
 
         for i in range(len(self.A)):
             matrix_A[self.index,i] = self.A[i]
@@ -522,7 +531,7 @@ class ScenarioController(object):
             aStr += "\n"
         f.write(aStr[:-1] + "\n")
 
-        # f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','a')
+        # f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
         # connected_A = self.check_connectivity_matrix(matrix_A)
         # aStr = str(rospy.get_time()) + "\n" + str(int(connected_A)) + "\n"
         # f.write(aStr[:-1] + "\n")
