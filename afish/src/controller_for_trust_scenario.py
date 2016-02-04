@@ -63,7 +63,9 @@ class ScenarioController(object):
         self.b = np.zeros([len(aMusselList)])              # visited aMussels
         self.b_previous = np.zeros([len(aMusselList)])              # visited aMussels
         self.current =  np.zeros([len(aMusselList), 2])    # the latest aMussel sensory reading, vector -- [north, east]
-        
+        self.avg_current =  np.zeros((1, 2))
+
+
         self.tau = np.zeros([len(aMusselList)])      # observation function about agent's trustworthiness
         self.delta =  np.zeros([len(aMusselList)])   # performance
         self.delta_previous =  np.zeros([len(aMusselList)])   # performance
@@ -599,6 +601,26 @@ class ScenarioController(object):
         TODO -- implement + test behavior (is it better if it is called periodically?)
         '''
         
+        
+
+        # *******************************
+
+        #1st algorithm
+        '''
+        
+
+        self.avg_current = np.dot(self.b,self.current)/sum(self.b) 
+
+        print self.avg_current
+
+        '''
+
+        # *******************************
+
+        #2nd algorithm
+
+        '''
+
         while self.position is None or not self.start:
             rospy.sleep(0.1)
         
@@ -661,8 +683,35 @@ class ScenarioController(object):
         self.zeta_previous = self.zeta
         self.sigma_previous = self.sigma
 
-        print "zeta: " + str(self.zeta[self.index])
-            
+        # print "zeta: " + str(self.zeta[self.index])
+
+        mid_sum = np.zeros([len(aMusselList)])
+        final_sum = np.zeros([len(aMusselList),2])
+
+        for i in range(len(aMusselList)):
+            mid_sum[i] = self.b_previous[i] * self.zeta[self.index][i]
+            final_sum[i] = mid_sum[i] * self.current[i]
+
+        self.avg_current = sum(final_sum)/np.dot(self.b_previous,self.zeta[self.index]) 
+
+        print self.avg_current
+
+        '''
+
+        # *******************************
+
+        #3rd algorithm
+
+        '''
+
+        
+
+
+
+        '''
+
+        # *******************************
+     
 
                         
 if __name__ == "__main__":
