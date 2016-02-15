@@ -1,6 +1,8 @@
 subCULTron project trust scenario implementation.
 
-*TO RUN:*
+**TO RUN:**
+
+**1. Prepare simulation structures:**
 
 - Navigate to subcultron_launch/src/
 
@@ -16,11 +18,25 @@ For example,
 
 > source ../data/simulation/simulation_config.bash
 
+- Prepare aFish controller file for launch with specified parameters (modify PARAMETERS at the begining of afish/src/controller_for_trust_scenario.py).
+
+- Make sure you have prepared logging structures (folder ~/Desktop/logs_trust). If such folder does not exist, run:
+
+> cd ~/Desktop/
+
+> mkdir logs_trust
+
+**2. Run the code:**
+
 - In separate terminals, run:
 
 > roscore
 
 > roslaunch subcultron_launch standard_simulation.launch 
+
+- If you want to log zeta values, run:
+
+> rosrun subcultron_launch zeta_logger.py
 
 To stop the simulation, simply press ctrl-c in the second terminal (roscore can be left running at all times).
 
