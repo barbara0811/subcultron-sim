@@ -64,7 +64,6 @@ add_message_files(
    DataEventsContainer.msg
    RhodamineAdc.msg
    RhodamineData.msg
-   ConnMatrix.msg
 )
 
 ## Generate services in the 'srv' folder
