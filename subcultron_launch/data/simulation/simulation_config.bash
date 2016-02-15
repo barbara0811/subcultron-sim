@@ -1,7 +1,7 @@
 #!/bin/bash
 # ROS Environment
 #USER=stdops
-VEHICLE=(apad amussel)
+VEHICLE=(afish amussel)
 #ROS_HOME=/home/${USER}/ros
 #source ${ROS_HOME}/devel/setup.bash
 #export ROS_MASTER_URI=http://localhost:11311
@@ -24,7 +24,6 @@ export LAUNCH_FILE=standard_simulation.launch
 export LOGGING=false
 
 # Configure simulation
-export XML_SAVE_PATH=`rospack find apad`/data/mission.xml
 export USE_NOISE=false
 
 #Location for simulation or predefined position

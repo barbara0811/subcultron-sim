@@ -48,8 +48,10 @@ def indent(elem, level=0):
             
 def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_fish, positions_fish, first_index_fish, n_mussel, positions_mussel, first_index_mussel):
     
-    vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('apad') + '/data/simulation/' + 'vehicle.xml').getroot()
-    size = len(root)
+      
+    if n_pad > 0:
+        vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('apad') + '/data/simulation/' + 'vehicle.xml').getroot()
+        size = len(root)
     
     for i in range(n_pad):
         tmp = deepcopy(vehicleRoot)
@@ -59,8 +61,9 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
         tmp.find("gpsSensor").find("name").text = "GPSSensor" + str(first_index_pad + i + 1)
         root.insert(size - 1, tmp)    
 
-    vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('afish') + '/data/simulation/' + 'vehicle.xml').getroot()
-    size = len(root)
+    if n_fish > 0:
+        vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('afish') + '/data/simulation/' + 'vehicle.xml').getroot()
+        size = len(root)
     
     for i in range(n_fish):
         tmp = deepcopy(vehicleRoot)
@@ -70,7 +73,9 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
         tmp.find("gpsSensor").find("name").text = "GPSSensor" + str(first_index_fish + i + 1)
         root.insert(size - 1, tmp)  
     
-    vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/data/simulation/' + 'vehicle.xml').getroot()    
+    if n_mussel > 0:
+        vehicleRoot = xml.etree.ElementTree.parse(rospack.get_path('amussel') + '/data/simulation/' + 'vehicle.xml').getroot()    
+        size = len(root)
 
     for i in range(n_mussel):
         tmp = deepcopy(vehicleRoot)

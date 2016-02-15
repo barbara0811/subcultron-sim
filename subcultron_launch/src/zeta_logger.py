@@ -9,6 +9,12 @@ import numpy as np
 from math import sqrt, pow
 import rospy
 
+### PARAMETERS ###
+
+user = "barbara"
+
+#########################
+
 class ZetaLogger(object):
 
     def __init__(self):
@@ -21,7 +27,7 @@ class ZetaLogger(object):
         self.afish2zetaSub = rospy.Subscriber('/afish2/zeta', zeta, self.afish2zeta_cb)
         self.afish3zetaSub = rospy.Subscriber('/afish3/zeta', zeta, self.afish3zeta_cb)
 
-        file = open('/home/barbara/Desktop/logs_trust/zeta.txt','w')
+        file = open('/home/' + user + '/Desktop/logs_trust/zeta.txt','w')
 
         rospy.Subscriber('/scenario_start', Bool, self.start_cb)
         rospy.Timer(rospy.Duration(0.1), self.save_zeta)
@@ -47,7 +53,7 @@ class ZetaLogger(object):
     def save_zeta(self, event):
         if not self.start or len(self.zetas) < 3:
             return
-        file = open('/home/barbara/Desktop/logs_trust/zeta.txt','a')
+        file = open('/home/' + user + '/Desktop/logs_trust/zeta.txt','a')
         output = ""
         for i in range(3):
              output += " ".join(str(x) for x in self.zeta[i])

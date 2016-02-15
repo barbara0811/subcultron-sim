@@ -12,7 +12,7 @@ import action_library
 import math
 
 from misc_msgs.srv import GetPosition, GetSensoryReading, GetTrustInfo
-from misc_msgs.msg import ConnMatrix
+from misc_msgs.msg import ConnMatrix, zeta
 from navcon_msgs.srv import EnableControl, ConfigureVelocityController
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import Point
@@ -24,17 +24,27 @@ from scipy.integrate import odeint
 import itertools
 import numpy as np
 
+### PARAMETERS ###
+
 user = "barbara"
 area = [[-10, 10], [-10, 10]]
 
+aFishNumber = 3
+aMusselNumber = 5
+
+noiseActivationRate = 0.0  # seconds (noise activation rate)
+
+#########################
+
 aFishList = []
 
-for i in range(3):
+for i in range(aFishNumber):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(5):
+for i in range(aMusselNumber):
     aMusselList.append("/amussel" + str(i + 1) + "/")
+
 
 class ScenarioController(object):
     
@@ -97,10 +107,12 @@ class ScenarioController(object):
         # publishers
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
         self.startPub = rospy.Publisher('start_sim', Bool, queue_size=1)
+
+        self.zetaPub = rospy.Publisher('zeta', zeta, queue_size=1)
         
         self.noiseIntensityPub = rospy.Publisher("/noise_intensity", Float64, queue_size=1)
         self.noiseTimeout = None
-        self.noiseRate = 20.0 # seconds (noise activation rate)
+        self.noiseRate = noiseActivationRate # seconds (noise activation rate)
         self.noiseActivated = False
         
         # subscribers
@@ -663,6 +675,7 @@ class ScenarioController(object):
         self.sigma_previous = self.sigma
 
         # print "zeta: " + str(self.zeta[self.index])
+        self.zetaPub.publish(self.zeta[self.index])
             
 
                         
