@@ -13,15 +13,13 @@ class ZetaLogger(object):
 
     def __init__(self):
 
-        self.zeta = [[] for i in range(5)]
+        self.zeta = [[] for i in range(3)]
         self.start = False
         self.zetas = set()
 
         self.afish1zetaSub = rospy.Subscriber('/afish1/zeta', zeta, self.afish1zeta_cb)
         self.afish2zetaSub = rospy.Subscriber('/afish2/zeta', zeta, self.afish2zeta_cb)
         self.afish3zetaSub = rospy.Subscriber('/afish3/zeta', zeta, self.afish3zeta_cb)
-        self.afish4zetaSub = rospy.Subscriber('/afish4/zeta', zeta, self.afish4zeta_cb)
-        self.afish5zetaSub = rospy.Subscriber('/afish5/zeta', zeta, self.afish5zeta_cb)
 
         file = open('/home/barbara/Desktop/logs_trust/zeta.txt','w')
 
@@ -42,37 +40,29 @@ class ZetaLogger(object):
         self.zeta[2] = msg.zeta
         self.zetas.add(2)
 
-    def afish4zeta_cb(self, msg):
-        self.zeta[3] = msg.zeta
-        self.zetas.add(3)
-
-    def afish5zeta_cb(self, msg):
-        self.zeta[4] = msg.zeta
-        self.zetas.add(4)
-
 
     def start_cb(self, msg):
         self.start = True
 
     def save_zeta(self, event):
-        if not self.start or len(self.zetas) < 5:
+        if not self.start or len(self.zetas) < 3:
             return
         file = open('/home/barbara/Desktop/logs_trust/zeta.txt','a')
         output = ""
-        for i in range(5):
+        for i in range(3):
              output += " ".join(str(x) for x in self.zeta[i])
              output += " " 
         file.write(output + "\n")
 
         Zeta_ = np.zeros(len(self.zeta[0]))
-        for i in range(5):
+        for i in range(3):
             Zeta_ += self.zeta[i]
-        Zeta_ /= 5
+        Zeta_ /= 3
 
         stdDev = np.zeros(len(self.zeta[0]))
-        for i in range(5):
+        for i in range(3):
             stdDev += np.power(Zeta_ - self.zeta[i], 2)
-        stdDev /= (5*4)
+        stdDev /= (3*2)
         stdDev = np.sqrt(stdDev)
         print stdDev
 
