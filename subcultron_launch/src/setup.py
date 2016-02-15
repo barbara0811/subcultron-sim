@@ -392,4 +392,7 @@ if __name__ == "__main__":
     
     import uwsim_location_holder_generator as gen
     gen.generate(n_fish, n_mussel)
+
+    import zeta_logger_generator 
+    zeta_logger_generator.generate(n_fish)
         

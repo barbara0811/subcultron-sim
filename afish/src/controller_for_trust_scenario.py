@@ -12,7 +12,7 @@ import action_library
 import math
 
 from misc_msgs.srv import GetPosition, GetSensoryReading, GetTrustInfo
-from misc_msgs.msg import ConnMatrix
+from misc_msgs.msg import ConnMatrix, zeta
 from navcon_msgs.srv import EnableControl, ConfigureVelocityController
 from auv_msgs.msg import NED, NavSts
 from geometry_msgs.msg import Point
@@ -24,15 +24,15 @@ from scipy.integrate import odeint
 import itertools
 import numpy as np
 
-area = [[-10, 10], [-10, 10]]
+area = [[-25, 25], [-25, 25]]
 
 aFishList = []
 
-for i in range(3):
+for i in range(5):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(5):
+for i in range(10):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -96,10 +96,11 @@ class ScenarioController(object):
         # publishers
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
         self.startPub = rospy.Publisher('start_sim', Bool, queue_size=1)
+        self.zetaPub = rospy.Publisher('zeta', zeta, queue_size=1)
         
         self.noiseIntensityPub = rospy.Publisher("/noise_intensity", Float64, queue_size=1)
         self.noiseTimeout = None
-        self.noiseRate = 5.0 # seconds (noise activation rate)
+        self.noiseRate = 0.0 # seconds (noise activation rate)
         self.noiseActivated = False
         
         # subscribers
@@ -117,9 +118,9 @@ class ScenarioController(object):
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
         # open to overwrite file content -- used for path visualization
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
-        f = open('/home/petra/Desktop/logs_trust/conns_A.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
+        f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','w')
         
         # periodic function call
             
@@ -141,12 +142,14 @@ class ScenarioController(object):
         if not self.start:
             return
 
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
         f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
         
         self.startTime = rospy.get_time()
+        self.time_first = rospy.get_time()
+        self.time_second = rospy.get_time()
         
         # enable and configure controllers
         self.velcon_enable = rospy.ServiceProxy('VelCon_enable', EnableControl)
@@ -181,7 +184,7 @@ class ScenarioController(object):
         
         self.start = True
         self.startPub.publish(msg)
-        if "1" in rospy.get_namespace():
+        if "1" in rospy.get_namespace() and self.noiseRate != 0:
 	        t = expovariate(1.0/float(self.noiseRate))
 	        self.noiseTimeout = rospy.get_time() + t
         
@@ -228,10 +231,10 @@ class ScenarioController(object):
         amp = self.signalHistory[-2:]
         newAmplitude = amp[1]
         # if in tumbling process, use the amplitude value at the start of tumbling
-        if self.tumble:
-            oldAmplitude = self.tumbleValue
-        else:
-            oldAmplitude = amp[0]
+        #if self.tumble:
+        #    oldAmplitude = self.tumbleValue
+        #else:
+        oldAmplitude = amp[0]
         
         if newAmplitude < 0:    # no sensory data -- perform Levy walk
             # clean up leftover chemotaxis flag (otherwise it can get stuck in tumbling)
@@ -267,9 +270,9 @@ class ScenarioController(object):
             if newAmplitude - oldAmplitude <= C:
                 A = 0
                 # if tumbling was already occurring, discard the new signal readings until improvement
-                if not self.tumble: # keep amplitude value at the start of tumbling process
-                    self.tumbleValue = newAmplitude
-                self.tumble = True
+                #if not self.tumble: # keep amplitude value at the start of tumbling process
+                #    self.tumbleValue = oldAmplitude
+                #self.tumble = True
             else:
                 A = 1
                 self.tumble = False
@@ -433,7 +436,7 @@ class ScenarioController(object):
 
 
         if connected_A == 0 and self.connected_A_previous == 1:
-            f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+            f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','a')
             f.write(self.aStr + "\n")
             self.time_first = rospy.get_time()
 
@@ -516,7 +519,7 @@ class ScenarioController(object):
             	self.noiseTimeout = rospy.get_time() + t
 
         
-        f = open('/home/petra/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
+        f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
         matrix_A = np.zeros([len(aFishList),len(aFishList)])
         # matrix_A = np.reshape(msg.matrix,(len(aFishList),len(aFishList)))
 
@@ -531,7 +534,7 @@ class ScenarioController(object):
             aStr += "\n"
         f.write(aStr[:-1] + "\n")
 
-        # f = open('/home/petra/Desktop/logs_trust/conns_A.txt','a')
+        # f = open('/home/barbara/Desktop/logs_trust/conns_A.txt','a')
         # connected_A = self.check_connectivity_matrix(matrix_A)
         # aStr = str(rospy.get_time()) + "\n" + str(int(connected_A)) + "\n"
         # f.write(aStr[:-1] + "\n")
@@ -662,7 +665,9 @@ class ScenarioController(object):
         self.sigma_previous = self.sigma
 
         print "zeta: " + str(self.zeta[self.index])
-            
+        self.zetaPub.publish(self.zeta[self.index])
+        #f = open('/home/barbara/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'zeta.txt','a')
+        #f.write(str(self.zeta[self.index]) + "\n")
 
                         
 if __name__ == "__main__":

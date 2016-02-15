@@ -65,6 +65,7 @@ add_message_files(
    RhodamineAdc.msg
    RhodamineData.msg
    ConnMatrix.msg
+   zeta.msg
 )
 
 ## Generate services in the 'srv' folder

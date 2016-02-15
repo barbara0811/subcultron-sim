@@ -172,7 +172,10 @@ bool VelocityControl::handleServerConfig(navcon_msgs::ConfigureVelocityControlle
 void VelocityControl::handleReference(const auv_msgs::BodyVelocityReq::ConstPtr& ref)
 {
 	double nuRef[numcnt];
-	labust::tools::pointToVector(ref->twist.linear, nuRef);
+	nuRef[0] = ref->twist.linear.x;
+	nuRef[1] = ref->twist.linear.y;
+	nuRef[2] = ref->twist.linear.z;
+	//labust::tools::pointToVector(ref->twist.linear, nuRef);
 	labust::tools::pointToVector(ref->twist.angular, nuRef, 3);
 
 	for(int i=0; i<numcnt; ++i) 	controller[i].desired = nuRef[i];

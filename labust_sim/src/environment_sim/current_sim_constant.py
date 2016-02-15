@@ -81,7 +81,7 @@ class CurrentSimConstant(CurrentSim):
         while i < len(lines): 
             # upper left point
             data = lines[i].split(' ')
-            rospy.logerr( data)
+
             i += 1
             if len(data) != 2:
                 err = -1
@@ -91,7 +91,7 @@ class CurrentSimConstant(CurrentSim):
             
             # lower right point
             data = lines[i].split(' ')
-            rospy.logerr( data)
+
             i += 1
             if len(data) != 2:
                 err = -1
@@ -102,7 +102,7 @@ class CurrentSimConstant(CurrentSim):
             # current value
             data = lines[i].split(' ')
             i += 1
-            rospy.logerr( data)
+
             if len(data) != 3:
                 err = -1
                 break
