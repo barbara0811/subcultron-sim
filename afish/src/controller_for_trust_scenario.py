@@ -100,7 +100,7 @@ class ScenarioController(object):
         
         self.noiseIntensityPub = rospy.Publisher("/noise_intensity", Float64, queue_size=1)
         self.noiseTimeout = None
-        self.noiseRate = 0 # seconds (noise activation rate)
+        self.noiseRate = 20.0 # seconds (noise activation rate)
         self.noiseActivated = False
         
         # subscribers
@@ -182,7 +182,7 @@ class ScenarioController(object):
         
         self.start = True
         self.startPub.publish(msg)
-        if "1" in rospy.get_namespace():
+        if "1" in rospy.get_namespace() and self.noiseRate > 0:
 	        t = expovariate(1.0/float(self.noiseRate))
 	        self.noiseTimeout = rospy.get_time() + t
         
