@@ -10,6 +10,10 @@ subCULTron project trust scenario implementation.
 
 >  python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
 
+For example,
+
+>  python setup.py trust_scenario 0 5 10 0 0 0 -15 15 -15 15
+
 > source ../data/simulation/simulation_config.bash
 
 - In separate terminals, run:
