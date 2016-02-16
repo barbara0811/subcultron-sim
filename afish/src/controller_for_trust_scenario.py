@@ -27,10 +27,10 @@ import numpy as np
 ### PARAMETERS ###
 
 user = "barbara"
-area = [[-10, 10], [-10, 10]]
+area = [[-15, 15], [-15, 15]]
 
-aFishNumber = 3
-aMusselNumber = 5
+aFishNumber = 5
+aMusselNumber = 10
 
 noiseActivationRate = 0.0  # seconds (noise activation rate)
 
@@ -438,12 +438,13 @@ class ScenarioController(object):
 
         if sum(row_sum) == 0 and sum(pr) == 0 and number == 1:
             connected_A = 1
-            self.time_second = rospy.get_time()
+
+        if connected_A == 1 and self.connected_A_previous == 0:
+            self.time_second = rospy.get_time()     
+            self.aStr = str(self.time_second - self.time_first)    
 
         if connected_A == 1 and self.connected_A_previous == 1:                   
-            self.aStr = str(self.time_second - self.time_first)           
             self.matrix_A = np.zeros([len(aFishList),len(aFishList)])
-
 
         if connected_A == 0 and self.connected_A_previous == 1:
             f = open('/home/' + user + '/Desktop/logs_trust/conns_A.txt','a')
@@ -612,6 +613,7 @@ class ScenarioController(object):
         TODO -- implement + test behavior (is it better if it is called periodically?)
         '''
         
+        # dali je ovo skroz uskladeno s trust concensus protocolom? 
         while self.position is None or not self.start:
             rospy.sleep(0.1)
         
@@ -630,7 +632,9 @@ class ScenarioController(object):
                 self.tau[i] = math.exp(-(self.delta_previous[i] ** 2)/(self.sigma_previous[i] ** 2))
 
             for j in range(len(aFishList)):
-                self.diff_zeta[i] = self.diff_zeta[i] + self.A_previous[j]*self.sign(self.zeta_previous[j,i] - self.zeta_previous[self.index,i]) + self.b_previous[i]*self.sign(self.tau[i] - self.zeta_previous[self.index,i])
+                self.diff_zeta[i] = self.diff_zeta[i] + self.A_previous[j]*self.sign(self.zeta_previous[j,i] - self.zeta_previous[self.index,i]) 
+
+            self.diff_zeta[i] = self.diff_zeta[i] + self.b_previous[i]*self.sign(self.tau[i] - self.zeta_previous[self.index,i])
 
             
             if self.adapt > 0:
