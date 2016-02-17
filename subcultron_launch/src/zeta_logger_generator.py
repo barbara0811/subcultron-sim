@@ -1,6 +1,4 @@
 
-user = "barbara"
-
 def generate(fish, mussel, area_x, area_y):
     
     file = open("zeta_logger.py", 'w')
@@ -14,7 +12,7 @@ def generate(fish, mussel, area_x, area_y):
     file.write("import rospy\n\n")
 
     file.write("### PARAMETERS ###\n\n")
-    file.write("user = \"" + user + "\"\n")
+    file.write("user = \"\"\n")
     file.write("noiseActivationRate = 0.0\n\n")
     file.write("area = [" + str(int(area_x)) + ", " + str(int(area_y)) + "]\n\n")
     file.write("n_fish = " + str(fish) + "\n")
