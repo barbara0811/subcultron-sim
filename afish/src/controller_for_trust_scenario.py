@@ -27,13 +27,13 @@ import numpy as np
 
 ### PARAMETERS ###
 
-user = "tamara"
+user = "barbara"
 area = [[-15, 15], [-15, 15]]
 
 aFishNumber = 5
 aMusselNumber = 10
 
-noiseActivationRate = 0.0  # seconds (noise activation rate)
+noiseActivationRate = 90.0  # seconds (noise activation rate)
 
 #########################
 
@@ -517,10 +517,17 @@ class ScenarioController(object):
                 print "Service call failed: %s"%e
         
         '''
-            
-        rospy.wait_for_service('/get_connectivity_vectors', 0.1)
-        get_conn = rospy.ServiceProxy('/get_connectivity_vectors', GetTrustInfo)
         
+	try:    
+            rospy.wait_for_service('/get_connectivity_vectors', 0.5)
+            get_conn = rospy.ServiceProxy('/get_connectivity_vectors', GetTrustInfo)
+        except rospy.ServiceException, e:
+            print "Service call failed: %s"%e
+            return
+        except rospy.ROSException, e:
+            print "Service call failed: %s"%e  
+            return
+
         result = get_conn(self.index)
         self.A = np.array(result.A)
         mussels = np.array(result.b)

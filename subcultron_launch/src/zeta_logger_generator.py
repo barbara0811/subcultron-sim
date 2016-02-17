@@ -1,5 +1,8 @@
 
-def generate(fish):
+user = "barbara"
+noiseActivationRate = 90.0
+
+def generate(fish, mussel, area_x, area_y):
     
     file = open("zeta_logger.py", 'w')
     
@@ -10,7 +13,15 @@ def generate(fish):
     file.write("import numpy as np\n")
     file.write("from math import sqrt, pow\n")
     file.write("import rospy\n\n")
+
+    file.write("### PARAMETERS ###\n\n")
+    file.write("user = \"" + user + "\"\n")
+    file.write("area = [" + str(int(area_x)) + ", " + str(int(area_y)) + "]\n\n")
+    file.write("n_fish = " + str(fish) + "\n")
+    file.write("n_mussel = " + str(mussel) + "\n\n")
     
+    file.write("##########################\n\n")
+
     file.write(
     "class ZetaLogger(object):\n\n" +
     "    def __init__(self):\n\n")
@@ -22,8 +33,9 @@ def generate(fish):
     for i in range(fish):
         file.write("        self.afish" + str(i + 1) + "zetaSub = rospy.Subscriber('/afish" + str(i + 1) + "/zeta', zeta, self.afish" + str(i + 1) + "zeta_cb)\n")
     file.write("\n")
-    
-    file.write("        file = open('/home/barbara/Desktop/logs_trust/zeta.txt','w')\n\n")
+
+    file.write("        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(n_fish) + 'fsh_' + str(n_mussel) + 'mss_" + str(noiseActivationRate) + "ns_' + str(area[0]) + 'x' + str(area[1]) + '/'\n\n")    
+    file.write("        file = open(self.logs_folder + 'zeta.txt','w')\n\n")
     file.write("        rospy.Subscriber('/scenario_start', Bool, self.start_cb)\n")
     file.write("        rospy.Timer(rospy.Duration(0.1), self.save_zeta)\n\n")
     
@@ -44,7 +56,7 @@ def generate(fish):
     file.write("    def save_zeta(self, event):\n" +
                "        if not self.start or len(self.zetas) < " + str(fish) + ":\n" +
                "            return\n" +
-               "        file = open('/home/barbara/Desktop/logs_trust/zeta.txt','a')\n" +
+               "        file = open(self.logs_folder + 'zeta.txt','a')\n" +
                "        output = \"\"\n" +
                "        for i in range(" + str(fish) + "):\n " +
                "            output += \" \".join(str(x) for x in self.zeta[i])\n" + 

@@ -399,5 +399,5 @@ if __name__ == "__main__":
     gen.generate(n_fish, n_mussel)
 
     import zeta_logger_generator 
-    zeta_logger_generator.generate(n_fish)
+    zeta_logger_generator.generate(n_fish, n_mussel, east_range_mussel[1] - east_range_mussel[0], north_range_mussel[1] - north_range_mussel[0])
         
