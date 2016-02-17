@@ -1,6 +1,5 @@
 
 user = "barbara"
-noiseActivationRate = 90.0
 
 def generate(fish, mussel, area_x, area_y):
     
@@ -16,6 +15,7 @@ def generate(fish, mussel, area_x, area_y):
 
     file.write("### PARAMETERS ###\n\n")
     file.write("user = \"" + user + "\"\n")
+    file.write("noiseActivationRate = 0.0\n\n")
     file.write("area = [" + str(int(area_x)) + ", " + str(int(area_y)) + "]\n\n")
     file.write("n_fish = " + str(fish) + "\n")
     file.write("n_mussel = " + str(mussel) + "\n\n")
@@ -34,7 +34,7 @@ def generate(fish, mussel, area_x, area_y):
         file.write("        self.afish" + str(i + 1) + "zetaSub = rospy.Subscriber('/afish" + str(i + 1) + "/zeta', zeta, self.afish" + str(i + 1) + "zeta_cb)\n")
     file.write("\n")
 
-    file.write("        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(n_fish) + 'fsh_' + str(n_mussel) + 'mss_" + str(noiseActivationRate) + "ns_' + str(area[0]) + 'x' + str(area[1]) + '/'\n\n")    
+    file.write("        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(n_fish) + 'fsh_' + str(n_mussel) + 'mss_' + str(noiseActivationRate) + 'ns_' + str(area[0]) + 'x' + str(area[1]) + '/'\n\n")    
     file.write("        file = open(self.logs_folder + 'zeta.txt','w')\n\n")
     file.write("        rospy.Subscriber('/scenario_start', Bool, self.start_cb)\n")
     file.write("        rospy.Timer(rospy.Duration(0.1), self.save_zeta)\n\n")
