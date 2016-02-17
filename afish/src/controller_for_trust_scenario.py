@@ -10,6 +10,7 @@ __author__ = "barbanas"
 import rospy
 import action_library
 import math
+import os
 
 from misc_msgs.srv import GetPosition, GetSensoryReading, GetTrustInfo
 from misc_msgs.msg import ConnMatrix, zeta
@@ -26,7 +27,7 @@ import numpy as np
 
 ### PARAMETERS ###
 
-user = "barbara"
+user = "tamara"
 area = [[-15, 15], [-15, 15]]
 
 aFishNumber = 5
@@ -130,9 +131,14 @@ class ScenarioController(object):
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
         # open to overwrite file content -- used for path visualization
-        f = open('/home/' + user + '/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','w')
-        f = open('/home/' + user + '/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','w')
-        f = open('/home/' + user + '/Desktop/logs_trust/conns_A.txt','w')
+        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(aFishNumber) + 'fsh_' + str(aMusselNumber) + 'mss_' + \
+                            str(noiseActivationRate) + 'ns_' + str(area[0][1]-area[0][0]) + 'x' + str(area[1][1]-area[1][0]) + '/';
+        if not os.path.exists(self.logs_folder):
+            os.makedirs(self.logs_folder)
+
+        f = open(self.logs_folder + rospy.get_namespace()[:-1] + 'path.txt','w')
+        f = open(self.logs_folder + rospy.get_namespace()[:-1] + 'A.txt','w')
+        f = open(self.logs_folder + 'conns_A.txt','w')
         
         # periodic function call
             
@@ -154,7 +160,7 @@ class ScenarioController(object):
         if not self.start:
             return
 
-        f = open('/home/' + user + '/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'path.txt','a')
+        f = open(self.logs_folder + rospy.get_namespace()[:-1] + 'path.txt','a')
         f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
@@ -447,7 +453,7 @@ class ScenarioController(object):
             self.matrix_A = np.zeros([len(aFishList),len(aFishList)])
 
         if connected_A == 0 and self.connected_A_previous == 1:
-            f = open('/home/' + user + '/Desktop/logs_trust/conns_A.txt','a')
+            f = open(self.logs_folder + 'conns_A.txt','a')
             f.write(self.aStr + "\n")
             self.time_first = rospy.get_time()
 
@@ -530,7 +536,7 @@ class ScenarioController(object):
             	self.noiseTimeout = rospy.get_time() + t
 
         
-        f = open('/home/' + user + '/Desktop/logs_trust' + rospy.get_namespace()[:-1] + 'A.txt','a')
+        f = open(self.logs_folder + rospy.get_namespace()[:-1] + 'A.txt','a')
         matrix_A = np.zeros([len(aFishList),len(aFishList)])
         # matrix_A = np.reshape(msg.matrix,(len(aFishList),len(aFishList)))
 
