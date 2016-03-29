@@ -12,11 +12,11 @@
     <rosparam file="$(find apad)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find apad)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find apad)/data/dynamics/apad.yaml" />
-    <rosparam param="eta0">[-2.06246273308,-0.607910385186,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[14.2488929726,7.58189870804,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find apad)/data/locations/swarm_loc.yaml" />
     <include file="$(find apad)/data/devices/static_frames.xml" />
     <include file="$(find apad)/data/simulation/scenario/simulation_gpgp_agent.xml">
-      <arg name="battery_level" value="74.3989845104" />
+      <arg name="battery_level" value="79.3019338603" />
     </include>
     <include file="$(find apad)/data/control/control_standard.xml" />
     <include file="$(find apad)/data/primitives/primitives_standard.xml" />
@@ -34,16 +34,20 @@
     <node name="executor" output="screen" pkg="gpgp_agent_subcultron" type="task_executor_aPad.py">
       <param name="label" value="aP" />
     </node>
+    <node name="scheduler" output="screen" pkg="gpgp_agent" type="DTC_scheduler.py">
+      <param name="label" value="aP" />
+      <param name="pack" value="gpgp_agent_subcultron" />
+    </node>
   </group>
   <group ns="afish1">
     <rosparam file="$(find afish)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find afish)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find afish)/data/dynamics/afish.yaml" />
-    <rosparam param="eta0">[13.886461264,0.181002431407,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[6.97435887279,14.5137618992,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find afish)/data/locations/swarm_loc.yaml" />
     <include file="$(find afish)/data/devices/static_frames.xml" />
     <include file="$(find afish)/data/simulation/scenario/simulation_gpgp_agent.xml">
-      <arg name="battery_level" value="94.9581080422" />
+      <arg name="battery_level" value="54.6248420092" />
     </include>
     <include file="$(find afish)/data/control/control_standard.xml" />
     <include file="$(find afish)/data/primitives/primitives_standard.xml" />
@@ -61,16 +65,20 @@
     <node name="executor" output="screen" pkg="gpgp_agent_subcultron" type="task_executor_aFish.py">
       <param name="label" value="aF" />
     </node>
+    <node name="scheduler" output="screen" pkg="gpgp_agent" type="DTC_scheduler.py">
+      <param name="label" value="aF" />
+      <param name="pack" value="gpgp_agent_subcultron" />
+    </node>
   </group>
   <group ns="amussel1">
     <rosparam file="$(find amussel)/data/navigation/params/nav_standard.yaml" />
     <rosparam file="$(find amussel)/data/control/params/controllers_standard.yaml" />
     <rosparam file="$(find amussel)/data/dynamics/amussel.yaml" />
-    <rosparam param="eta0">[-2.40189121415,2.45214995628,0,0,0,0]</rosparam>
+    <rosparam param="eta0">[7.87568307374,-9.16696799251,0,0,0,0]</rosparam>
     <rosparam command="load" file="$(find amussel)/data/locations/swarm_loc.yaml" />
     <include file="$(find amussel)/data/devices/static_frames.xml" />
     <include file="$(find amussel)/data/simulation/scenario/simulation_gpgp_agent.xml">
-      <arg name="battery_level" value="28.1445308949" />
+      <arg name="battery_level" value="16.0962772079" />
     </include>
     <include file="$(find amussel)/data/control/control_standard.xml" />
     <include file="$(find amussel)/data/primitives/primitives_standard.xml" />
@@ -87,6 +95,10 @@
     </node>
     <node name="executor" output="screen" pkg="gpgp_agent_subcultron" type="task_executor_aMussel.py">
       <param name="label" value="aM" />
+    </node>
+    <node name="scheduler" output="screen" pkg="gpgp_agent" type="DTC_scheduler.py">
+      <param name="label" value="aM" />
+      <param name="pack" value="gpgp_agent_subcultron" />
     </node>
   </group>
 </launch>
