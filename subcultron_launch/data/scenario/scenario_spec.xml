@@ -33,4 +33,13 @@
 		<agent>aFish</agent>
 	</scenario>
 
+        <scenario>
+		<name>gpgp_agent</name>
+		<controllerFile></controllerFile>
+		<simulationXmlFile>simulation_gpgp_agent.xml</simulationXmlFile>
+		<agent>aPad</agent>
+		<agent>aMussel</agent>
+		<agent>aFish</agent>
+	</scenario>
+
 </scenarioSpecFile>
