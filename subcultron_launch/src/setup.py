@@ -156,7 +156,8 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
             	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
             	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
             	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-
+            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
+            	
             else:
 	            if outputToScreen:
 	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
@@ -197,7 +198,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
     
     
             if "gpgp_agent" in simulationSpecFile:
-                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"GPGP_coordinator_aPad.py", "name":"coordinator", "output":"screen"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"GPGP_coordinator_aFish.py", "name":"coordinator", "output":"screen"}))
             	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
             	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
             	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aFish.py", "name":"task_assessor", "output":"screen"}))
@@ -406,8 +407,12 @@ if __name__ == "__main__":
 
     while len(battery_pad) < n_pad:
     	battery_pad.append(uniform(70,100))
+
+    while len(battery_fish) < n_fish:
     	battery_fish.append(uniform(40,100))
-    	battery_mussel.append(uniform(5,30))
+
+	while len(battery_mussel) < n_mussel:
+		battery_mussel.append(uniform(5,30))
 
 	print "battery pad " + str(battery_pad)    	
 	print "battery fish " + str(battery_fish)

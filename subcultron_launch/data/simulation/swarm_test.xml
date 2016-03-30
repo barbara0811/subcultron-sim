@@ -65,8 +65,8 @@
     </lookAt>
   </camera>
   <vehicle>
-    <name>apad1</name>
-    <file>apad.urdf</file>
+    <name>amussel2</name>
+    <file>amussel.urdf</file>
     <position>
       <x> 0</x>
       <y> 0 </y>
@@ -78,7 +78,7 @@
       <y>0</y>
     </orientation>
     <imu>
-      <name>imu1</name>
+      <name>imu2</name>
       <relativeTo>base_link</relativeTo>
       <position>
         <x>0</x>
@@ -93,7 +93,7 @@
       <std>0.00000001</std>
     </imu>
     <gpsSensor>
-      <name>GPSSensor1</name>
+      <name>GPSSensor2</name>
       <relativeTo>base_link</relativeTo>
       <position>
         <x>0</x>
@@ -216,16 +216,16 @@
   </object>
   <rosInterfaces>
     <ROSOdomToPAT>
-      <topic>apad1/uwsim_hook</topic>
-      <vehicleName>apad1</vehicleName>
-    </ROSOdomToPAT>
-    <ROSOdomToPAT>
       <topic>afish1/uwsim_hook</topic>
       <vehicleName>afish1</vehicleName>
     </ROSOdomToPAT>
     <ROSOdomToPAT>
       <topic>amussel1/uwsim_hook</topic>
       <vehicleName>amussel1</vehicleName>
+    </ROSOdomToPAT>
+    <ROSOdomToPAT>
+      <topic>amussel2/uwsim_hook</topic>
+      <vehicleName>amussel2</vehicleName>
     </ROSOdomToPAT>
   </rosInterfaces>
 </UWSimScene>
