@@ -57,6 +57,11 @@ class aPadActionServer:
 
         # state reference publisher
         self.stateRefPub = rospy.Publisher('stateRef', NavSts, queue_size=1)
+        self.staticPosPub = [None, None, None, None] # position publisher for perched objects
+        self.perchedObjects = ['','','','']
+        self.positionOffset = [[-0.1,-0.1], [-0.1,0.1], [0.1,-0.1], [0.1,0.1]]
+        self.perched_flag = 0  # flag for dummy action perching onto aMussel/aFish/other objects action
+        self.perched_count = 0 # number of currently docked objects (default max 4)
         
         self.action_rec_flag = 0  # 0 - waiting action, 1 - received action, 2 - executing action
         
@@ -70,8 +75,6 @@ class aPadActionServer:
         self.pos_old = Point(self.position.x, self.position.y, self.position.z)
         
         self.pos_err = []
-        self.perched_flag = 0  # flag for dummy action perching onto aMussel/aFish/other objects action
-        self.perched_count = 0 # number of currently docked objects (default max 4)
         
         # initialize actions server structures
         self.action_server = actionlib.SimpleActionServer("action_server", aPadAction, auto_start=False)
@@ -80,15 +83,18 @@ class aPadActionServer:
         self.action_server.start()
 
         while not rospy.is_shutdown():
-            # goal position for aMussel/aFish/object docked onto aPad (if perched!)
-            #TODO multiple docking stations
-            goalPosition = NED()
-            goalPosition.north = self.position.x + self.position_offset.x
-            goalPosition.east = self.position.y + self.position_offset.y
-            #goalPosition.z = self.position.z + self.position_offset.z
-
+            
             if self.perched_flag == 1:
-                self.set_model_state(goalPosition)
+                for i in range(self.perched_count):
+                    if self.perchedObjects[i] == '':
+                        continue
+                    # goal position for aMussel/aFish/object docked onto aPad (if perched!)
+                    #TODO multiple docking stations
+                    goalPosition = NED()
+                    goalPosition.north = self.position.x + self.positionOffset[i][0]
+                    goalPosition.east = self.position.y + self.positionOffset[i][1]
+                    #goalPosition.z = self.position.z + self.position_offset.z
+                    self.set_model_state(i, goalPosition)
 
             if self.action_server.is_active():
 
@@ -213,24 +219,29 @@ class aPadActionServer:
                             self.action_server.publish_feedback(self.as_feed)
 
                     elif self.as_goal.id == 1:
-			#if self.perched_count==4:
-				#return                        
-			print 'executing perch action'
-                        self.perched_flag = 1
-                        # static position publisher
-                        #TODO make 4 static pose publishers, for 4 docking stations
-                        self.staticPosPub = rospy.Publisher('/' + self.as_goal.object + '/position_static', NavSts, queue_size=1)
-                        print 'finished executing perch action ' + self.as_goal.object
+                        print 'executing perch action'
+                        if self.perched_count < 4:
+                            self.perched_flag = 1
+                            self.perched_count += 1
+                            # static position publisher
+                            #TODO make 4 static pose publishers, for 4 docking stations
+                            index = self.staticPosPub.index(None)
+                            self.staticPosPub[index] = rospy.Publisher('/' + self.as_goal.object + '/position_static', NavSts, queue_size=1)
+                            self.perchedObjects[index] = self.as_goal.object
+                            print 'finished executing perch action ' + self.as_goal.object
                         self.action_rec_flag = 0  # waiting for new action
                         self.as_res.status = 0
                         #self.perched_count+=1
                         self.action_server.set_succeeded(self.as_res)
 
                     elif self.as_goal.id == 2:
-			#if self.perched_count==4:
-				#return 
                         print 'executing release action'
-                        self.perched_flag = 0
+                        index = self.perchedObjects.index(self.as_goal.object)
+                        self.perchedObjects[index] = ''
+                        self.staticPosPub[index] = None
+                        self.perched_count -= 1
+                        if self.perched_count == 0:
+                            self.perched_flag = 0
                         msg = NavSts()
                         msg.position = NED(self.position.x + self.position_offset.x, self.position.y + self.position_offset.y, 0)
                         msg.status = 1 # status 1 -- the last static position, give control back to uvsim
@@ -246,11 +257,11 @@ class aPadActionServer:
 
             rospy.sleep(rospy.Duration(0.05))
 
-    def set_model_state(self, position):
+    def set_model_state(self, i, position):
 
         msg = NavSts()
         msg.position = position
-        self.staticPosPub.publish(msg)
+        self.staticPosPub[i].publish(msg)
 
     def position_cb(self, msg):    
         self.position.x = msg.position.north

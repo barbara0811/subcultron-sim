@@ -145,27 +145,27 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
             group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"apad" + str(first_index_pad + i + 1) + "/uwsim_hook"}))
     
             if "gpgp_agent" in simulationSpecFile:
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"GPGP_coordinator_aPad.py", "name":"coordinator", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aPad.py", "name":"task_assessor", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_executor_aPad.py", "name":"executor", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
-            	
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"GPGP_coordinator_aPad.py", "name":"coordinator", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aPad.py", "name":"task_assessor", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_executor_aPad.py", "name":"executor", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aP"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
+
             else:
-	            if outputToScreen:
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server", "output":"screen"}))
-	            else:	
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller"}))
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
-	            
+                if outputToScreen:
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server", "output":"screen"}))
+                else:	
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":controllerFile, "name":"scenario_controller"}))
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"apad", "type":"action_server.py", "name":"action_server"}))
+
             root.append(group)
 
     if "aFish" in agents:
@@ -199,24 +199,24 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
     
             if "gpgp_agent" in simulationSpecFile:
                 group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"GPGP_coordinator_aFish.py", "name":"coordinator", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aFish.py", "name":"task_assessor", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_executor_aFish.py", "name":"executor", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aFish.py", "name":"task_assessor", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_executor_aFish.py", "name":"executor", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aF"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
 
             else:
-	            if outputToScreen:
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
-	            else:   
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller"}))
+                if outputToScreen:
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+                else:   
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"afish", "type":controllerFile, "name":"scenario_controller"}))
             root.append(group)
-	
+
     if "aMussel" in agents:
         for i in range(n_mussel):
             name = 'amussel' + str(first_index_mussel + i + 1)
@@ -244,29 +244,26 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
             # Load visualization
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/visualization_standard.xml"}))
             group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"hook_sel", "value":"amussel" + str(first_index_mussel + i + 1) + "/uwsim_hook"}))
-    
-    		    
+       
             if "gpgp_agent" in simulationSpecFile:
                 group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"GPGP_coordinator_aMussel.py", "name":"coordinator", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aMussel.py", "name":"task_assessor", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_executor_aMussel.py", "name":"executor", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
-            	group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
-            	group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_assessor_aMussel.py", "name":"task_assessor", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent_subcultron", "type":"task_executor_aMussel.py", "name":"executor", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
+                group.append(xml.etree.ElementTree.Element("node", {"pkg":"gpgp_agent", "type":"DTC_scheduler.py", "name":"scheduler", "output":"screen"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"label", "value":"aM"}))
+                group[-1].append(xml.etree.ElementTree.Element("param", {"name":"pack", "value":"gpgp_agent_subcultron"}))
 
             else:
-	            #README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
-	            if outputToScreen:
-	                pass
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
-	            else:	
-	                pass
-	                group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller"}))
+                #README --> to run a different controller, instead of "controller_for_scenario_one.py" write the name of your function, for example "type":"my_new_controller_for_scenario_one.py" 
+                if outputToScreen:
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller", "output":"screen"}))
+                else:	
+                    group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller"}))
             
             root.append(group)  
        
@@ -406,17 +403,17 @@ if __name__ == "__main__":
     battery_mussel = []
 
     while len(battery_pad) < n_pad:
-    	battery_pad.append(uniform(70,100))
+        battery_pad.append(uniform(70,100))
 
     while len(battery_fish) < n_fish:
-    	battery_fish.append(uniform(40,100))
+        battery_fish.append(uniform(40,100))
 
-	while len(battery_mussel) < n_mussel:
-		battery_mussel.append(uniform(5,30))
+    while len(battery_mussel) < n_mussel:
+        battery_mussel.append(uniform(5,30))
 
-	print "battery pad " + str(battery_pad)    	
-	print "battery fish " + str(battery_fish)
-	print "battery mussel " + str(battery_mussel)
+    print "battery pad " + str(battery_pad)    	
+    print "battery fish " + str(battery_fish)
+    print "battery mussel " + str(battery_mussel)
     # write into scene specification file (swarm_test.xml)
     fileOut = open(rospack.get_path('subcultron_launch') + '/data/simulation/' + sceneSpecFile, 'w')
    
