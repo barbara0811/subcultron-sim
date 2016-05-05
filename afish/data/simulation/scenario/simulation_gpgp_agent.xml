@@ -125,6 +125,7 @@
 		type="battery_sensor_sim" 
 		name="battery_sensor_sim">
 
+		<param name="draining_factor" value="0" />
 		<param name="battery_level" value="$(arg battery_level)" />
 
     </node>
