@@ -28,6 +28,12 @@ For example,
 
 **2. Run the code:**
 
+- If this is the first time running this simulation, it is necessary to enable execution of uwsim_location_holder.py as a script. To do so, execute:
+
+> roscd subcultron_launch/src
+
+> chmod +x uwsim_location_holder.py
+
 - In separate terminals, run:
 
 > roscore
