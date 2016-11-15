@@ -11,15 +11,15 @@ import rospy
 
 ### PARAMETERS ###
 
-user = ""
-noiseActivationRate = 0.0
+user = "tamara"
+area = [[-15, 15], [-15, 15]]
 
-area = [30, 30]
+aFishNumber = 5
+aMusselNumber = 10
 
-n_fish = 5
-n_mussel = 10
+noiseActivationRate = 0.0  # seconds (noise activation rate)
 
-##########################
+#########################
 
 class ZetaLogger(object):
 
@@ -35,7 +35,8 @@ class ZetaLogger(object):
         self.afish4zetaSub = rospy.Subscriber('/afish4/zeta', zeta, self.afish4zeta_cb)
         self.afish5zetaSub = rospy.Subscriber('/afish5/zeta', zeta, self.afish5zeta_cb)
 
-        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(n_fish) + 'fsh_' + str(n_mussel) + 'mss_' + str(noiseActivationRate) + 'ns_' + str(area[0]) + 'x' + str(area[1]) + '/'
+        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(aFishNumber) + 'fsh_' + str(aMusselNumber) + 'mss_' + \
+                            str(noiseActivationRate) + 'ns_' + str(area[0][1]-area[0][0]) + 'x' + str(area[1][1]-area[1][0]) + '/';
 
         file = open(self.logs_folder + 'zeta.txt','w')
 
