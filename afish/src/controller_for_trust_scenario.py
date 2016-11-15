@@ -23,11 +23,11 @@ import numpy as np
 area = [[-20, 20], [-20, 20]]
 
 aFishList = []
-for i in range(5):
+for i in range(2):
     aFishList.append("/afish" + str(i + 1) + "/")
 
 aMusselList = []
-for i in range(5):
+for i in range(2):
     aMusselList.append("/amussel" + str(i + 1) + "/")
 
 class ScenarioController(object):
@@ -107,11 +107,7 @@ class ScenarioController(object):
         #f.write(str(self.position.north) + " " + str(self.position.east) + "\n")
            
     def start_cb(self, msg):
-        
-        battery = action_library.Battery()
-        print battery.get_level()
-        print "################"
-        return
+
         self.startTime = rospy.get_time()
         
         # enable and configure controllers

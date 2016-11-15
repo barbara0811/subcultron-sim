@@ -134,7 +134,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/devices/static_frames.xml"}))
             # Load the simulation
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/simulation/scenario/" + simulationSpecFile}))
-            group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"battery_level", "value": str(battery_pad[i])}))
+            #group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"battery_level", "value": str(battery_pad[i])}))
             
             # Load the controllers
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find apad)/data/control/control_standard.xml"}))
@@ -186,7 +186,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/devices/static_frames.xml"}))
             # Load the simulation
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/simulation/scenario/" + simulationSpecFile}))
-            group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"battery_level", "value": str(battery_fish[i])}))
+            #group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"battery_level", "value": str(battery_fish[i])}))
 
             # Load the controllers
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find afish)/data/control/control_standard.xml"}))
@@ -235,7 +235,7 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, battery_pad
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/devices/static_frames.xml"}))
             # Load the simulation
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/simulation/scenario/" + simulationSpecFile}))
-            group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"battery_level", "value": str(battery_mussel[i])}))
+            #group[-1].append(xml.etree.ElementTree.Element("arg", {"name":"battery_level", "value": str(battery_mussel[i])}))
 
             # Load the controllers
             group.append(xml.etree.ElementTree.Element("include", {"file":"$(find amussel)/data/control/control_standard.xml"}))
