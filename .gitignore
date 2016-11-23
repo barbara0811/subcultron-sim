@@ -1,0 +1,5 @@
+*.pyc
+subcultron_launch/data/simulation/swarm_test.xml
+subcultron_launch/launch/simulation/standard_simulation.launch
+subcultron_launch/src/uwsim_location_holder.py
+subcultron_launch/src/zeta_logger.py
