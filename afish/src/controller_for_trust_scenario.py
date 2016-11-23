@@ -131,7 +131,7 @@ class ScenarioController(object):
         rospy.Service('get_trust_info', GetTrustInfo, self.get_trust_info_srv)
         
         # open to overwrite file content -- used for path visualization
-        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(aFishNumber) + 'fsh_' + str(aMusselNumber) + 'mss_' + \
+        self.logs_folder = os.path.expanduser('~') + '/Desktop/logs_trust/' + str(aFishNumber) + 'fsh_' + str(aMusselNumber) + 'mss_' + \
                             str(noiseActivationRate) + 'ns_' + str(area[0][1]-area[0][0]) + 'x' + str(area[1][1]-area[1][0]) + '/';
         if not os.path.exists(self.logs_folder):
             os.makedirs(self.logs_folder)

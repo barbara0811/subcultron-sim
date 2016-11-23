@@ -8,6 +8,7 @@ def generate(fish, mussel, area_x, area_y):
     file.write("from misc_msgs.msg import zeta\n")
     file.write("from std_msgs.msg import Bool\n")
     file.write("import numpy as np\n")
+    file.write("import os\n")
     file.write("from math import sqrt, pow\n")
     file.write("import rospy\n\n")
 
@@ -32,7 +33,7 @@ def generate(fish, mussel, area_x, area_y):
         file.write("        self.afish" + str(i + 1) + "zetaSub = rospy.Subscriber('/afish" + str(i + 1) + "/zeta', zeta, self.afish" + str(i + 1) + "zeta_cb)\n")
     file.write("\n")
 
-    file.write("        self.logs_folder = '/home/' + user + '/Desktop/logs_trust/' + str(n_fish) + 'fsh_' + str(n_mussel) + 'mss_' + str(noiseActivationRate) + 'ns_' + str(area[0]) + 'x' + str(area[1]) + '/'\n\n")    
+    file.write("        self.logs_folder = os.path.expanduser('~') + '/Desktop/logs_trust/' + str(n_fish) + 'fsh_' + str(n_mussel) + 'mss_' + str(noiseActivationRate) + 'ns_' + str(area[0]) + 'x' + str(area[1]) + '/'\n\n")
     file.write("        file = open(self.logs_folder + 'zeta.txt','w')\n\n")
     file.write("        rospy.Subscriber('/scenario_start', Bool, self.start_cb)\n")
     file.write("        rospy.Timer(rospy.Duration(0.1), self.save_zeta)\n\n")
