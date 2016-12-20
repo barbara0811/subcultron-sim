@@ -1,4 +1,13 @@
-subCULTron project repository
+# subCULTron project simulator repository
+
+
+## Prerequisites
+
+## Quickstart
+
+### Building the code
+
+...
 
 *HOW TO DEFINE NEW SCENARIO STRUCTURES:*
 
