@@ -1,4 +1,4 @@
-subCULTron project trust scenario implementation.
+nsubCULTron project trust scenario implementation.
 
 **TO RUN:**
 
@@ -10,11 +10,23 @@ subCULTron project trust scenario implementation.
 
 - Prepare the simulation structures (has to be done only once for each configuration):
 
+- First way is to set simulation structure informations as arguments:
+
 >  python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] [north_min] [north_max] [east_min] [east_max]
 
 For example,
 
 >  python setup.py trust_scenario 0 5 10 0 0 0 -15 15 -15 15
+
+> source ../data/simulation/simulation_config.bash
+
+- Second way is to set simulation structure informations from file:
+
+>  python setup.py -f file_name
+
+For example, 
+
+> python setup.py -f setup_config.xml
 
 > source ../data/simulation/simulation_config.bash
 
