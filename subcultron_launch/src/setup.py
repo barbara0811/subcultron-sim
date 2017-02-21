@@ -6,17 +6,48 @@ Initializes ROS node for high level mission control.
 
 __author__ = "barbanas"
 
-import sys 
+import sys
 import rospy
 import rospkg
 from copy import deepcopy
 from random import uniform
 from auv_msgs.msg import NED
 import xml.etree.ElementTree
+import argparse
+import ast
 
 ########################################
 scenario = "docking_scenario"
 ########################################
+
+parser = argparse.ArgumentParser(description='Define setup parameters.')
+
+# find available simulation scenarios
+rospack = rospkg.RosPack()
+scenarioSpec = xml.etree.ElementTree.parse(rospack.get_path('subcultron_launch') + '/data/scenario/scenario_spec.xml').getroot()
+scenario_choices = []
+for child in scenarioSpec:
+    scenario_choices.append(child.find('name').text)
+
+parser.add_argument('scenario_name', help='Scenario name', choices=scenario_choices, nargs='?')
+parser.add_argument('apad_number', help='Number of aPad agents.', type=int, nargs='?')
+parser.add_argument('afish_number', help='Number of aFish agents.', type=int, nargs='?')
+parser.add_argument('amussel_number', help='Number of aMussel agents.', type=int, nargs='?')
+parser.add_argument('first_index_apad', help='aPad first index.', type=int, nargs='?')
+parser.add_argument('first_index_afish', help='aFish first index.', type=int, nargs='?')
+parser.add_argument('first_index_amussel', help='aMussel first index.', type=int, nargs='?')
+parser.add_argument('north_min', help='Minimum north position.', type=int, nargs='?')
+parser.add_argument('north_max', help='Maximum north position.', type=int, nargs='?')
+parser.add_argument('east_min', help='Minimum east position.', type=int, nargs='?')
+parser.add_argument('east_max', help='Maximum east position.', type=int, nargs='?')
+
+parser.add_argument('-f', '--file', help="Load from file. If file passed, there's no need for positional arguments.")
+
+args = parser.parse_args()
+if not args.file:
+    if None in (args.scenario_name, args.apad_number, args.afish_number, args.amussel_number):
+        parser.parse_args(['-h'])
+
 
 sceneSpecTemplate = "swarm_test_raw.xml"
 sceneSpecFile = "swarm_test.xml"
@@ -45,7 +76,8 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-            
+
+
 def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_fish, positions_fish, first_index_fish, n_mussel, positions_mussel, first_index_mussel):
     
       
@@ -118,7 +150,8 @@ def fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_
         tmp[-1].text = name
         
         root.find("rosInterfaces").append(tmp)
-        
+
+
 def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, positions_fish, first_index_fish, n_mussel, positions_mussel, first_index_mussel):
     
     if "aPad" in agents:
@@ -226,75 +259,110 @@ def fill_up_launch_file(root, n_pad, positions_pad, first_index_pad, n_fish, pos
                 pass
                 group.append(xml.etree.ElementTree.Element("node", {"pkg":"amussel", "type":controllerFile, "name":"scenario_controller"}))
             
-            root.append(group)  
-       
+            root.append(group)
+
 if __name__ == "__main__":
-    
-    if len(sys.argv) < 4:
-        print "USAGE: python setup.py scenario_name apad_number afish_number amussel_number [first_index_apad] [first_index_afish] [first_index_amussel] \n\
-        [north_min] [north_max] [east_min] [east_max]"
-        sys.exit(0)
-        
-    scenario = sys.argv[1]
-    
-    n_pad = int(sys.argv[2])
+
+    if args.file:
+        root = xml.etree.ElementTree.parse(args.file).getroot()
+        for child in root:
+            if child.tag == 'Scenario':
+                if child.text not in scenario_choices:
+                    raise Exception(
+                            'Defined scenario {0} in file {1} not valid. Choose scenario from: {2}'.format(
+                                child.text, args.file, scenario_choices
+                            )
+                        )
+                else:
+                    scenario = child.text
+            if child.tag == 'aPad':
+                for child2 in child:
+                    if child2.tag == 'Number':
+                        n_pad = int(child2.text)
+                    if child2.tag == 'FirstIndex':
+                        first_index_apad = int(child2.text)
+                    if child2.tag == 'Positions':
+                        apad_positions = ast.literal_eval(child2.text)
+            if child.tag == 'aFish':
+                for child2 in child:
+                    if child2.tag == 'Number':
+                        n_fish = int(child2.text)
+                    if child2.tag == 'FirstIndex':
+                        first_index_afish = int(child2.text)
+                    if child2.tag == 'Positions':
+                        afish_positions = ast.literal_eval(child2.text)
+            if child.tag == 'aMussel':
+                for child2 in child:
+                    if child2.tag == 'Number':
+                        n_mussel = int(child2.text)
+                    if child2.tag == 'FirstIndex':
+                        first_index_amussel = int(child2.text)
+                    if child2.tag == 'Positions':
+                        amussel_positions = ast.literal_eval(child2.text)
+    else:
+        scenario = args.scenario_name
+        n_pad = args.apad_number
+        n_fish = args.afish_number
+        n_mussel = args.amussel_number
+
+
     north_range_pad = [-100, 100]
     east_range_pad = [-100, 100]
     first_index_pad = 0
 
-    n_fish = int(sys.argv[3])
     north_range_fish = [-100, 100]
     east_range_fish = [-100, 100]
     first_index_fish = 0
-    
-    n_mussel = int(sys.argv[4])
+
     north_range_mussel = [-100, 100]
     east_range_mussel = [-100, 100]
     first_index_mussel = 0
-    
-    if len(sys.argv) >= 12:
-        east_range_pad[1] = east_range_fish[1] = east_range_mussel[1] = float(sys.argv[11])
-    if len(sys.argv) >= 11:
-        east_range_pad[0] = east_range_fish[0] = east_range_mussel[0] = float(sys.argv[10])
-    if len(sys.argv) >= 10:
-        north_range_pad[1] = north_range_fish[1] = north_range_mussel[1] = float(sys.argv[9])
-    if len(sys.argv) >= 9:
-        north_range_pad[0] = north_range_fish[0] = north_range_mussel[0] = float(sys.argv[8])
 
-    if len(sys.argv) >= 8:
-        first_index_mussel = int(sys.argv[7])
-    if len(sys.argv) >= 7:
-        first_index_fish = int(sys.argv[6])
-    if len(sys.argv) >= 6:
-        first_index_pad = int(sys.argv[5])
+    if not args.file:
+        if args.east_max is not None:
+            east_range_pad[1] = east_range_fish[1] = east_range_mussel[1] = args.east_max
+        if args.east_min is not None:
+            east_range_pad[0] = east_range_fish[0] = east_range_mussel[0] = args.east_min
+        if args.north_max is not None:
+            north_range_pad[1] = north_range_fish[1] = north_range_mussel[1] = args.north_max
+        if args.north_min is not None:
+            north_range_pad[0] = north_range_fish[0] = north_range_mussel[0] = args.north_min
+
+        if args.first_index_apad is not None:
+            first_index_mussel = args.first_index_apad
+        if args.first_index_afish is not None:
+            first_index_fish = args.first_index_afish
+        if args.first_index_amussel is not None:
+            first_index_pad = args.first_index_amussel
 
     rospack = rospkg.RosPack()
-    
-    scenarioSpec = xml.etree.ElementTree.parse(rospack.get_path('subcultron_launch') + '/data/scenario/scenario_spec.xml').getroot()
-    
+
+    scenarioSpec = xml.etree.ElementTree.parse(
+        rospack.get_path('subcultron_launch') + '/data/scenario/scenario_spec.xml').getroot()
+
     for child in scenarioSpec:
         if child.find('name').text == scenario:
             controllerFile = child.find('controllerFile').text
             simulationSpecFile = child.find('simulationXmlFile').text
             for ag in child.findall('agent'):
-                agents.append(ag.text) 
-                
-    print ""    
+                agents.append(ag.text)
+
+    print ""
     print "apad number"
     if "aPad" in agents:
-        print n_pad 
+        print n_pad
         print "north range"
         print north_range_pad
         print "east range"
         print east_range_pad
         print "first index"
-        print first_index_pad 
+        print first_index_pad
     else:
         print "0"
         n_pad = 0
-        
+
     print ""
-    print ""    
+    print ""
     print "afish number"
     if "aFish" in agents:
         print n_fish
@@ -303,28 +371,29 @@ if __name__ == "__main__":
         print "east range"
         print east_range_fish
         print "first index"
-        print first_index_fish  
+        print first_index_fish
     else:
         print "0"
         n_fish = 0
-    
+
     print ""
-    print ""    
+    print ""
     print "amussel number"
     if "aMussel" in agents:
-        print n_mussel 
+        print n_mussel
         print "north range"
         print north_range_mussel
         print "east range"
         print east_range_mussel
         print "first index"
-        print first_index_mussel 
+        print first_index_mussel
     else:
-        print "0" 
+        print "0"
         n_mussel = 0
     print ""
-    
+
     print "Scenario: " + scenario
+
     # generate random positions  
     positions_pad = []
     posID_pad = []
@@ -334,32 +403,53 @@ if __name__ == "__main__":
        
     positions_mussel = []
     posID_mussel = []
-    
+
+    index = 0
     while len(positions_pad) < n_pad:
-        north = uniform(north_range_pad[0], north_range_pad[1])
-        east = uniform(east_range_pad[0], east_range_pad[1])
+        if not args.file:
+            north = uniform(north_range_pad[0], north_range_pad[1])
+            east = uniform(east_range_pad[0], east_range_pad[1])
+        else:
+            north = apad_positions[index][0]
+            east = apad_positions[index][1]
         tmp = '%.2f%.2f' % (north, east)
         if tmp not in posID_pad:
             posID_pad.append(tmp)
             positions_pad.append(NED(north, east, 0))
-    
+        index += 1
+
+    index = 0
     while len(positions_fish) < n_fish:
-        north = uniform(north_range_fish[0], north_range_fish[1])
-        east = uniform(east_range_fish[0], east_range_fish[1])
+        if not args.file:
+            north = uniform(north_range_fish[0], north_range_fish[1])
+            east = uniform(east_range_fish[0], east_range_fish[1])
+        else:
+            north = afish_positions[index][0]
+            east = afish_positions[index][1]
         tmp = '%.2f%.2f' % (north, east)
+        print tmp
         if tmp not in posID_pad:
             posID_pad.append(tmp)
             positions_fish.append(NED(north, east, 0))
+        index += 1
 
+    index = 0
     while len(positions_mussel) < n_mussel:
-        north = uniform(north_range_mussel[0], north_range_mussel[1])
-        east = uniform(east_range_mussel[0], east_range_mussel[1])
+        if not args.file:
+            north = uniform(north_range_mussel[0], north_range_mussel[1])
+            east = uniform(east_range_mussel[0], east_range_mussel[1])
+        else:
+            north = amussel_positions[index][0]
+            east = amussel_positions[index][1]
         tmp = '%.2f%.2f' % (north, east)
         if tmp not in posID_mussel:
             posID_mussel.append(tmp)
             positions_mussel.append(NED(north, east, 0))
+        index += 1
     
     # write into scene specification file (swarm_test.xml)
+
+
     fileOut = open(rospack.get_path('subcultron_launch') + '/data/simulation/' + sceneSpecFile, 'w')
    
     # remove file content
@@ -370,8 +460,30 @@ if __name__ == "__main__":
     
     tree = xml.etree.ElementTree.parse(rospack.get_path('subcultron_launch') + '/data/simulation/' + sceneSpecTemplate)
     root = tree.getroot()
+
+    print '\n root: ', root
+    print '\n n_pad: ', n_pad
+    print '\n positions_pad: ', positions_pad
+    print '\n first_index_pad: ', first_index_pad
+    print '\n n_fish: ', n_fish
+    print '\n positions_fish: ', positions_fish
+    print '\n first_index_fish: ', first_index_fish
+    print '\n n_mussel: ', n_mussel
+    print '\n positions_mussel: ', positions_mussel
+    print '\n first_index_mussel: ', first_index_mussel
     
-    fill_up_simulation_spec_file(root, n_pad, positions_pad, first_index_pad, n_fish, positions_fish, first_index_fish, n_mussel, positions_mussel, first_index_mussel)
+    fill_up_simulation_spec_file(
+        root,
+        n_pad,
+        positions_pad,
+        first_index_pad,
+        n_fish,
+        positions_fish,
+        first_index_fish,
+        n_mussel,
+        positions_mussel,
+        first_index_mussel
+    )
     
     indent(root)
     tree.write(fileOut)
@@ -400,4 +512,5 @@ if __name__ == "__main__":
 
     import zeta_logger_generator 
     zeta_logger_generator.generate(n_fish, n_mussel, east_range_mussel[1] - east_range_mussel[0], north_range_mussel[1] - north_range_mussel[0])
-        
+
+
