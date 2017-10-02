@@ -49,7 +49,7 @@ using namespace std;
 
 // ---------------------------------------------------------------------------
 
-double time_scale = 2.0;
+double time_scale = 0.4;
 
 void onTimeScale(const typename std_msgs::Float64::ConstPtr& msg)
 {
